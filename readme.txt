@@ -13,7 +13,7 @@ This plugin makes it easy to customize Admin Columns for your Posts, Pages and C
 
 This plugin let's you visually customize the Admin Columns. You can add or remove columns, change their label and reorder them.
 
-=Additional Columns=
+= Additional Columns =
 
 The following added columns are supported:
 
@@ -29,7 +29,7 @@ The following added columns are supported:
 * Sticky
 * Custom Fields
 
-=Custom Fields=
+= Custom Fields =
 
 With the custom field column you can display custom field values. It will show the value as a default. You can also set your own type:
 
@@ -38,7 +38,7 @@ With the custom field column you can display custom field values. It will show t
 * Excerpt
 * Multiple Values
 
-=Sortable Admin Columns=
+= Sortable Admin Columns =
 
 A nice feature is that it will make some of the new columns support sorting. By default WordPress let's you sort by Title, Date, Comments and Author. This will make you be able to sort by:
 
