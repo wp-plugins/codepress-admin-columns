@@ -47,7 +47,7 @@ A nice feature is that it will make some of the new columns support sorting. By 
 * slug 
 * page template
 
-I will be adding more in coming releases. You can leave any requests or feedback.
+I will be adding more in coming releases. You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns/#feedback'>requests or feedback</a>.
 
 **Related Links:**
 
@@ -56,7 +56,7 @@ I will be adding more in coming releases. You can leave any requests or feedback
 == Installation ==
 
 1. Upload codepress-admin-columns to the /wp-content/plugins/ directory
-2. Activate Codepress Admin Columns through the ‘Plugins’ menu in WordPress
+2. Activate Codepress Admin Columns through the 'Plugins' menu in WordPress
 3. Configure the plugin by going to the Admin Column settings that appears under the Settings menu.
 
 
@@ -65,7 +65,7 @@ I will be adding more in coming releases. You can leave any requests or feedback
 = I have an idea for a great way to improve this plugin =
 
 Great! I'd love to hear from you.
-Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns/#feedback.
+Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#feedback.
 
 == Screenshots ==
 
