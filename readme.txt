@@ -3,19 +3,19 @@ Contributors: codepress, tschutter
 Tags: plugins, wordpress, admin, column, columns, dashboard, sortable, filters, wp-admin
 Requires at least: 3.1
 Tested up to: 3.2.1
-Stable tag: 1.0
+Stable tag: 1.1
 
 == Description ==
 
-This plugin makes it easy to customize Admin Columns for your Posts, Pages and Custom Post Type Screens. 
+This plugin makes it easy to Manage Custom Columns for your Posts, Pages and Custom Post Type Screens. 
 
 = Intro = 
 
 This plugin let's you visually customize the Admin Columns. You can add or remove columns, change their label and reorder them.
 
-= Additional Columns =
+= Custom Columns =
 
-The following added columns are supported:
+The following custom columns are supported:
 
 * Featured Image
 * Excerpt
@@ -33,12 +33,13 @@ The following added columns are supported:
 
 With the custom field column you can display custom field values. It will show the value as a default. You can also set your own type:
 
-* Icons for Media Library items
 * Image thumbnails
+* Icons for Media Library items
 * Excerpt
 * Multiple Values
+* Numeric
 
-= Sortable Admin Columns =
+= Sortable Custom Columns =
 
 A nice feature is that it will make some of the new columns support sorting. By default WordPress let's you sort by Title, Date, Comments and Author. This will make you be able to sort by:
 
@@ -46,8 +47,19 @@ A nice feature is that it will make some of the new columns support sorting. By 
 * page order
 * slug 
 * page template
+* custom fields
 
-I will be adding more in coming releases. You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns/#feedback'>requests or feedback</a>.
+= User Columns =
+
+You can also change the User Columns. I have added a few additional custom columns:
+
+* User ID
+* First name
+* Last name
+* Url
+* Register date
+
+I will be adding more in coming releases. You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns#feedback'>requests or feedback</a>.
 
 **Related Links:**
 
@@ -69,11 +81,20 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 
 == Screenshots ==
 
-1. Settings page of the Codepress Admin columns plugin.
-2. Options for the Custom Field Column.
-3. Posts Screen with custom columns.
+1. Posts Screen with custom columns.
+2. Settings page of the Codepress Admin columns plugin.
+3. Options for the Custom Field Column.
 
 == Changelog ==
+
+= 1.1 =
+
+* Added User Columns.
+* Added before / after text for custom fields
+* Added custom field type 'Numeric'.
+* Added custom field sortables.
+* Fixed domain path
+* Fixed settings link
 
 = 1.0 =
 
