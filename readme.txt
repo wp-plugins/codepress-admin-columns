@@ -3,7 +3,7 @@ Contributors: codepress, tschutter
 Tags: plugins, wordpress, admin, column, columns, dashboard, sortable, filters, wp-admin
 Requires at least: 3.1
 Tested up to: 3.2.1
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 
 == Description ==
 
@@ -86,6 +86,10 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 3. Options for the Custom Field Column.
 
 == Changelog ==
+
+= 1.1.2 =
+
+* added dutch translation
 
 = 1.1.1 =
 

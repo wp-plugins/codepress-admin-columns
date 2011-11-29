@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.1.1
+Version: 			1.1.2
 Description: 		This plugin makes it easy to Manage Custom Columns for your Posts, Pages and Custom Post Type Screens.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', '1.1.1' );
+define( 'CPAC_VERSION', '1.1.2' );
 
 /**
  * Init Class
