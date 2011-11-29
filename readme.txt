@@ -87,6 +87,11 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 
 == Changelog ==
 
+= 1.1.1 =
+
+* Bug fix: path separator for require_once
+* Added word count
+
 = 1.1 =
 
 * Added User Columns.
