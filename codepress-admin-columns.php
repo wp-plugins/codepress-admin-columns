@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.1
+Version: 			1.1.1
 Description: 		This plugin makes it easy to Manage Custom Columns for your Posts, Pages and Custom Post Type Screens.
-Author: 			Tobias Schutter
+Author: 			Codepress
 Author URI: 		http://www.codepress.nl
 Plugin URI: 		http://www.codepress.nl/plugins/codepress-admin-columns/
 Text Domain: 		codepress-admin-columns
@@ -776,6 +776,11 @@ class Codepress_Admin_Columns
 				$result = get_post($post_id)->post_name;			
 				break;
 			
+			// Slug
+			case "column-word-count" :
+				$result = str_word_count( strip_tags( get_post($post_id)->post_content ) );
+				break;
+			
 			// Taxonomy
 			case "column-taxonomy" :
 				$tax 	= str_replace('column-taxonomy-', '', $column_name);
@@ -1001,9 +1006,9 @@ class Codepress_Admin_Columns
 	private function get_wp_default_posts_columns($post_type = 'post') 
 	{
 		// load some dependencies
-		require_once(ABSPATH . 'wp-admin\includes\template.php');
-		require_once(ABSPATH . 'wp-admin\includes\class-wp-list-table.php');
-		require_once(ABSPATH . 'wp-admin\includes\class-wp-posts-list-table.php');
+		require_once(ABSPATH . 'wp-admin/includes/template.php');
+		require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
+		require_once(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php');
 		
 		// we need to change the current screen
 		global $current_screen;
@@ -1034,8 +1039,8 @@ class Codepress_Admin_Columns
 	 */
 	private function get_wp_default_users_columns()
 	{
-		require_once(ABSPATH . 'wp-admin\includes\class-wp-list-table.php');
-		require_once(ABSPATH . 'wp-admin\includes\class-wp-users-list-table.php');
+		require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
+		require_once(ABSPATH . 'wp-admin/includes/class-wp-users-list-table.php');
 		
 		// turn off site users
 		$this->is_site_users = false;
@@ -1185,6 +1190,14 @@ class Codepress_Admin_Columns
 			'options'		=> array(
 				'type_label' 	=> __('Slug', $this->textdomain),
 				'sortorder'		=> 'on',
+			)
+		);
+		
+		// Word count support
+		$custom_columns['column-word-count'] = array(
+			'label'			=> __('Word count', $this->textdomain),		
+			'options'		=> array(
+				'type_label' 	=> __('Word count', $this->textdomain),
 			)
 		);
 		
@@ -1640,7 +1653,7 @@ class Codepress_Admin_Columns
 								<span><?php _e('Need support?', $this->textdomain) ?></span>
 							</h3>
 							<div class="inside">
-								<p><?php printf(__('If you are having problems with this plugin, please talk about them in the <a href="%s">Support forums</a>.', $this->textdomain), 'http://wordpress.org/tags/codepress-admin-columns' );?></p>
+								<p><?php printf(__('If you are having problems with this plugin, please talk about them in the <a href="%s">Support forums</a> or send me an email %s.', $this->textdomain), 'http://wordpress.org/tags/codepress-admin-columns', '<a href="mailto:info@codepress.nl">info@codepress.nl</a>' );?></p>
 								<p><?php printf(__("If you're sure you've found a bug, or have a feature request, please <a href='%s'>submit your feedback</a>.", $this->textdomain), 'http://www.codepress.nl/plugins/codepress-admin-columns#feedback');?></p>
 							</div>
 						</div><!-- side-cpac-settings -->
