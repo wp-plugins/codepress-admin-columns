@@ -2,7 +2,7 @@
 /*
 Plugin Name: 		Codepress Admin Columns
 Version: 			1.1.2
-Description: 		This plugin makes it easy to Manage Custom Columns for your Posts, Pages and Custom Post Type Screens.
+Description: 		This plugin makes it easy to Manage Custom Columns for your posts, pages, users and custom post type Screens.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
 Plugin URI: 		http://www.codepress.nl/plugins/codepress-admin-columns/
