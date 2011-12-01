@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.1.2
-Description: 		This plugin makes it easy to Manage Custom Columns for your posts, pages, users and custom post type Screens.
+Version: 			1.1.3
+Description: 		This plugin makes it easy to Manage Custom Columns for your Posts, Pages and Custom Post Type Screens.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
 Plugin URI: 		http://www.codepress.nl/plugins/codepress-admin-columns/
@@ -26,14 +26,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', '1.1.2' );
+define( 'CPAC_VERSION', '1.1.3' );
 
 /**
  * Init Class
  *
  * @since     1.0
  */
-$cpac = new Codepress_Admin_Columns;
+new Codepress_Admin_Columns();
 
 /**
  * Advanced Admin Columns Class
@@ -613,7 +613,7 @@ class Codepress_Admin_Columns
 	}
 
 	/**
-	 * Save geocode coordinates of focus location.
+	 * Optional callback.
 	 *
 	 * @since     1.0
 	 */
@@ -1006,9 +1006,14 @@ class Codepress_Admin_Columns
 	private function get_wp_default_posts_columns($post_type = 'post') 
 	{
 		// load some dependencies
-		require_once(ABSPATH . 'wp-admin/includes/template.php');
-		require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
-		require_once(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php');
+		if ( file_exists(ABSPATH . 'wp-admin/includes/template.php') )
+			require_once(ABSPATH . 'wp-admin/includes/template.php');
+		if ( file_exists(ABSPATH . 'wp-admin/includes/screen.php') )
+			require_once(ABSPATH . 'wp-admin/includes/screen.php');
+		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php') )
+			require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
+		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php') )
+			require_once(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php');
 		
 		// we need to change the current screen
 		global $current_screen;
@@ -1645,8 +1650,23 @@ class Codepress_Admin_Columns
 			
 			<div class="postbox-container" style="width:20%;">
 				<div class="metabox-holder">	
-					<div class="meta-box-sortables">
-					
+					<div class="meta-box-sortables">						
+						
+						<div id="likethisplugin-cpac-settings" class="postbox">
+							<div title="Click to toggle" class="handlediv"><br></div>
+							<h3 class="hndle">
+								<span><?php _e('Like this plugin?', $this->textdomain) ?></span>
+							</h3>
+							<div class="inside">
+								<p><?php _e('Why not do any or all of the following', $this->textdomain) ?>:</p>
+								<ul>
+									<li><a href="http://www.codepress.nl/plugins/codepress-admin-columns/"><?php _e('Link to it so other folks can find out about it.', $this->textdomain) ?></a></li>
+									<li><a href="http://wordpress.org/extend/plugins/codepress-admin-columns/"><?php _e('Give it a 5 star rating on WordPress.org.', $this->textdomain) ?></a></li>
+									<li class="donate_link"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZDZRSYLQ4Z76J"><?php _e('Donate a token of your appreciation.', $this->textdomain) ?></a></li>
+								</ul>								
+							</div>
+						</div><!-- likethisplugin-cpac-settings -->
+						
 						<div id="side-cpac-settings" class="postbox">
 							<div title="Click to toggle" class="handlediv"><br></div>
 							<h3 class="hndle">

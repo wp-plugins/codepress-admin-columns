@@ -3,7 +3,7 @@ Contributors: codepress, tschutter
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, wp-admin
 Requires at least: 3.1
 Tested up to: 3.2.1
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 
 == Description ==
 
@@ -49,7 +49,7 @@ A nice feature is that it will make some of the new columns support sorting. By 
 
 = User Columns =
 
-You can also change the User Columns. I have added a few additional custom columns:
+You can also change the User Columns. We have added a few additional custom columns:
 
 * User ID
 * First name
@@ -57,7 +57,7 @@ You can also change the User Columns. I have added a few additional custom colum
 * Url
 * Register date
 
-I will be adding more in coming releases. You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns#feedback'>requests or feedback</a>.
+We will be adding more in coming releases. You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns#feedback'>requests or feedback</a>.
 
 **Related Links:**
 
@@ -84,6 +84,10 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 3. Options for the Custom Field Column.
 
 == Changelog ==
+
+= 1.1.3 =
+
+* added bug fix for WP3.3beta ( thanks to raonip and ronbme for pointing this out )
 
 = 1.1.2 =
 
