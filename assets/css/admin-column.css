@@ -1,4 +1,3 @@
-#general-cpac-settings {}
 #cpac .postbox {
 	margin: 0 10px 10px 0;
 }
@@ -109,7 +108,7 @@
 	display: block;
 	margin-right: 30px;
 	overflow: hidden;
-	height: 15px;
+	height: 17px;
 }
 #general-cpac-settings .cpac-option-list li .cpac-type-options input {
 	margin-top: 6px;
@@ -206,4 +205,24 @@
 }
 #restore-cpac-settings .inside .description {
     color: #832525;
+}
+#likethisplugin-cpac-settings {
+	padding: 0 0 10px;
+}
+#likethisplugin-cpac-settings ul {
+	margin-left: 20px;
+}
+#likethisplugin-cpac-settings li {
+	list-style: square;
+	line-height: 16px;
+}
+#likethisplugin-cpac-settings li a {
+	text-decoration: none;
+}
+#likethisplugin-cpac-settings li.donate_link a {
+	color: green;
+	text-decoration: underline;
+}
+#likethisplugin-cpac-settings li.donate_link a:hover {
+	color: darkgreen;
 }
