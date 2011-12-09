@@ -3,7 +3,7 @@ Contributors: codepress, tschutter
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, wp-admin
 Requires at least: 3.1
 Tested up to: 3.3-RC1
-Stable tag: 1.2
+Stable tag: 1.2.1
 
 == Description ==
 
