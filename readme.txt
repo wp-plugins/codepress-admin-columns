@@ -26,6 +26,7 @@ The following custom columns are added:
 * Slug
 * Sticky
 * Word count
+* Number of Attachments
 * Custom Fields
 
 = Custom Fields =
@@ -46,11 +47,13 @@ A nice feature is that it will make some of the new columns support sorting. By 
 * page order
 * slug 
 * page template
+* word count
+* attachment count
 * custom fields ( both meta_value and meta_value_num are supported )
 
 = User Columns =
 
-You can also change the User Columns. The following user column are added:
+You can also change the User Columns. The following user columns are added:
 
 * User ID
 * First name
@@ -67,7 +70,7 @@ Some of the user custom fields that are included: user level, capabilities, admi
 
 It will work nice with other plugins and support their additional custom columns. A few examples of plugins that are supported: WordPress SEO by Yoast (Robots Meta), Post Admin Shortcuts (Pin), WP Show IDs (ID) and User Access Manager (Access).
 
-**Feeback**
+**Feedback**
 
 You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns#feedback'>requests or feedback</a>.
 
@@ -96,6 +99,15 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 3. Options for the Custom Field Column.
 
 == Changelog ==
+
+= 1.2.1 =
+
+* added word count sorting
+* added attachment count sorting
+* added template name sorting
+* minor styling changes
+* bug fix with sorting by slug
+* bug fix with sorting by attachment
 
 = 1.2 =
 

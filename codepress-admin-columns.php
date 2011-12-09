@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.2
+Version: 			1.2.1
 Description: 		This plugin makes it easy to Manage Custom Columns for your Posts, Pages and Custom Post Type Screens.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', '1.2' );
+define( 'CPAC_VERSION', '1.2.1' );
 
 /**
  * Init Class
@@ -44,8 +44,6 @@ new Codepress_Admin_Columns();
 class Codepress_Admin_Columns 
 {	
 	private $post_types, 
-			$options, 
-			$options_default, 
 			$slug,
 			$textdomain,
 			$excerpt_length;
@@ -72,11 +70,9 @@ class Codepress_Admin_Columns
 		// vars
 		$this->post_types 		= $this->get_post_types();
 
-		// slug
+		// set
 		$this->slug				= 'codepress-admin-columns';
 		$this->textdomain		= 'codepress-admin-columns';
-		
-		// set excerpt length
 		$this->excerpt_length	= 100;
 		
 		// translations
@@ -95,10 +91,10 @@ class Codepress_Admin_Columns
 		add_action( 'admin_init', array( &$this, 'handle_requests' ), 1000 ); 
 		
 		// filters		
-		add_filter( 'request', array( &$this, 'handle_requests_orderby_column') );
-		add_filter( 'plugin_action_links',  array( &$this, 'add_settings_link'), 1, 2);
+		add_filter( 'request', array( &$this, 'handle_requests_orderby_column') );		
+		add_filter( 'plugin_action_links',  array( &$this, 'add_settings_link'), 1, 2);		
 	}
-
+	
 	/**
 	 * Admin Menu.
 	 *
@@ -292,7 +288,7 @@ class Codepress_Admin_Columns
 					{$list}			
 				</ul>
 				{$button_add_column}
-				<div class='cpac-reorder-msg'></div>		
+				<div class='cpac-reorder-msg'>" . __('drag and drop to reorder', $this->textdomain) . "</div>		
 			</div>
 			";
 	}
@@ -825,10 +821,9 @@ class Codepress_Admin_Columns
 			case "column-page-template" :
 				// file name
 				$page_template 	= get_post_meta($post_id, '_wp_page_template', true);			
-				// all page templates
-				$templates 		= get_page_templates();
-				// template name
-				$result = array_search($page_template, $templates);			
+
+				// get template nice name
+				$result = array_search($page_template, get_page_templates());			
 				break;
 			
 			// Slug
@@ -865,6 +860,11 @@ class Codepress_Admin_Columns
 			// Attachment
 			case "column-attachment" :
 				$result = $this->get_column_value_attachments($post_id);
+				break;
+				
+			// Attachment count
+			case "column-attachment-count" :
+				$result = count($this->get_attachment_ids($post_id));
 				break;
 			
 			default :
@@ -955,19 +955,30 @@ class Codepress_Admin_Columns
 	 */
 	private function get_column_value_attachments( $post_id ) 
 	{
-		$result = '';
-		$attachments = get_posts(array(
-			'post_type' 	=> 'attachment',
-			'numberposts' 	=> -1,
-			'post_status' 	=> null,
-			'post_parent' 	=> $post_id
-		));
-		if ( $attachments ) {
-			foreach ( $attachments as $attach ) {
-				$result .= wp_get_attachment_image( $attach->ID, array(80,80), true );
+		$result 	 	= '';
+		$attachment_ids = $this->get_attachment_ids($post_id);
+		if ( $attachment_ids ) {
+			foreach ( $attachment_ids as $attach_id ) {
+				$result .= wp_get_attachment_image( $attach_id, array(80,80), true );
 			}
 		}
 		return $result;
+	}
+	
+	/**
+	 *	Get column value of post attachments
+	 *
+	 * 	@since     1.2.1
+	 */
+	private function get_attachment_ids( $post_id ) 
+	{
+		return get_posts(array(
+			'post_type' 	=> 'attachment',
+			'numberposts' 	=> -1,
+			'post_status' 	=> null,
+			'post_parent' 	=> $post_id,
+			'fields' 		=> 'ids'
+		));
 	}
 	
 	/**
@@ -1147,13 +1158,16 @@ class Codepress_Admin_Columns
 	 */
 	private function get_wp_default_posts_columns($post_type = 'post') 
 	{
-		// load dependencies		
-		// deprecated sinces wp3.3
+		// load dependencies
+		
+		// deprecated as of wp3.3
 		if ( file_exists(ABSPATH . 'wp-admin/includes/template.php') )
 			require_once(ABSPATH . 'wp-admin/includes/template.php');
+			
 		// introduced since wp3.3
 		if ( file_exists(ABSPATH . 'wp-admin/includes/screen.php') )
 			require_once(ABSPATH . 'wp-admin/includes/screen.php');
+			
 		// used for getting columns
 		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php') )
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
@@ -1351,6 +1365,7 @@ class Codepress_Admin_Columns
 			'label'			=> __('Word count', $this->textdomain),		
 			'options'		=> array(
 				'type_label' 	=> __('Word count', $this->textdomain),
+				'sortorder'		=> 'on'
 			)
 		);
 		
@@ -1359,7 +1374,16 @@ class Codepress_Admin_Columns
 			'label'			=> __('Attachment', $this->textdomain),
 			'options'		=> array(
 				'type_label' 	=> __('Attachment', $this->textdomain),
-				'sortorder'		=> 'on',
+				'sortorder'		=> 'on'
+			)
+		);
+		
+		// Attachment count support
+		$custom_columns['column-attachment-count'] = array(
+			'label'			=> __('No. of Attachments', $this->textdomain),
+			'options'		=> array(
+				'type_label' 	=> __('No. of Attachments', $this->textdomain),
+				'sortorder'		=> 'on'
 			)
 		);
 		
@@ -1614,36 +1638,126 @@ class Codepress_Admin_Columns
 	 */
 	public function handle_requests_orderby_column( $vars ) 
 	{
-		if ( isset( $vars['orderby'] ) ) {						
-			$column = $this->get_orderby_type( $vars['orderby'], $vars['post_type'] );
+		if ( ! isset( $vars['orderby'] ) )
+			return $vars;
 			
-			if ( $column ) {
-				$id = key($column);
-				
-				// Page Order
-				if ( $id == 'column-order' ) {
-					$vars['orderby'] = 'menu_order';
-				}
-				
-				// Custom Fields
-				if ( $this->is_column_meta($id) ) {
-					$field 		= $column[$id]['field'];
-					
-					// orderby type
-					$field_type = 'meta_value';
-					if ( $column[$id]['field_type'] == 'numeric' || $column[$id]['field_type'] == 'library_id' )
-						$field_type = 'meta_value_num';
-					
-					// set vars
-					$vars = array_merge( $vars, array(
-						'meta_key' 	=> $field,
-						'orderby' 	=> $field_type
-					) );
-				}
+		$column = $this->get_orderby_type( $vars['orderby'], $vars['post_type'] );
+		
+		$post_type = !empty($vars['post_type']) ? $vars['post_type'] : '';
+		
+		if ( $column ) {
+			$id = key($column);
+			
+			// Page Order
+			if ( $id == 'column-order' ) {
+				$vars['orderby'] = 'menu_order';
 			}
-		} 
+						
+			// Custom Fields
+			if ( $this->is_column_meta($id) ) {
+				$field 		= $column[$id]['field'];
+				
+				// orderby type
+				$field_type = 'meta_value';
+				if ( $column[$id]['field_type'] == 'numeric' || $column[$id]['field_type'] == 'library_id' )
+					$field_type = 'meta_value_num';
+				
+				// set vars
+				$vars = array_merge( $vars, array(
+					'meta_key' 	=> $field,
+					'orderby' 	=> $field_type
+				) );
+			}
+			
+			// Wordcount
+			if ( $id == 'column-word-count' ) {				
+				// add wordcount to the post ids
+				$wordcount_posts = array();
+				foreach ( (array) $this->get_any_posts_by_posttype($post_type) as $p ) {					
+					$wordcount_posts[$p->ID] = str_word_count( strip_tags( $p->post_content ) );
+				}
+				
+				// we will add the sorted post ids to vars['post__in'] and remove unused vars
+				$this->set_vars_post__in( &$vars, $wordcount_posts, SORT_NUMERIC );
+			}
+			
+			// Page Template
+			if ( $id == 'column-page-template' ) {				
+				// add template filename to the post ids
+				$template_posts = array();
+				$templates 		= get_page_templates();
+				foreach ( (array) $this->get_any_posts_by_posttype($post_type) as $p ) {					
+					$page_template = get_post_meta($p->ID, '_wp_page_template', true);
+					$template_posts[$p->ID] = array_search($page_template, $templates);
+				}
+				$this->set_vars_post__in( &$vars, $template_posts );
+			}
+			
+			// Attachments
+			if ( $id == 'column-attachment' || $id == 'column-attachment-count' ) {		
+				// add number of attachment to the post ids
+				$attachment_posts = array();
+				foreach ( (array) $this->get_any_posts_by_posttype($post_type) as $p ) {					
+					$attachment_posts[$p->ID] = count( $this->get_attachment_ids($p->ID) );
+				}
+				$this->set_vars_post__in( &$vars, $attachment_posts, SORT_NUMERIC );
+			}
+			
+			
+			// Slug
+			if ( $id == 'column-page-slug' ) {				
+				// add slug to the post ids
+				$slug_posts = array();
+				foreach ( (array) $this->get_any_posts_by_posttype($post_type) as $p ) {					
+					$slug_posts[$p->ID] = $p->post_name;
+				}
+				$this->set_vars_post__in( &$vars, $slug_posts );
+			}
+		}
+		
 		return $vars;
-	}	
+	}
+	
+	/**
+	 * Set post__in for use in WP_Query
+	 *
+	 * This will order the ID's asc or desc and set the appropriate filters.
+	 *
+	 * @since     1.2.1
+	 */
+	private function set_vars_post__in( &$vars, $sortposts, $sort_flags = SORT_REGULAR )
+	{
+		// sort post ids by value
+		if ( $vars['order'] == 'asc' )
+			asort($sortposts, $sort_flags);
+		else
+			arsort($sortposts, $sort_flags);
+		
+		// this will make sure WP_Query will use the order of the ids that we have just set in 'post__in'
+		add_filter('posts_orderby', array( &$this, 'filter_orderby_post__in'), 10, 2 );
+		
+		// cleanup the vars we dont need
+		$vars['order']		= '';
+		$vars['orderby'] 	= '';
+		
+		// add the sorted post ids to the query with the use of post__in
+		$vars['post__in'] = array_keys($sortposts);
+	}
+	
+	/**
+	 * Get any posts by post_type
+	 *
+	 * @since     1.2.1
+	 */
+	private function get_any_posts_by_posttype( $post_type )
+	{
+		$allposts = get_posts(array(
+			'numberposts'	=> -1,
+			'post_status'	=> 'any',
+			'post_type'		=> $post_type
+		));
+		return $allposts;		
+	}
 
 	/**
 	 * Get orderby type
@@ -1665,6 +1779,30 @@ class Codepress_Admin_Columns
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Maintain order of ids that are set in the post__in var. 
+	 *
+	 * This will force the returned posts to use the order of the ID's that 
+	 * have been set in post__in. Without this the ID's will be set in numeric order.
+	 * See the WP_Query object for more info about the use of post__in.
+	 *
+	 * @since     1.2.1
+	 */
+	public function filter_orderby_post__in($orderby, $wp) 
+	{
+		global $wpdb;
+
+		// we need the query vars
+		$vars = $wp->query_vars;		
+		if ( ! empty ( $vars['post__in'] ) ) {			
+			// now we can get the ids
+			$ids = implode(',', $vars['post__in']);
+			
+			// by adding FIELD to the SQL query we are forcing the order of the ID's
+			return "FIELD ({$wpdb->prefix}posts.ID,{$ids})";
+		}
 	}
 	
 	/**
