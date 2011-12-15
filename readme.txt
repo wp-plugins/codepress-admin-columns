@@ -2,7 +2,7 @@
 Contributors: codepress, tschutter
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, wp-admin
 Requires at least: 3.1
-Tested up to: 3.3-RC1
+Tested up to: 3.3
 Stable tag: 1.2.1
 
 == Description ==
@@ -65,7 +65,6 @@ You can also change the User Columns. The following user columns are added:
 
 Some of the user custom fields that are included: user level, capabilities, admin color, nickname... many more.
 
-
 = Third party plugin support =
 
 It will work nice with other plugins and support their additional custom columns. A few examples of plugins that are supported: WordPress SEO by Yoast (Robots Meta), Post Admin Shortcuts (Pin), WP Show IDs (ID) and User Access Manager (Access).
@@ -83,7 +82,6 @@ You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-colum
 1. Upload codepress-admin-columns to the /wp-content/plugins/ directory
 2. Activate Codepress Admin Columns through the 'Plugins' menu in WordPress
 3. Configure the plugin by going to the Admin Column settings that appears under the Settings menu.
-
 
 == Frequently Asked Questions ==
 
