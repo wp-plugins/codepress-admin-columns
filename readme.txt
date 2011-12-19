@@ -1,17 +1,17 @@
 === Codepress Admin Columns ===
 Contributors: codepress, tschutter
-Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, wp-admin
+Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
 Tested up to: 3.3
-Stable tag: 1.2.1
+Stable tag: 1.3
 
 == Description ==
 
-Completely customise your Custom Columns with a nice drag and drop interface. 
+Completely customise the columns on the administration screens with a nice drag and drop interface. 
 
-By default, WordPress only shows a few built-in columns. This plugin will give you many additional columns and you will have full control over all custom columns for pages, posts, posttypes and users. You can add or remove columns, change their label and reorder them.
+By default, WordPress only shows a few built-in columns. This plugin will give you many additional columns and you will have full control over all custom columns for pages, posts, posttypes, media and users. You can add or remove columns, change their label and reorder them.
 
-= Custom Columns  =
+= Post Columns  =
 
 The following custom columns are added:
 
@@ -39,18 +39,6 @@ With the custom field column you can display any custom field values. It can sho
 * Multiple Values
 * Numeric value ( this also works for sorting by meta_value_num )
 
-= Sortable Custom Columns =
-
-A nice feature is that it will make some of the new columns support sorting. By default WordPress let's you sort by Title, Date, Comments and Author. This will make you be able to sort by:
-
-* ID
-* page order
-* slug 
-* page template
-* word count
-* attachment count
-* custom fields ( both meta_value and meta_value_num are supported )
-
 = User Columns =
 
 You can also change the User Columns. The following user columns are added:
@@ -65,9 +53,37 @@ You can also change the User Columns. The following user columns are added:
 
 Some of the user custom fields that are included: user level, capabilities, admin color, nickname... many more.
 
+= Media Columns =
+
+Customise the Media Library Columns. The following media columns are added:
+
+* Media ID
+* File name
+* Height
+* Width
+* Dimensions ( width x height )
+* Description, Caption and Alternate tekst
+* Mime-Type
+
+= Sortable Custom Columns for Post and Pages =
+
+A nice feature is that it will make some of the new columns support sorting. By default WordPress let's you sort by Title, Date, Comments and Author. This will make you be able to sort by:
+
+* ID
+* page order
+* slug 
+* page template
+* word count
+* attachment count
+* custom fields ( both meta_value and meta_value_num are supported )
+
 = Third party plugin support =
 
 It will work nice with other plugins and support their additional custom columns. A few examples of plugins that are supported: WordPress SEO by Yoast (Robots Meta), Post Admin Shortcuts (Pin), WP Show IDs (ID) and User Access Manager (Access).
+
+= Upcoming releases =
+
+The next upcoming release will support sorting by Media and User columns.
 
 **Feedback**
 
@@ -92,11 +108,24 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 
 == Screenshots ==
 
-1. Posts Screen with custom columns.
-2. Settings page of the Codepress Admin columns plugin.
-3. Options for the Custom Field Column.
+1. Settings page for Post(type) columns.
+2. Posts Screen with the customized sortable columns.
+3. Settings page for the Media Library columns.
+4. Media Screen with the customized sortable columns.
+5. Settings page for Users columns.
+6. Users Screen with the customized sortable columns.
+7. Settings page showing the different displaying types for custom field.
 
 == Changelog ==
+
+= 1.3 =
+
+* added support for Media columns
+* added Media columns: filename, width, height, dimensions, description, alt, caption and mime-type
+* added date type to posts custom fields
+* added title type to posts custom fields
+* sorting has changed. when sorting; only results are shown which contain a value
+* str_word_count is used for excerpts
 
 = 1.2.1 =
 

@@ -1,10 +1,22 @@
+#cpac {
+	overflow: hidden;
+}
 #cpac .postbox {
 	margin: 0 10px 10px 0;
 }
 #cpac .cpac-menu {
 	clear: both;
 	float: left;
-	width: 100%;
+	width: 90%;
+}
+#cpac .cpac-col-left {
+	width: 70%;
+}
+#cpac .cpac-col-right {
+	width: 20%;
+}
+#cpac .cpac-col-right .inside {
+	padding: 0 10px;
 }
 #icon-codepress-admin-columns {
 	background: transparent url('../images/icon.png') no-repeat 0 0;
@@ -228,7 +240,7 @@
     color: #832525;
 }
 #likethisplugin-cpac-settings {
-	padding: 0 0 10px;
+	padding: 0;
 }
 #likethisplugin-cpac-settings ul {
 	margin-left: 20px;
