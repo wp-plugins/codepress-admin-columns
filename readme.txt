@@ -3,7 +3,7 @@ Contributors: codepress, tschutter
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
 Tested up to: 3.3
-Stable tag: 1.3
+Stable tag: 1.3.1
 
 == Description ==
 
@@ -117,6 +117,10 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 7. Settings page showing the different displaying types for custom field.
 
 == Changelog ==
+
+= 1.3.1 =
+
+* bug fix which solved a fatal error when using an older version php
 
 = 1.3 =
 
