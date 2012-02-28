@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.3
+Version: 			1.3.1
 Description: 		This plugin makes it easy to customise the columns on the administration screens for post(types), pages, media library and users.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', '1.3' );
+define( 'CPAC_VERSION', '1.3.1' );
 
 /**
  * Dependencies
@@ -34,13 +34,6 @@ define( 'CPAC_VERSION', '1.3' );
  * @since     1.3
  */
 require_once dirname( __FILE__ ) . '/classes/sortable.php';
-
-/**
- * Init Class
- *
- * @since     1.0
- */
-new Codepress_Admin_Columns();
 
 /**
  * Codepress Admin Columns Class
@@ -2241,4 +2234,12 @@ class Codepress_Admin_Columns
 	<?php
 	}
 }
+
+/**
+ * Init Class Codepress_Admin_Columns
+ *
+ * @since     1.0
+ */
+new Codepress_Admin_Columns();
+
 ?>
