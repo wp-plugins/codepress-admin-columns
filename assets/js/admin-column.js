@@ -12,6 +12,10 @@ jQuery(document).ready(function()
 	cpac_box_events();
 	cpac_menu();
 	cpac_add_custom_column();
+	cpac_clear_input_defaults();
+	cpac_tooltips();
+	cpac_addon_activation();
+	cpac_width_range();
 });
 
 /**
@@ -194,5 +198,219 @@ function cpac_add_custom_column()
 		
 		// retrigger click events
 		cpac_box_events();
+	});
+}
+
+/**
+ *	Clear Input Defaults
+ *
+ */
+function cpac_clear_input_defaults() 
+{	
+	jQuery.fn.cleardefault = function() {
+		return this.focus(function() {
+			if( this.value == this.defaultValue ) {
+				this.value = "";
+			}
+		}).blur(function() {
+			if( !this.value.length ) {
+				this.value = this.defaultValue;
+			}
+		});
+	};
+	jQuery("#cpac-box-plugin_settings .addons input").cleardefault();	
+}
+
+
+/**
+ *	Tooltip
+ *
+ */
+function cpac_tooltips() 
+{		
+	jQuery('#cpac .activation_type span').each(function() {	
+		var info = jQuery(this).next('.cpac-tooltip').html();
+		
+		if ( ! info )
+			return;
+		
+		jQuery('#cpac .activation_type span').qtip({
+			content: info,
+			title: 'title',
+			style: { 
+				width: 		400,
+				padding: 	0,
+				background: 'transparent',
+				color: 		'black',
+				textAlign: 	'left',
+				border: {
+					width: 	0,
+					radius: 0
+				},
+				tip: {
+					corner: 'topMiddle', 
+					color: '#8cc1e9',
+					size: {
+						x: 32,
+						y : 15
+					}
+				}
+			},
+			position: {
+				corner: {
+					target: 'bottomRight'				
+				},
+				adjust: { 
+					x: -80,
+					y: 0
+				}
+			},
+			hide: { 
+				when: 'mouseout', 
+				fixed: true ,
+				delay: 100
+			}
+	   });
+	});
+}
+
+/**
+ *	Width range
+ *
+ */
+function cpac_width_range() 
+{
+	if ( jQuery('.input-width-range').length == false )
+		return;
+		
+	jQuery('.input-width-range').each( function(){
+		
+		var input 				= jQuery(this).closest('.cpac-type-inside').find('.input-width');
+		var descr 				= jQuery(this).closest('.cpac-type-inside').find('.width-decription');
+		var input_default 		= jQuery(input)[0].defaultValue;
+		var translation_default = descr.attr('title');
+		
+		jQuery(this).slider({
+			range: 	'min',
+			value: 	1,
+			min: 	0,
+			max: 	100,
+			value:  input_default,
+			slide: function( event, ui ) {	
+				
+				// set default
+				var descr_value = ui.value > 0 ? ui.value + '%' : translation_default;
+	
+				jQuery(input).val( ui.value );
+				jQuery(descr).text( descr_value );
+			}
+		});		
+	});
+}
+
+/**
+ *	Addon actviate/deactivate
+ *
+ */
+function cpac_addon_activation() 
+{	
+	jQuery('#cpac-box-plugin_settings .addons .activation_code a.button').click(function(e) {
+		e.preventDefault();		
+		
+		// get input values		
+		var row			 = jQuery(this).closest('tr');
+		var type		 = jQuery(row).attr('id').replace('cpac-activation-','');
+		var parent_class = jQuery(this).parent('div');
+		var msg 		 = jQuery(row).find('.activation-error-msg');
+		
+		// get translated string
+		var translations 	 = jQuery('#cpac-box-plugin_settings .addon-translation-string');
+		var msg_fillin		 = jQuery('.tstring-fill-in',translations).text();
+		var msg_unrecognised = jQuery('.tstring-unrecognised',translations).text();
+		
+		// reset
+		jQuery(msg).empty();
+		
+		// Activate
+		if ( parent_class.hasClass('activate') ) {			
+		
+			// input values
+			var input 		= jQuery('.activate input', row);
+			var button 		= jQuery('.activate .button', row);
+			var key 		= input.val();
+			var default_val = jQuery(input)[0].defaultValue;			
+				
+			// make sure the input value has changed			
+			if ( key == default_val ) {
+				jQuery(msg).text(msg_fillin).hide().fadeIn();
+				return false;
+			}			
+			
+			// set loading icon			
+			button.addClass('loading');
+			
+			// update key
+			jQuery.ajax({
+				url 		: ajaxurl,
+				type 		: 'POST',
+				dataType 	: 'json',
+				data : {
+					action  : 'cpac_addon_activation',
+					type	: 'sortable',
+					key		: key
+				},
+				success: function(data) {
+					if ( data != null ) {						
+						jQuery('div.activate', row).hide();
+						jQuery('div.deactivate', row).show();
+						jQuery('div.deactivate span.masked_key', row).text(data);					
+					} else {
+						jQuery(msg).text(msg_unrecognised).hide().fadeIn();
+					}
+				},
+                error: function(xhr, ajaxOptions, thrownError) {
+                    jQuery(msg).text(msg_unrecognised).hide().fadeIn();
+                },
+				complete: function() {
+					button.removeClass('loading');
+				}
+			});
+		}
+		
+		// Deactivate
+		if ( parent_class.hasClass('deactivate') ) {			
+
+			var button = jQuery('.deactivate .button', row);
+			var input  = jQuery('.activate input', row);
+			
+			// set loading icon
+			button.addClass('loading');
+			
+			// update key
+			jQuery.ajax({
+				url 		: ajaxurl,
+				type 		: 'POST',
+				dataType 	: 'json',
+				data : {
+					action  : 'cpac_addon_activation',
+					type	: 'sortable',
+					key		: 'remove'
+				},
+				success: function(data) {
+					jQuery('div.activate', row).show();
+					jQuery('div.deactivate', row).hide();
+					jQuery('div.deactivate span.masked_key', row).empty();
+					input.val('');
+				},
+                error: function(xhr, ajaxOptions, thrownError) {
+					//console.log(xhr);
+					//console.log(ajaxOptions);
+					//console.log(thrownError);
+				},
+				complete: function() {
+					button.removeClass('loading');
+				}
+			});
+		}
 	});
 }

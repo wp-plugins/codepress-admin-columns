@@ -2,16 +2,16 @@
 Contributors: codepress, tschutter
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
-Tested up to: 3.3
-Stable tag: 1.3.1
+Tested up to: 3.3.1
+Stable tag: 1.4
 
 == Description ==
 
 Completely customise the columns on the administration screens with a nice drag and drop interface. 
 
-By default, WordPress only shows a few built-in columns. This plugin will give you many additional columns and you will have full control over all custom columns for pages, posts, posttypes, media and users. You can add or remove columns, change their label and reorder them.
+By default, WordPress only shows a few built-in columns. This plugin will give you many additional columns and you will have full control over all custom columns for pages, posts, posttypes, media and users. You can add or remove columns, change their label, change their width and reorder them..
 
-= Post Columns  =
+= Posts, Pages & Post types Columns  =
 
 The following custom columns are added:
 
@@ -26,18 +26,10 @@ The following custom columns are added:
 * Slug
 * Sticky
 * Word count
+* Roles
+* Status
 * Number of Attachments
 * Custom Fields
-
-= Custom Fields =
-
-With the custom field column you can display any custom field values. It can show its default value but also handle it as an image or icon. Thsese types are added:
-
-* Image thumbnails
-* Icons for Media Library items
-* Excerpt
-* Multiple Values
-* Numeric value ( this also works for sorting by meta_value_num )
 
 = User Columns =
 
@@ -50,6 +42,7 @@ You can also change the User Columns. The following user columns are added:
 * Register date
 * Biographical Info ( description )
 * User Custom Fields
+* Number of Posts Types
 
 Some of the user custom fields that are included: user level, capabilities, admin color, nickname... many more.
 
@@ -65,29 +58,54 @@ Customise the Media Library Columns. The following media columns are added:
 * Description, Caption and Alternate tekst
 * Mime-Type
 
-= Sortable Custom Columns for Post and Pages =
+= Comment Columns =
 
-A nice feature is that it will make some of the new columns support sorting. By default WordPress let's you sort by Title, Date, Comments and Author. This will make you be able to sort by:
+A lot more comment colums are added, here are a few examples:
+
+* Avatar
+* Author IP
+* Agent
+* ID
+* Comment excerpt
+* Comment Meta data
+
+= Link Columns =
+
+A few examples of added Link columns:
 
 * ID
-* page order
-* slug 
-* page template
-* word count
-* attachment count
-* custom fields ( both meta_value and meta_value_num are supported )
+* Target
+* Description
+* Notes
+* Owner
+
+= Custom Fields =
+
+With the custom field column you can display any custom field values. It can show its default value but also handle it as an image or icon. Thsese types are added:
+
+* Image thumbnails
+* Icons for Media Library items
+* Excerpt
+* Multiple Values
+* Numeric value ( this also works for sorting by meta_value_num )
+
+= Sortable Custom Columns for all Screens =
+
+All of the new columns will have support for sorting with the <a href="http://www.codepress.nl/plugins/codepress-admin-columns/sortorder-addon/">sorting addon</a>.
+
+By default WordPress let's you only sort by Title, Date, Comments and Author. This will make you be able to <strong>sort by ALL columns of ANY type</strong>.
 
 = Third party plugin support =
 
-It will work nice with other plugins and support their additional custom columns. A few examples of plugins that are supported: WordPress SEO by Yoast (Robots Meta), Post Admin Shortcuts (Pin), WP Show IDs (ID) and User Access Manager (Access).
+It will work nice with other plugins and support their additional custom columns. A few examples of plugins that are supported: WordPress SEO by Yoast (Robots Meta), Post Admin Shortcuts (Pin), WP Show IDs (ID) and User Access Manager (Access), Co-Authors Plus and Advanced Custom Fields.
 
 = Upcoming releases =
 
-The next upcoming release will support sorting by Media and User columns.
+The next upcoming release will have the option to set default sorting per screen.
 
 **Feedback**
 
-You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns#feedback'>requests or feedback</a>.
+You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns/feedback'>requests or feedback</a>.
 
 **Related Links:**
 
@@ -104,7 +122,7 @@ You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-colum
 = I have an idea for a great way to improve this plugin =
 
 Great! I'd love to hear from you.
-Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#feedback.
+Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns/feedback.
 
 == Screenshots ==
 
@@ -118,9 +136,23 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 
 == Changelog ==
 
-= 1.3.1 =
+= 1.4 =
 
-* bug fix which solved a fatal error when using an older version php
+* added support for comment columns
+* added support for link columns
+* added links to taxonomies
+* added sorting user custom fields
+* added sorting to links columns
+* added user columns so you can see how many articles an author has published of a certain post type
+* added Textual help
+* added the option to specify column width
+* added role column to all posts screens
+* added posts status column to all posts screens
+* added image path to media library
+* added added apply_filters('cpac-get-post-types', $post_types) to filter out certain post types
+* added option to enter license key for activating sorting on ALL columns
+* fixed a php5 warning
+* fixed a conflict with the Co-Authors plugin
 
 = 1.3 =
 
