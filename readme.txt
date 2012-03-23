@@ -120,7 +120,7 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns#f
 
 = 1.3.1 =
 
-* bug fix which solved a fatal error when using an older version php
+* bug fix which solved a fatal error in some cases
 
 = 1.3 =
 
