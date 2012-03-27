@@ -1022,9 +1022,6 @@ class Codepress_Admin_Columns
 						
 		endswitch;
 		
-		if ( empty($result) )
-			echo '&nbsp;';
-		
 		echo $result;	
 	}		
 	
@@ -1111,9 +1108,6 @@ class Codepress_Admin_Columns
 				$result = get_user_meta( $user_id, $column_name, true );
 				
 		endswitch;
-		
-		if ( empty($result) && '0' != $result )
-			$result = '&nbsp;';
 		
 		return $result;
 	}
@@ -1208,9 +1202,6 @@ class Codepress_Admin_Columns
 			
 		endswitch;
 		
-		if ( empty($result) && '0' != $result )
-			$result = '&nbsp;';
-		
 		echo $result;
 	}
 	
@@ -1283,9 +1274,6 @@ class Codepress_Admin_Columns
 				$result = '';
 			
 		endswitch;
-		
-		if ( empty($result) && '0' != $result )
-			$result = '&nbsp;';
 		
 		echo $result;
 	}
@@ -1401,9 +1389,6 @@ class Codepress_Admin_Columns
 				$result = '';
 			
 		endswitch;
-		
-		if ( empty($result) && '0' != $result )
-			$result = '&nbsp;';
 		
 		echo $result;
 	}

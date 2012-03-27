@@ -139,6 +139,7 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns/f
 = 1.4.1 =
 * added polish translation, thanks to Bartosz.
 * changed the license key validation proces
+* removed non-breaking-space-character from column output
 
 = 1.4 =
 
