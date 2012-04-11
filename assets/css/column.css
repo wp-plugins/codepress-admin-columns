@@ -1,0 +1,15 @@
+.cpac-column-value-image,
+.column-column-attachment img {
+	padding-right: 5px;
+	padding-bottom: 4px;
+}
+.cpac-divider {
+	display: inline-block;
+	width: 14px;
+	height: 12px;
+	background: transparent url(../images/square.png) no-repeat 50% 7px;
+}
+span.status-open {}
+span.status-closed {
+	color: red;
+}
