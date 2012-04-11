@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.4.1
-Description: 		This plugin makes it easy to customise the columns on the administration screens for post(types), pages, media library and users.
+Version: 			1.4.2
+Description: 		Customise the columns on the administration screens for post(types), pages, media library, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
 Plugin URI: 		http://www.codepress.nl/plugins/codepress-admin-columns/
@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', '1.4.1' );
+define( 'CPAC_VERSION', '1.4.2' );
 
 // only run plugin in the admin interface
 if ( !is_admin() )
@@ -840,7 +840,7 @@ class Codepress_Admin_Columns
 		$wp_default_columns['wp-links'] = $this->get_wp_default_links_columns();
 		
 		// Comments
-		$wp_default_columns['wp-comments'] = $this->get_wp_default_comments_columns();
+		$wp_default_columns['wp-comments'] = $this->get_wp_default_comments_columns();		
 		
 		update_option( 'cpac_options_default', $wp_default_columns );
 	}
@@ -907,7 +907,7 @@ class Codepress_Admin_Columns
 		
 		// Hook 
 		do_action('cpac-manage-posts-column', $type, $column_name, $post_id);
-		
+	
 		// Switch Types
 		$result = '';
 		switch ($type) :			
@@ -979,8 +979,10 @@ class Codepress_Admin_Columns
 					$post_type = get_post_type($post_id);
 					foreach($tags as $tag) {
 						// sanatize title
-						$tax_title 	= esc_html(sanitize_term_field('name', $tag->name, $tag->term_id, $tag->taxonomy, 'edit'));
-						$tarr[] 	= "<a href='edit.php?post_type={$post_type}&{$tag->taxonomy}={$tag->slug}'>{$tax_title}</a>";
+						if ( isset($tag->term_id) ) {
+							$tax_title 	= esc_html(sanitize_term_field('name', $tag->name, $tag->term_id, $tag->taxonomy, 'edit'));
+							$tarr[] 	= "<a href='edit.php?post_type={$post_type}&{$tag->taxonomy}={$tag->slug}'>{$tax_title}</a>";
+						}
 					}
 					$result = implode(', ', $tarr);
 				}			
@@ -1016,9 +1018,30 @@ class Codepress_Admin_Columns
 				if ( $result == 'future')
 					$result = $result . " <p class='description'>" . date_i18n( get_option('date_format') . ' ' . get_option('time_format') , strtotime($p->post_date) ) . "</p>";
 				break;
+				
+			// Post comment status
+			case "column-comment-status" :
+				$p 		= get_post($post_id);
+				$result = $this->get_asset_image('no.png', $p->comment_status);
+				if ( $p->comment_status == 'open' )
+					$result = $this->get_asset_image('checkmark.png', $p->comment_status);
+				break;
+				
+			// Post ping status
+			case "column-ping-status" :
+				$p 		= get_post($post_id);
+				$result = $this->get_asset_image('no.png', $p->ping_status);
+				if ( $p->ping_status == 'open' )
+					$result = $this->get_asset_image('checkmark.png', $p->ping_status);
+				break;
+			
+			// Post actions ( delete, edit etc. )
+			case "column-actions" :
+				$result = $this->get_column_value_actions($post_id, 'posts');
+				break;
 			
 			default :
-				$result = $this->strip_trim(get_post_meta( $post_id, $column_name, true ));
+				$result = '';
 						
 		endswitch;
 		
@@ -1099,13 +1122,18 @@ class Codepress_Admin_Columns
 				$result 	= $count > 0 ? "<a href='edit.php?post_type={$post_type}&author={$user_id}'>{$count}</a>" : (string) $count;
 				break; 
 			
+			// user actions
+			case "column-actions" :
+				$result = $this->get_column_value_actions($user_id, 'users');
+				break;
+			
 			// user meta data ( custom field )
 			case "column-user-meta" :
 				$result = $this->get_column_value_custom_field($user_id, $column_name, 'user');
 				break;
 			
 			default :
-				$result = get_user_meta( $user_id, $column_name, true );
+				$result = '';
 				
 		endswitch;
 		
@@ -1197,7 +1225,7 @@ class Codepress_Admin_Columns
 				$result = implode('<span class="cpac-divider"></span>', $paths);
 				break;
 			
-			default:
+			default :
 				$result = '';
 			
 		endswitch;
@@ -1270,7 +1298,7 @@ class Codepress_Admin_Columns
 				}
 				break;
 			
-			default:
+			default :
 				$result = '';
 			
 		endswitch;
@@ -1385,7 +1413,7 @@ class Codepress_Admin_Columns
 				$result 	= $this->get_shortened_string($comment->comment_content, $this->excerpt_length);
 				break;	
 			
-			default:
+			default :
 				$result = '';
 			
 		endswitch;
@@ -1409,6 +1437,82 @@ class Codepress_Admin_Columns
 			}
 		}
 		return $result;
+	}
+	
+	/**
+	 *	Get column value of post actions
+	 *
+	 *	This part has been taken from the following classes
+	 *	Posts List Table
+	 *	
+	 *
+	 * 	@since     1.4.2
+	 */
+	private function get_column_value_actions( $id, $type = 'posts' ) 
+	{	
+		$actions = array();
+		
+		/** Posts */
+		if ( $type == 'posts') {
+			$post_id			= $id;
+			$post 				= get_post($post_id);
+			$title 				= _draft_or_post_title();
+			$post_type_object 	= get_post_type_object( $post->post_type );
+			$can_edit_post 		= current_user_can( $post_type_object->cap->edit_post, $post->ID );
+			
+			if ( $can_edit_post && 'trash' != $post->post_status ) {
+				$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit' ) . '</a>';
+				$actions['inline hide-if-no-js'] = '<a href="#" class="editinline" title="' . esc_attr( __( 'Edit this item inline' ) ) . '">' . __( 'Quick&nbsp;Edit' ) . '</a>';
+			}
+			if ( current_user_can( $post_type_object->cap->delete_post, $post->ID ) ) {
+				if ( 'trash' == $post->post_status )
+					$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash' ) ) . "' href='" . wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ), 'untrash-' . $post->post_type . '_' . $post->ID ) . "'>" . __( 'Restore' ) . "</a>";
+				elseif ( EMPTY_TRASH_DAYS )
+					$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash' ) ) . "' href='" . get_delete_post_link( $post->ID ) . "'>" . __( 'Trash' ) . "</a>";
+				if ( 'trash' == $post->post_status || !EMPTY_TRASH_DAYS )
+					$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently' ) ) . "' href='" . get_delete_post_link( $post->ID, '', true ) . "'>" . __( 'Delete Permanently' ) . "</a>";
+			}
+			if ( $post_type_object->public ) {
+				if ( in_array( $post->post_status, array( 'pending', 'draft', 'future' ) ) ) {
+					if ( $can_edit_post )
+						$actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
+				} elseif ( 'trash' != $post->post_status ) {
+					$actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'View' ) . '</a>';
+				}
+			}
+		}
+		
+		/** Users */
+		elseif ( $type == 'users' ) {
+			
+			$user_object = new WP_User( $id );
+			$screen 	 = get_current_screen();
+			
+			if ( 'site-users-network' == $screen->id )
+				$url = "site-users.php?id={$this->site_id}&amp;";
+			else
+				$url = 'users.php?';
+			
+			if ( get_current_user_id() == $user_object->ID ) {
+				$edit_link = 'profile.php';
+			} else {
+				$edit_link = esc_url( add_query_arg( 'wp_http_referer', urlencode( stripslashes( $_SERVER['REQUEST_URI'] ) ), "user-edit.php?user_id=$user_object->ID" ) );
+			}
+			
+			if ( current_user_can( 'edit_user',  $user_object->ID ) ) {
+				$edit = "<strong><a href=\"$edit_link\">$user_object->user_login</a></strong><br />";
+				$actions['edit'] = '<a href="' . $edit_link . '">' . __( 'Edit' ) . '</a>';
+			} else {
+				$edit = "<strong>$user_object->user_login</strong><br />";
+			}
+
+			if ( !is_multisite() && get_current_user_id() != $user_object->ID && current_user_can( 'delete_user', $user_object->ID ) )
+				$actions['delete'] = "<a class='submitdelete' href='" . wp_nonce_url( "users.php?action=delete&amp;user=$user_object->ID", 'bulk-users' ) . "'>" . __( 'Delete' ) . "</a>";
+			if ( is_multisite() && get_current_user_id() != $user_object->ID && current_user_can( 'remove_user', $user_object->ID ) )
+				$actions['remove'] = "<a class='submitdelete' href='" . wp_nonce_url( $url."action=remove&amp;user=$user_object->ID", 'bulk-users' ) . "'>" . __( 'Remove' ) . "</a>";
+		}
+		
+		return implode(' | ', $actions);
 	}
 	
 	/**
@@ -1447,14 +1551,14 @@ class Codepress_Admin_Columns
 	}
 	
 	/**
-	 *	Get checkmark image
+	 *	Get image from assets folder
 	 *
 	 * 	@since     1.3.1
 	 */
-	protected function get_asset_image($name = '')
+	protected function get_asset_image($name = '', $title = '')
 	{
 		if ( $name )
-			return sprintf("<img alt='' src='%s' />", $this->plugin_url("assets/images/{$name}") );
+			return sprintf("<img alt='' src='%s' title='%s'/>", $this->plugin_url("assets/images/{$name}"), $title);
 	}
 	
 	/**
@@ -1678,6 +1782,13 @@ class Codepress_Admin_Columns
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php') )
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php');
+		
+		// some plugins depend on settings the $_GET['post_type'] variable such as ALL in One SEO
+		$_GET['post_type'] = $post_type;
+		
+		// for 3rd party plugin support we will call load-edit.php so all the 
+		// additional columns that are set by them will be avaible for us
+		do_action('load-edit.php');
 		
 		// we need to change the current screen
 		global $current_screen;
@@ -1943,6 +2054,18 @@ class Codepress_Admin_Columns
 			'column-status' => array(
 				'label'	=> __('Status', $this->textdomain)
 			),
+			'column-comment-status' => array(
+				'label'	=> __('Comment status', $this->textdomain)
+			),
+			'column-ping-status' => array(
+				'label'	=> __('Ping status', $this->textdomain)
+			),
+			'column-actions' => array(
+				'label'	=> __('Actions', $this->textdomain),
+				'options'	=> array(
+					'sortorder'	=> false
+				)
+			)
 		);
 		
 		// Word count support
@@ -1991,8 +2114,7 @@ class Codepress_Admin_Columns
 					$custom_columns['column-taxonomy-'.$tax->name] = array(
 						'label'			=> $tax->label,
 						'options'		=> array(
-							'type_label'	=> __('Taxonomy', $this->textdomain),
-							'sortorder'		=> false
+							'type_label'	=> __('Taxonomy', $this->textdomain)
 						)
 					);				
 				}
@@ -2048,6 +2170,12 @@ class Codepress_Admin_Columns
 			),
 			'column-user_description' => array(
 				'label'	=> __('Description', $this->textdomain)
+			),
+			'column-actions' => array(
+				'label'	=> __('Actions', $this->textdomain),
+				'options'	=> array(
+					'sortorder'	=> false
+				)
 			),
 		);
 		
@@ -2663,10 +2791,10 @@ class Codepress_Admin_Columns
 				'type'	=> $type				
 			)
 		));
-		
+
 		// license will be valid in case of WP error or succes
 		if ( is_wp_error($response) || ( isset($response['body']) && json_decode($response['body']) == 'valid' ) )
-			return true;	
+			return true;
 	
 		return false;
 	}
@@ -2690,7 +2818,7 @@ class Codepress_Admin_Columns
 	{
 		// keys
 		$key 	= $_POST['key'];
-		$type 	= $_POST['type'];		
+		$type 	= $_POST['type'];
 		
 		// update key
 		if ( $key == 'remove' ) {

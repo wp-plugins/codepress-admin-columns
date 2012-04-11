@@ -3,13 +3,15 @@ Contributors: codepress, tschutter
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
 Tested up to: 3.3.1
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 
 == Description ==
 
 Completely customise the columns on the administration screens with a nice drag and drop interface. 
 
-By default, WordPress only shows a few built-in columns. This plugin will give you many additional columns and you will have full control over all custom columns for pages, posts, posttypes, media and users. You can add or remove columns, change their label, change their width and reorder them..
+By default, WordPress only shows a few built-in columns. This plugin will give you many additional columns. You will have full control over all columns for pages, posts, posttypes, media, links, comments and users. 
+
+Add or remove columns, change their label, change their width and reorder them.
 
 = Post Types Columns  =
 
@@ -99,9 +101,17 @@ By default WordPress let's you only sort by Title, Date, Comments and Author. Th
 
 It will work nice with other plugins and support their additional custom columns. A few examples of plugins that are supported: WordPress SEO by Yoast (Robots Meta), Post Admin Shortcuts (Pin), WP Show IDs (ID) and User Access Manager (Access), Co-Authors Plus and Advanced Custom Fields.
 
+= Translations = 
+
+If you like to contrinute a language, please send them to <a href="mailto:info@codepress.nl">info@codepress.nl</a>.
+
+* Polish (pl_PL) - Thanks for contributing the polish language goes to Bartosz
+
+
 = Upcoming releases =
 
 The next upcoming release will have the option to set default sorting per screen.
+
 
 **Feedback**
 
@@ -135,6 +145,16 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns/f
 7. Settings page showing the different displaying types for custom field.
 
 == Changelog ==
+
+= 1.4.2 =
+* added fix for unexpected output in the column value
+* added fix for better 3rd party plugin support
+* added column for Comment status
+* added column for Ping/Trackback status
+* added column for Posts Actions (delete, view etc.)
+* added column for Users Actions (delete, view etc.)
+* added sorting taxonomies ( only on first one )
+* added bug fix for sorting
 
 = 1.4.1 =
 * added polish translation, thanks to Bartosz.
