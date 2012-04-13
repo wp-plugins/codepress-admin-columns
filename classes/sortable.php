@@ -39,7 +39,7 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 		add_action( 'admin_init', array( $this, 'register_sortable_columns' ) );
 		
 		// init filtering
-		add_action( 'admin_init', array( $this, 'register_filtering_columns' ) );
+		// add_action( 'admin_init', array( $this, 'register_filtering_columns' ) );
 		
 		// handle requests for sorting columns
 		add_filter( 'request', array( $this, 'handle_requests_orderby_column'), 1 );
@@ -934,6 +934,9 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	 */
 	function register_filtering_columns()
 	{
+		if ( ! $this->unlocked )
+			return false;
+		
 		// hook into wordpress
 		add_action('restrict_manage_posts', array($this, 'callback_restrict_posts'));
 	}
