@@ -39,7 +39,7 @@ class CPAC_Users_Values extends CPAC_Values
 			$type = 'column-user-meta';
 			
 		// Check for post count: column-user_postcount-[posttype]
-		if ( $this->get_posttype_by_postcount_column($type) )
+		if ( Codepress_Admin_Columns::get_posttype_by_postcount_column($type) )
 			$type = 'column-user_postcount';
 		
 		// Hook 
@@ -85,7 +85,7 @@ class CPAC_Users_Values extends CPAC_Values
 				
 			// user description
 			case "column-user_postcount" :
-				$post_type 	= $this->get_posttype_by_postcount_column($column_name);
+				$post_type 	= Codepress_Admin_Columns::get_posttype_by_postcount_column($column_name);
 				
 				// get post count
 				$count 		= $this->get_post_count( $post_type, $user_id );
@@ -109,7 +109,50 @@ class CPAC_Users_Values extends CPAC_Values
 				
 		endswitch;
 		
+		// Filter for customizing the result output
+		apply_filters('cpac-users-column-result', $result, $type, $column_name, $user_id);
+		
 		return $result;
+	}
+	
+	/**
+	 *	Get column value of user actions
+	 *
+	 *	This part is copied from the Users List Table class
+	 *
+	 * 	@since     1.4.2
+	 */
+	private function get_column_value_actions( $id ) 
+	{	
+		$actions = array();
+				
+		$user_object = new WP_User( $id );
+		$screen 	 = get_current_screen();
+		
+		if ( 'site-users-network' == $screen->id )
+			$url = "site-users.php?id={$this->site_id}&amp;";
+		else
+			$url = 'users.php?';
+		
+		if ( get_current_user_id() == $user_object->ID ) {
+			$edit_link = 'profile.php';
+		} else {
+			$edit_link = esc_url( add_query_arg( 'wp_http_referer', urlencode( stripslashes( $_SERVER['REQUEST_URI'] ) ), "user-edit.php?user_id=$user_object->ID" ) );
+		}
+		
+		if ( current_user_can( 'edit_user',  $user_object->ID ) ) {
+			$edit = "<strong><a href=\"$edit_link\">$user_object->user_login</a></strong><br />";
+			$actions['edit'] = '<a href="' . $edit_link . '">' . __( 'Edit' ) . '</a>';
+		} else {
+			$edit = "<strong>$user_object->user_login</strong><br />";
+		}
+
+		if ( !is_multisite() && get_current_user_id() != $user_object->ID && current_user_can( 'delete_user', $user_object->ID ) )
+			$actions['delete'] = "<a class='submitdelete' href='" . wp_nonce_url( "users.php?action=delete&amp;user=$user_object->ID", 'bulk-users' ) . "'>" . __( 'Delete' ) . "</a>";
+		if ( is_multisite() && get_current_user_id() != $user_object->ID && current_user_can( 'remove_user', $user_object->ID ) )
+			$actions['remove'] = "<a class='submitdelete' href='" . wp_nonce_url( $url."action=remove&amp;user=$user_object->ID", 'bulk-users' ) . "'>" . __( 'Remove' ) . "</a>";
+			
+		return implode(' | ', $actions);
 	}
 }
 

@@ -58,7 +58,7 @@ class CPAC_Posts_Values extends CPAC_Values
 			// Featured Image
 			case "column-featured_image" :
 				if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post_id) )
-					$result = get_the_post_thumbnail($post_id, array(80,80));			
+					$result = get_the_post_thumbnail($post_id, array(80,80));
 				break;
 				
 			// Sticky Post
@@ -147,8 +147,8 @@ class CPAC_Posts_Values extends CPAC_Values
 			// Post status
 			case "column-status" :
 				$p 		= get_post($post_id);
-				$result = $p->post_status;
-				if ( $result == 'future')
+				$result = $this->get_post_status_friendly_name( $p->post_status );
+				if ( $p->post_status == 'future')
 					$result = $result . " <p class='description'>" . date_i18n( get_option('date_format') . ' ' . get_option('time_format') , strtotime($p->post_date) ) . "</p>";
 				break;
 				
@@ -170,7 +170,7 @@ class CPAC_Posts_Values extends CPAC_Values
 			
 			// Post actions ( delete, edit etc. )
 			case "column-actions" :
-				$result = $this->get_column_value_actions($post_id, 'posts');
+				$result = $this->get_column_value_actions($post_id);
 				break;
 			
 			// Post Last modified
@@ -191,7 +191,32 @@ class CPAC_Posts_Values extends CPAC_Values
 						
 		endswitch;
 		
+		// Filter for customizing the result output
+		apply_filters('cpac-posts-column-result', $result, $type, $column_name, $post_id);
+		
 		echo $result;	
+	}
+	
+	/**
+	 * Returns the friendly name for a given status
+	 *
+	 * @since     1.4.4
+	 */
+	private function get_post_status_friendly_name( $status ) 
+	{
+		$builtin = array(
+			'publish' 	=> __( 'Published', CPAC_TEXTDOMAIN ),
+			'draft' 	=> __( 'Draft', CPAC_TEXTDOMAIN ),
+			'future' 	=> __( 'Scheduled', CPAC_TEXTDOMAIN ),
+			'private' 	=> __( 'Private', CPAC_TEXTDOMAIN ),
+			'pending' 	=> __( 'Pending Review', CPAC_TEXTDOMAIN ),
+			'trash' 	=> __( 'Trash', CPAC_TEXTDOMAIN )
+		);
+		
+		if ( isset($builtin[$status]) )
+			$status = $builtin[$status];
+		
+		return $status;			
 	}
 	
 	/**
@@ -225,6 +250,47 @@ class CPAC_Posts_Values extends CPAC_Values
 			return "<p class='description row-actions'>{$details}</p>";
 		
 		return false;
+	}
+	
+	/**
+	 *	Get column value of post actions
+	 *
+	 *	This part is copied from the Posts List Table class
+	 *
+	 * 	@since     1.4.2
+	 */
+	protected function get_column_value_actions( $post_id ) 
+	{	
+		$actions = array();
+		
+		$post 				= get_post($post_id);
+		$title 				= _draft_or_post_title();
+		$post_type_object 	= get_post_type_object( $post->post_type );
+		$can_edit_post 		= current_user_can( $post_type_object->cap->edit_post, $post->ID );
+		
+		if ( $can_edit_post && 'trash' != $post->post_status ) {
+			$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit' ) . '</a>';
+			$actions['inline hide-if-no-js'] = '<a href="#" class="editinline" title="' . esc_attr( __( 'Edit this item inline' ) ) . '">' . __( 'Quick&nbsp;Edit' ) . '</a>';
+		}
+		if ( current_user_can( $post_type_object->cap->delete_post, $post->ID ) ) {
+			if ( 'trash' == $post->post_status )
+				$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash' ) ) . "' href='" . wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ), 'untrash-' . $post->post_type . '_' . $post->ID ) . "'>" . __( 'Restore' ) . "</a>";
+			elseif ( EMPTY_TRASH_DAYS )
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash' ) ) . "' href='" . get_delete_post_link( $post->ID ) . "'>" . __( 'Trash' ) . "</a>";
+			if ( 'trash' == $post->post_status || !EMPTY_TRASH_DAYS )
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently' ) ) . "' href='" . get_delete_post_link( $post->ID, '', true ) . "'>" . __( 'Delete Permanently' ) . "</a>";
+		}
+		if ( $post_type_object->public ) {
+			if ( in_array( $post->post_status, array( 'pending', 'draft', 'future' ) ) ) {
+				if ( $can_edit_post )
+					$actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
+			} elseif ( 'trash' != $post->post_status ) {
+				$actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'View' ) . '</a>';
+			}
+		}
+	
+		
+		return implode(' | ', $actions);
 	}
 }
 

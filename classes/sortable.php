@@ -38,7 +38,7 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 		add_action( 'admin_init', array( $this, 'register_sortable_columns' ) );
 		
 		// init filtering
-		// add_action( 'admin_init', array( $this, 'register_filtering_columns' ) );
+		add_action( 'admin_init', array( $this, 'register_filtering_columns' ) );
 		
 		// handle requests for sorting columns
 		add_filter( 'request', array( $this, 'handle_requests_orderby_column'), 1 );
@@ -136,7 +136,7 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	private function add_managed_sortable_columns( $type = 'post', $columns ) 
 	{
 		$display_columns	= $this->get_merged_columns($type);
-			
+		
 		if ( ! $display_columns )
 			return $columns;
 		
@@ -160,22 +160,48 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	 */
 	public function handle_requests_orderby_column( $vars ) 
 	{
-		if ( ! isset( $vars['orderby'] ) )
-			return $vars;
-				
 		/** Users */
 		// You would expect to see get_orderby_users_vars(), but sorting for 
 		// users is handled through a different filter. Not 'request', but 'pre_user_query'.
 		// See handle_requests_orderby_users_column().
 						
 		/** Media */
-		elseif ( $this->request_uri_is('upload') )
+		if ( $this->request_uri_is('upload') ) {
 			$vars = $this->get_orderby_media_vars($vars);
+		}
 		
 		/** Posts */
-		elseif ( !empty($vars['post_type']) )
+		elseif ( !empty($vars['post_type']) ) {
 			$vars = $this->get_orderby_posts_vars($vars);
+		}
 				
+		return $vars;
+	}	
+
+	/**
+	 * 	Get the default sorting of the column
+	 *
+	 *	The default sorting of the column is saved to it's property default_order.
+	 *	We will overwrite the requested 'order' and 'orderby' variables with the default_order.
+	 *
+	 * 	@since     1.4.5
+	 */
+	function get_default_sorting_vars( $type, $vars )
+	{			
+		// retrieve the default_order of this type
+		$db_columns = Codepress_Admin_Columns::get_stored_columns($type);
+
+		if ( $db_columns ) {
+			foreach ( $db_columns as $column ) {
+				if ( empty($column['default_order'] ) )
+					continue;
+				
+				// overwrite with the new defaults
+				$vars['orderby'] = $this->sanitize_string($column['label']);				
+				$vars['order'] 	 = $column['default_order'];				
+			}
+		}
+
 		return $vars;
 	}
 	
@@ -186,8 +212,6 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	 */
 	public function handle_requests_orderby_users_column($user_query)
 	{
-		//print_r($user_query); exit;
-		
 		// query vars
 		$vars = $user_query->query_vars;
 		
@@ -195,20 +219,17 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 		$column = $this->get_orderby_type( $vars['orderby'], 'wp-users' );
 
 		if ( empty($column) )
-			return $vars;		
+			return $user_query;		
 		
 		// id
-		$id = key($column);
-		
-		// type
-		$type = $id;
+		$type = $id = key($column);
 		
 		// Check for user custom fields: column-meta-[customfieldname]
 		if ( Codepress_Admin_Columns::is_column_meta($type) )
 			$type = 'column-user-meta';
 		
 		// Check for post count: column-user_postcount-[posttype]
-		if ( $this->get_posttype_by_postcount_column($type) )
+		if ( Codepress_Admin_Columns::get_posttype_by_postcount_column($type) )
 			$type = 'column-user_postcount';
 		
 		// var
@@ -271,23 +292,13 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 				break;
 			
 			case 'column-user_postcount' :				
-				$post_type 	= $this->get_posttype_by_postcount_column($id);
+				$post_type 	= Codepress_Admin_Columns::get_posttype_by_postcount_column($id);
 				if ( $post_type ) {
 					$sort_flag = SORT_REGULAR;
 					foreach ( $this->get_users_data() as $u ) {
 						$count = $this->get_post_count( $post_type, $u->ID );
 						$cusers[$u->ID] = $this->prepare_sort_string_value($count);
 					}					
-				}
-				break;
-				
-			case 'role' :
-				$sort_flag = SORT_REGULAR;
-				foreach ( $this->get_users_data() as $u ) {
-					$role = !empty($u->roles[0]) ? $u->roles[0] : '';
-					if ($role || $this->show_all_results ) {
-						$cusers[$u->ID] = $this->prepare_sort_string_value($role);
-					}
 				}
 				break;
 			
@@ -308,8 +319,24 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 					}					
 				}
 				break;
+			
+			/** native WP columns */
+			
+			// role column
+			case 'role' :
+				$sort_flag = SORT_REGULAR;
+				foreach ( $this->get_users_data() as $u ) {
+					$role = !empty($u->roles[0]) ? $u->roles[0] : '';
+					if ($role || $this->show_all_results ) {
+						$cusers[$u->ID] = $this->prepare_sort_string_value($role);
+					}
+				}
+				break;			
 		
-		endswitch;
+		endswitch;		
+		
+		// save the order you last used as the default
+		// $this->save_sorting_preference( 'wp-users', $type, strtolower($vars['order']) );
 		
 		if ( isset($sort_flag) ) {
 			$user_query = $this->get_users_query_vars( $user_query, $cusers, $sort_flag );
@@ -474,7 +501,6 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 				break;
 			
 			case 'column-date_gmt':
-				// is default
 				break;
 			
 			/** native WP columns */
@@ -547,15 +573,26 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	 */
 	private function get_orderby_media_vars($vars)
 	{
+		// apply default sorting when it has been set
+		if ( empty( $vars['orderby'] ) ) {
+			$vars = $this->get_default_sorting_vars( 'wp-media', $vars );
+			
+			// when sorting still isn't set we will just return the requested vars
+			if ( empty( $vars['orderby'] ) )
+				return $vars;
+		}
+		
 		// Column
 		$column = $this->get_orderby_type( $vars['orderby'], 'wp-media' );		
 
 		if ( empty($column) )
 			return $vars;
 		
+		$id = key($column);
+		
 		// var
 		$cposts = array();		
-		switch( key($column) ) :
+		switch( $id ) :
 		
 			case 'column-mediaid' :
 				$vars['orderby'] = 'ID';
@@ -640,9 +677,23 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 						$cposts[$p->ID] = $this->prepare_sort_string_value( $alt );
 					}
 				}
-				break;			
+				break;
+				
+			case 'column-filesize' :
+				$sort_flag = SORT_NUMERIC;
+				foreach ( $this->get_any_posts_by_posttype('attachment') as $p ) {
+					$file 	= wp_get_attachment_url($p->ID);					
+					if ( $file || $this->show_all_results ) {
+						$abs			= str_replace( WP_CONTENT_URL, WP_CONTENT_DIR, $file);
+						$cposts[$p->ID] = $this->prepare_sort_string_value( filesize($abs) );
+					}
+				}
+				break;
 		
 		endswitch;
+		
+		// save the order you last used as the default
+		$this->save_sorting_preference( 'wp-media', $id, $vars['order'] );
 		
 		// we will add the sorted post ids to vars['post__in'] and remove unused vars
 		if ( isset($sort_flag) ) {
@@ -661,6 +712,15 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	{		
 		$post_type = $vars['post_type'];
 		
+		// apply default sorting when it has been set
+		if ( empty( $vars['orderby'] ) ) {
+			$vars = $this->get_default_sorting_vars( 'post', $vars );
+			
+			// when sorting still isn't set we will just return the requested vars
+			if ( empty( $vars['orderby'] ) )
+				return $vars;
+		}
+		
 		// Column
 		$column = $this->get_orderby_type( $vars['orderby'], $post_type );		
 
@@ -668,11 +728,8 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 			return $vars;
 		
 		// id
-		$id = key($column);
-		
-		// type
-		$type = $id;
-		
+		$type = $id = key($column);
+	
 		// Check for taxonomies, such as column-taxonomy-[taxname]	
 		if ( strpos($type, 'column-taxonomy-') !== false )
 			$type = 'column-taxonomy';
@@ -684,7 +741,7 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 		// attachments
 		if ( $type == 'column-attachment-count' )
 			$type = 'column-attachment';
-				
+		
 		// var
 		$cposts = array();		
 		switch( $type ) :
@@ -818,29 +875,89 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 				break;
 			
 			case 'column-taxonomy' :
-				$sort_flag = SORT_STRING;
-				$tax = str_replace('column-taxonomy-', '', $id);
-				foreach ( $this->get_any_posts_by_posttype($post_type) as $p ) {
-					$cposts[$p->ID] = '';						
-					$terms = get_the_terms($p->ID, $tax);
-					if ( !is_wp_error($terms) && !empty($terms) ) {
-						// only use the first term to sort
-						$term = array_shift(array_values($terms));
-						if ( isset($term->term_id) ) {
-							$cposts[$p->ID] = sanitize_term_field('name', $term->name, $term->term_id, $term->taxonomy, 'db');
-						}						
-					}
-				}
+				$sort_flag 	= SORT_STRING; // needed to sort
+				$taxonomy 	= str_replace('column-taxonomy-', '', $id);
+				$cposts 	= $this->get_posts_sorted_by_taxonomy($post_type, $taxonomy);
 				break;
-		
+			
+			/** native WP columns */
+			
+			// categories
+			case 'categories' :
+				$sort_flag 	= SORT_STRING; // needed to sort
+				$cposts 	= $this->get_posts_sorted_by_taxonomy($post_type, 'category');
+				break;
+				
+			// tags
+			case 'tags' :
+				$sort_flag 	= SORT_STRING; // needed to sort
+				$cposts 	= $this->get_posts_sorted_by_taxonomy($post_type, 'post_tag');
+				break;
+			
 		endswitch;
 		
+		// save the order you last used as the default
+		$this->save_sorting_preference( $post_type, $type, $vars['order'] );
+				
 		// we will add the sorted post ids to vars['post__in'] and remove unused vars
 		if ( isset($sort_flag) ) {
 			$vars = $this->get_vars_post__in( $vars, $cposts, $sort_flag );
 		}
 		
 		return $vars;
+	}
+	
+	/**
+	 * Save sorting preference
+	 *
+	 * after sorting we will save this sorting preference to the column item
+	 * we set the default_order to either asc, desc or empty. 
+	 * only ONE column item PER type can have a default_order
+	 *
+	 * @since     1.4.5
+	 */
+	function save_sorting_preference( $type, $column_type, $order = 'asc' )
+	{
+		$options = get_option('cpac_options');				
+		if ( isset($options['columns'][$type][$column_type]) ) {
+			
+			// remove the old default_order
+			foreach ($options['columns'][$type] as $k => $v) {
+				if ( isset( $options['columns'][$type][$k]['default_order'] ) ) {
+					unset($options['columns'][$type][$k]['default_order']);
+				}
+			}
+			
+			// set the new default order
+			$options['columns'][$type][$column_type]['default_order'] = $order;
+			
+			// save to DB
+			update_option('cpac_options', $options);
+		}
+	}
+	
+	/**
+	 * Get posts sorted by taxonomy
+	 *
+	 * This will post ID's by the first term in the taxonomy
+	 *
+	 * @since     1.4.5
+	 */
+	function get_posts_sorted_by_taxonomy($post_type, $taxonomy = 'category') 
+	{
+		$cposts 	= array();
+		foreach ( $this->get_any_posts_by_posttype($post_type) as $p ) {
+			$cposts[$p->ID] = '';						
+			$terms = get_the_terms($p->ID, $taxonomy);
+			if ( !is_wp_error($terms) && !empty($terms) ) {
+				// only use the first term to sort
+				$term = array_shift(array_values($terms));
+				if ( isset($term->term_id) ) {
+					$cposts[$p->ID] = sanitize_term_field('name', $term->name, $term->term_id, $term->taxonomy, 'db');
+				}						
+			}
+		}
+		return $cposts;
 	}
 	
 	/**
@@ -999,13 +1116,26 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	{
 		global $post_type_object;
 		
+		if ( !isset($post_type_object->name) )
+			return false;
+
 		// make a filter foreach taxonomy
 		$taxonomies = get_object_taxonomies($post_type_object->name, 'names');
+		
+		// get stored columns
+		$db_columns = Codepress_Admin_Columns::get_stored_columns($post_type_object->name);
 
 		if ( $taxonomies ) {
 			foreach ( $taxonomies as $tax ) {
-				if ( !in_array($tax, array('post_tag','category','post_format') ) ) {
 			
+				// ignore core taxonomies
+				if ( in_array($tax, array('post_tag','category','post_format') ) ) {
+					continue;
+				}
+				
+				// only display taxonomy that is active as a column
+				if ( isset($db_columns['column-taxonomy-'.$tax]) && $db_columns['column-taxonomy-'.$tax]['state'] == 'on' ) {
+					
 					$terms = get_terms($tax);
 					$terms = $this->indent($terms, 0, 'parent', 'term_id');
 					$terms = $this->apply_dropdown_markup($terms);
@@ -1016,8 +1146,8 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 							$selected = isset($_GET[$tax]) && $term_slug == $_GET[$tax] ? " selected='selected'" : '';
 							$select .= "<option value='{$term_slug}'{$selected}>{$term}</option>";
 						}
-					}
-					echo "<select class='postform' name='{$tax}'>{$select}</select>";				
+						echo "<select class='postform' name='{$tax}'>{$select}</select>";
+					}					
 				}
 			}
 		}

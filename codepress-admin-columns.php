@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.4.4
+Version: 			1.4.5
 Description: 		Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
@@ -10,7 +10,7 @@ Text Domain: 		codepress-admin-columns
 Domain Path: 		/languages
 License:			GPLv2
 
-Copyright 2011  Codepress  info@codepress.nl
+Copyright 2011-2012  Codepress  info@codepress.nl
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as published by
@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', 	'1.4.4' );
+define( 'CPAC_VERSION', 	'1.4.5' );
 define( 'CPAC_TEXTDOMAIN', 	'codepress-admin-columns' );
 define( 'CPAC_SLUG', 		'codepress-admin-columns' );
 define( 'CPAC_URL', 		plugins_url('', __FILE__) );
@@ -59,7 +59,8 @@ class Codepress_Admin_Columns
 	private $post_types,
 			$codepress_url,
 			$wordpress_url,
-			$api_url;
+			$api_url,
+			$admin_page;
 	
 	/**
 	 * Constructor
@@ -88,6 +89,7 @@ class Codepress_Admin_Columns
 
 		// set
 		$this->codepress_url	= 'http://www.codepress.nl/plugins/codepress-admin-columns';
+		$this->plugins_url		= 'http://wordpress.org/extend/plugins/codepress-admin-columns/';			
 		$this->wordpress_url	= 'http://wordpress.org/tags/codepress-admin-columns';				
 		
 		// translations
@@ -166,7 +168,7 @@ class Codepress_Admin_Columns
 	/**
 	 *	Register Column Values	
 	 *
-	 *	apply_filters location in includes/screen.php
+	 *	initializes each Class per type
 	 *
 	 * 	@since     1.0
 	 */
@@ -215,9 +217,7 @@ class Codepress_Admin_Columns
 	 */
 	public function callback_add_posts_column_headings($columns) 
 	{
-		global $post;
-
-		return $this->add_columns_headings($post->post_type, $columns);		
+		return $this->add_columns_headings( get_query_var('post_type'), $columns);		
 	}
 	
 	/**
@@ -421,8 +421,9 @@ class Codepress_Admin_Columns
 			foreach ( $db_columns as $id => $values ) {
 			
 				// get column meta options from custom columns
-				if ( $this->is_column_meta($id) )
+				if ( $this->is_column_meta($id) && !empty($wp_custom_columns['column-meta-1']['options']) ) {					
 					$db_columns[$id]['options'] = $wp_custom_columns['column-meta-1']['options'];			
+				}
 				
 				// add static options
 				elseif ( isset($default_columns[$id]['options']) )
@@ -666,18 +667,20 @@ class Codepress_Admin_Columns
 		
 		// run sql
 		$fields = $wpdb->get_results($sql, ARRAY_N);
-
-		// postmeta	
-		if ( $fields ) {
-			$meta_fields = array();
+			
+		// postmeta
+		$meta_fields = array();
+		if ( $fields ) {			
 			foreach ($fields as $field) {
 				// filter out hidden meta fields
 				if (substr($field[0],0,1) != "_") {
 					$meta_fields[] = $field[0];
 				}
-			}
-			return $meta_fields;
+			}			
 		}
+		
+		if ( !empty($meta_fields) )
+			return $meta_fields;
 		
 		return false;
 	}
@@ -851,23 +854,7 @@ class Codepress_Admin_Columns
 	 * 	@since     1.0
 	 */
 	private function get_wp_default_posts_columns($post_type = 'post') 
-	{
-		// load dependencies
-		
-		// deprecated as of wp3.3
-		if ( file_exists(ABSPATH . 'wp-admin/includes/template.php') )
-			require_once(ABSPATH . 'wp-admin/includes/template.php');
-			
-		// introduced since wp3.3
-		if ( file_exists(ABSPATH . 'wp-admin/includes/screen.php') )
-			require_once(ABSPATH . 'wp-admin/includes/screen.php');
-			
-		// used for getting columns
-		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php') )
-			require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
-		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php') )
-			require_once(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php');
-		
+	{		
 		// some plugins depend on settings the $_GET['post_type'] variable such as ALL in One SEO
 		$_GET['post_type'] = $post_type;
 		
@@ -875,26 +862,68 @@ class Codepress_Admin_Columns
 		// additional columns that are set by them will be avaible for us
 		do_action('load-edit.php');
 		
-		// we need to change the current screen
-		global $current_screen;
-		$org_current_screen = $current_screen;
+		// some plugins directly hook into get_column_headers, such as woocommerce
+		$columns = get_column_headers( 'edit-'.$post_type );
 		
-		// overwrite current_screen global with our post type of choose...
-		$current_screen->post_type = $post_type;
-		
-		// ...so we can get its columns
-		$columns = WP_Posts_List_Table::get_columns();
+		// get default columns
+		if ( empty($columns) ) {		
+			
+			// deprecated as of wp3.3
+			if ( file_exists(ABSPATH . 'wp-admin/includes/template.php') )
+				require_once(ABSPATH . 'wp-admin/includes/template.php');
+				
+			// introduced since wp3.3
+			if ( file_exists(ABSPATH . 'wp-admin/includes/screen.php') )
+				require_once(ABSPATH . 'wp-admin/includes/screen.php');
+				
+			// used for getting columns
+			if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php') )
+				require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
+			if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php') )
+				require_once(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php');			
+			
+			// we need to change the current screen
+			global $current_screen;
+			$org_current_screen = $current_screen;
+			
+			// overwrite current_screen global with our post type of choose...
+			$current_screen->post_type = $post_type;
+			
+			// ...so we can get its columns		
+			$columns = WP_Posts_List_Table::get_columns();				
+			
+			// reset current screen
+			$current_screen = $org_current_screen;
+		}
 		
 		if ( empty ( $columns ) )
 			return false;
-		
+			
 		// change to uniform format
-		$posts_columns = $this->get_uniform_format($columns);		
+		$columns = $this->get_uniform_format($columns);		
 
-		// reset current screen
-		$current_screen = $org_current_screen;
+		// add sorting to some of the default links columns
+		$columns = $this->set_sorting_to_default_posts_columns($columns);
 		
-		return $posts_columns;
+		return $columns;
+	}
+	
+	/**
+	 * 	Add Sorting to WP default Posts columns
+	 *
+	 * 	@since     1.4.5
+	 */
+	private function set_sorting_to_default_posts_columns($columns)
+	{	
+		//	categories
+		if ( !empty($columns['categories']) ) {
+			$columns['categories']['options']['sortorder'] = 'on';
+		}
+		// tags
+		if ( !empty($columns['tags']) ) {
+			$columns['tags']['options']['sortorder'] = 'on';
+		}
+		return $columns;
 	}
 	
 	/**
@@ -918,7 +947,7 @@ class Codepress_Admin_Columns
 		// change to uniform format
 		$columns = $this->get_uniform_format($columns);
 
-		// add sorting to some of the default links columns
+		// add sorting to some of the default users columns
 		$columns = $this->set_sorting_to_default_users_columns($columns);
 
 		return apply_filters('cpac-default-users-columns', $columns);
@@ -1083,7 +1112,7 @@ class Codepress_Admin_Columns
 				$hide_options 	= true;
 			}
 			
-			// user icon excerption
+			// user icon exception
 			if ( $id == 'icon' ) {
 				$type_label 	= __('Icon', CPAC_TEXTDOMAIN);
 			}
@@ -1341,7 +1370,16 @@ class Codepress_Admin_Columns
 				'options'	=> array(
 					'sortorder'	=> false
 				)
-			)					
+			),
+			'column-actions' => array(
+				'label'	=> __('Actions', CPAC_TEXTDOMAIN),
+				'options'	=> array(
+					'sortorder'	=> false
+				)
+			),
+			'column-filesize' => array(
+				'label'	=> __('File size', CPAC_TEXTDOMAIN)
+			)			
 		);
 		
 		// Get extended image metadata, exif or iptc as available.
@@ -1463,6 +1501,12 @@ class Codepress_Admin_Columns
 			),
 			'column-length' => array(
 				'label'	=> __('Length', CPAC_TEXTDOMAIN)
+			),
+			'column-actions' => array(
+				'label'	=> __('Actions', CPAC_TEXTDOMAIN),
+				'options'	=> array(
+					'sortorder'	=> false
+				)
 			)			
 		);	
 		
@@ -1499,9 +1543,7 @@ class Codepress_Admin_Columns
 				'label'	=> __('Author email', CPAC_TEXTDOMAIN)
 			),
 			'column-reply_to' => array(
-				'label'			=> __('In Reply To', CPAC_TEXTDOMAIN),
-				
-				// options
+				'label'			=> __('In Reply To', CPAC_TEXTDOMAIN),	
 				'options'		=> array(					
 					'sortorder'		=> false
 				)
@@ -1520,6 +1562,18 @@ class Codepress_Admin_Columns
 			),
 			'column-excerpt' => array(
 				'label'	=> __('Excerpt', CPAC_TEXTDOMAIN)
+			),
+			'column-actions' => array(
+				'label'	=> __('Actions', CPAC_TEXTDOMAIN),
+				'options'	=> array(
+					'sortorder'	=> false
+				)
+			),
+			'column-word-count' => array(
+				'label'	=> __('Word count', CPAC_TEXTDOMAIN),
+				'options'	=> array(
+					'sortorder'	=> false
+				)
 			)
 		);		
 		
@@ -1556,9 +1610,10 @@ class Codepress_Admin_Columns
 		$defaults = array(	
 			
 			// stored values
-			'label'			=> '',
-			'state' 		=> '',
-			'width' 		=> '',
+			'label'			=> '', // custom label
+			'state' 		=> '', // display state
+			'width' 		=> '', // column width
+			'default_order'	=> '', // set default sorting: asc, desc or empty
 			
 			// static values
 			'options'		=> array(				
@@ -1788,6 +1843,19 @@ class Codepress_Admin_Columns
 	}
 	
 	/**
+	 * Get the posttype from columnname
+	 *
+	 * @since     1.3.1
+	 */
+	public static function get_posttype_by_postcount_column( $id = '' ) 
+	{
+		if ( strpos($id, 'column-user_postcount-') !== false )			
+			return str_replace('column-user_postcount-', '', $id);
+				
+		return false;
+	}
+	
+	/**
 	 *	Get column value of post attachments
 	 *
 	 * 	@since     1.2.1
@@ -1964,8 +2032,8 @@ class Codepress_Admin_Columns
 	 * @since     1.3
 	 */
 	private function set_license_key($type, $key)
-	{			
-		update_option( "cpac_{$type}_ac", $key);
+	{
+		update_option( "cpac_{$type}_ac", trim($key) );
 	}
 	
 	/**
@@ -2084,7 +2152,8 @@ class Codepress_Admin_Columns
 		$sortable_tooltip = "
 			<p>".__('This will make all of the new columns support sorting', CPAC_TEXTDOMAIN).".</p>
 			<p>".__('By default WordPress let\'s you sort by title, date, comments and author. This will make you be able to <strong>sort by any column of any type!</strong>', CPAC_TEXTDOMAIN)."</p>
-			<p>".__('Perfect for sorting your articles, media files, comments, links and users', CPAC_TEXTDOMAIN).".</p>			
+			<p>".__('Perfect for sorting your articles, media files, comments, links and users', CPAC_TEXTDOMAIN).".</p>
+			<p class='description'>".__('(columns that are added by other plugins are not supported)', CPAC_TEXTDOMAIN).".</p>			
 			<img src='" . CPAC_URL.'/assets/images/addon_sortable_1.png' . "' alt='' />
 			{$find_out_more}
 		";
@@ -2260,11 +2329,12 @@ class Codepress_Admin_Columns
 						<div id="addons-cpac-settings" class="postbox">
 							<div title="Click to toggle" class="handlediv"><br></div>
 							<h3 class="hndle">
-								<span><?php _e('Addons', CPAC_TEXTDOMAIN) ?></span>
+								<span><?php _e('Get the Addon', CPAC_TEXTDOMAIN) ?></span>
 							</h3>
 							<div class="inside">
 								<p><?php _e('By default WordPress let\'s you only sort by title, date, comments and author.', CPAC_TEXTDOMAIN) ?></p>
-								<p><?php _e('Make <strong>all columns</strong> of <strong>all types</strong> support sorting &#8212; with the sorting addon.', CPAC_TEXTDOMAIN) ?></p>
+								<p><?php _e('Make <strong>all columns</strong> of <strong>all types</strong> within the plugin support sorting &#8212; with the sorting addon.', CPAC_TEXTDOMAIN) ?></p>
+								<p class="description"><?php _e('(columns that are added by other plugins are not supported)', CPAC_TEXTDOMAIN) ?>.</p>
 								<?php echo $find_out_more ?>
 							</div>
 						</div><!-- addons-cpac-settings -->
@@ -2278,7 +2348,7 @@ class Codepress_Admin_Columns
 								<p><?php _e('Why not do any or all of the following', CPAC_TEXTDOMAIN) ?>:</p>
 								<ul>
 									<li><a href="<?php echo $this->codepress_url ?>/"><?php _e('Link to it so other folks can find out about it.', CPAC_TEXTDOMAIN) ?></a></li>
-									<li><a href="<?php echo $this->wordpress_url ?>"><?php _e('Give it a 5 star rating on WordPress.org.', CPAC_TEXTDOMAIN) ?></a></li>
+									<li><a href="<?php echo $this->plugins_url ?>"><?php _e('Give it a 5 star rating on WordPress.org.', CPAC_TEXTDOMAIN) ?></a></li>
 									<li class="donate_link"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZDZRSYLQ4Z76J"><?php _e('Donate a token of your appreciation.', CPAC_TEXTDOMAIN) ?></a></li>
 								</ul>								
 							</div>
@@ -2291,7 +2361,7 @@ class Codepress_Admin_Columns
 							</h3>
 							<div class="inside">								
 								<?php echo $help_text ?>
-								<p><?php printf(__('If you are having problems with this plugin, please talk about them in the <a href="%s">Support forums</a> or send me an email %s.', CPAC_TEXTDOMAIN), 'http://wordpress.org/tags/codepress-admin-columns', '<a href="mailto:info@codepress.nl">info@codepress.nl</a>' );?></p>
+								<p><?php printf(__('If you are having problems with this plugin, please talk about them in the <a href="%s">Support forums</a> or send me an email %s.', CPAC_TEXTDOMAIN), $this->wordpress_url, '<a href="mailto:info@codepress.nl">info@codepress.nl</a>' );?></p>
 								<p><?php printf(__("If you're sure you've found a bug, or have a feature request, please <a href='%s'>submit your feedback</a>.", CPAC_TEXTDOMAIN), "{$this->codepress_url}/feedback");?></p>
 							</div>
 						</div><!-- side-cpac-settings -->
