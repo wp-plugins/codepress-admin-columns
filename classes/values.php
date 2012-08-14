@@ -8,7 +8,7 @@
  */
 class CPAC_Values
 {	
-	protected $excerpt_length;
+	protected $excerpt_length, $thumbnail_size;
 	
 	/**
 	 * Constructor
@@ -19,6 +19,7 @@ class CPAC_Values
 	{	
 		// number of words
 		$this->excerpt_length	= 20;		
+		$this->thumbnail_size	= apply_filters( 'cpac_thumbnail_size', array(80,80) );		
 	}
 	
 	/**
@@ -112,7 +113,7 @@ class CPAC_Values
 		if ( $attachment_ids ) {
 			foreach ( $attachment_ids as $attach_id ) {
 				if ( wp_get_attachment_image($attach_id) )
-					$result .= wp_get_attachment_image( $attach_id, array(80,80), true );
+					$result .= wp_get_attachment_image( $attach_id, $this->thumbnail_size, true );
 			}
 		}
 		return $result;
@@ -249,6 +250,9 @@ class CPAC_Values
 		$before 	= isset($columns[$column_name]['before']) 	  ? $columns[$column_name]['before'] 		: '';
 		$after 		= isset($columns[$column_name]['after']) 	  ? $columns[$column_name]['after'] 		: '';
 		
+		// rename hidden custom fields to their original name
+		$field = substr($field,0,10) == "cpachidden" ? str_replace('cpachidden','',$field) : $field;
+		
 		// Get meta field value
 		$meta 	 	= get_metadata($meta_type, $object_id, $field, true);
 
@@ -257,16 +261,16 @@ class CPAC_Values
 			$meta 	= get_metadata($meta_type, $object_id, $field, true);
 			$meta 	= $this->recursive_implode(', ', $meta);
 		}
-		
-		// make sure there are no serialized arrays or empty meta data
-		if ( empty($meta) || !is_string($meta) )	
+
+		// make sure there are no serialized arrays or null data
+		if ( !is_string($meta) )	
 			return false;
-					
+		
 		// handles each field type differently..
 		switch ($fieldtype) :			
 		
 			// Image
-			case "image" :				
+			case "image" :			
 				$meta = $this->get_thumbnail($meta);
 				break;
 				
@@ -290,6 +294,17 @@ class CPAC_Values
 				$titles = $this->get_custom_field_value_title($meta);
 				if ( $titles )
 					$meta = $titles;
+				break;
+				
+			// Checkmark
+			case "checkmark" :
+				$checkmark = $this->get_asset_image('checkmark.png');
+				
+				if ( empty($meta) || 'false' === $meta || '0' === $meta ) {
+					$checkmark = '';
+				}
+				
+				$meta = $checkmark;				
 				break;
 			
 		endswitch;		

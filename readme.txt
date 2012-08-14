@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
 Tested up to: 3.4
-Stable tag: 1.4.5.1
+Stable tag: 1.4.6
 
 == Description ==
 
@@ -96,6 +96,8 @@ With the custom field column you can display any custom field values. It can sho
 * Excerpt
 * Multiple Values
 * Numeric value ( this also works for sorting by meta_value_num )
+* Post Titles
+* Checkmark Image ( for true or false values )
 
 = Sortable Custom Columns for all Screens =
 
@@ -111,13 +113,14 @@ It will work nice with other plugins and support their additional custom columns
 
 If you like to contrinute a language, please send them to <a href="mailto:info@codepress.nl">info@codepress.nl</a>.
 
+* Danish (da_DK) - Thanks for contributing the danish language goes to Morten Dalgaard Johansen
+* German (de_DE) - Thanks for contributing the german language goes to Uli
 * Polish (pl_PL) - Thanks for contributing the polish language goes to Bartosz
 * French (fr_FR) - Thanks for contributing the french language goes to Alexandre Girard
 
 = Upcoming releases =
 
 * support for default sorting for users, links and comments
-* support for hidden custom fields
 
 **Feedback**
 
@@ -140,6 +143,48 @@ You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-colum
 Great! I'd love to hear from you.
 Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns/feedback.
 
+= How can I change the thumbnail size of images? =
+
+You can use the build in filter to set your own thumbnail size. Just add this piece of code to your
+theme's  functions.php.
+
+To set a custom size use, for example 30 by 30 pixels:
+
+`
+<?php
+add_filter('cpac_thumbnail_size','my_custom_thumbsize');
+function my_custom_thumbsize() 
+{	
+	return array(30,30); // width, height
+}
+?>
+`
+
+Or use a preset size, for example WordPress' thumbnail size:
+
+`
+<?php
+add_filter('cpac_thumbnail_size','my_custom_thumbsize');
+function my_custom_thumbsize() 
+{	
+	return 'thumbnail'; 
+}
+?>
+`
+
+= How can I enable the use of Hidden Custom Fields? =
+
+I am currently working on settings page where you can enable this feature. In the meanwhile you can enable this by adding
+this piece of code to your theme's functions.php to:
+
+`
+<?php
+add_filter('cpac_use_hidden_custom_fields', '__return_true'); // enables the use hidden custom fields
+?>
+`
+
+Now you can select your HIDDEN custom fields in de dropdown menu under "Custom Field:".
+
 == Screenshots ==
 
 1. Settings page for Post(type) columns.
@@ -151,6 +196,14 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns/f
 7. Settings page showing the different displaying types for custom field.
 
 == Changelog ==
+
+= 1.4.6 =
+
+* added german language ( thanks to Uli )
+* added danish language ( thanks to Morten Dalgaard Johansen )
+* added filter for setting thumbnail size ( see FAQ on how to use it )
+* added support for hidden custom fields ( see FAQ on how to enable this )
+* added fix for WordPress SEO by Yoast Columns
 
 = 1.4.5.1 =
 
