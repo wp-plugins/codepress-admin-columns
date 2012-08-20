@@ -1,10 +1,12 @@
 === Codepress Admin Columns ===
-Contributors: codepress, tschutter
+Contributors: codepress, tschutter, davidmosterd
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZDZRSYLQ4Z76J
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
 Tested up to: 3.4
-Stable tag: 1.4.6
+Stable tag: 1.4.6.1
+
+Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
 == Description ==
 
@@ -148,27 +150,20 @@ Leave your feedback at http://www.codepress.nl/plugins/codepress-admin-columns/f
 You can use the build in filter to set your own thumbnail size. Just add this piece of code to your
 theme's  functions.php.
 
-To set a custom size use, for example 30 by 30 pixels:
+To set a custom size use, for example 194 width by 63 height pixels:
 
 `
 <?php
-add_filter('cpac_thumbnail_size','my_custom_thumbsize');
-function my_custom_thumbsize() 
-{	
-	return array(30,30); // width, height
-}
-?>
-`
 
-Or use a preset size, for example WordPress' thumbnail size:
+// edit here: fill in your thumbnail height and width
+$my_height = 63;
+$my_width  = 194;
+// stop editing
 
-`
-<?php
-add_filter('cpac_thumbnail_size','my_custom_thumbsize');
-function my_custom_thumbsize() 
-{	
-	return 'thumbnail'; 
-}
+add_image_size( 'admin-columns', $my_width, $my_height, true );
+add_filter('cpac_thumbnail_size', function() { 
+	return 'admin-columns';
+});
 ?>
 `
 
@@ -196,6 +191,13 @@ Now you can select your HIDDEN custom fields in de dropdown menu under "Custom F
 7. Settings page showing the different displaying types for custom field.
 
 == Changelog ==
+
+= 1.4.6.1 =
+
+* bug fix for possible warning when using Custompress ( props to scottsalisbury for the fix! )
+* bug fix for sorting by postcount for users
+* added 'Display Author As' column for post(types)
+* added sorting support for 'Display Author As' column
 
 = 1.4.6 =
 

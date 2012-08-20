@@ -192,26 +192,7 @@ class CPAC_Values
 				$thumbs .= wp_get_attachment_url($media_id) ? "<span class='cpac-column-value-image'>".wp_get_attachment_image( $media_id, array(80,80), true )."</span>" : '';
 		
 		return $thumbs;		
-	}
-	
-	/**
-	 *	Get post count
-	 *
-	 * 	@since     1.3.1
-	 */
-	protected function get_post_count( $post_type, $user_id )
-	{
-		if ( ! post_type_exists($post_type) || ! get_userdata($user_id) )
-			return false;
-			
-		$user_posts = get_posts(array(
-			'post_type'		=> $post_type,
-			'numberposts' 	=> -1,
-			'author' 		=> $user_id,
-			'post_status' 	=> 'publish'
-		));
-		return count($user_posts);
-	}
+	}	
 	
 	/**
 	 *	Convert file size to readable format
