@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.4.6.1
+Version: 			1.4.6.2
 Description: 		Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', 	'1.4.6.1' );
+define( 'CPAC_VERSION', 	'1.4.6.2' );
 define( 'CPAC_TEXTDOMAIN', 	'codepress-admin-columns' );
 define( 'CPAC_SLUG', 		'codepress-admin-columns' );
 define( 'CPAC_URL', 		plugins_url('', __FILE__) );
@@ -40,6 +40,7 @@ if ( !is_admin() )
  *
  * @since     1.3
  */
+require_once dirname( __FILE__ ) . '/classes/utility.php';
 require_once dirname( __FILE__ ) . '/classes/sortable.php';
 require_once dirname( __FILE__ ) . '/classes/values.php';		
 require_once dirname( __FILE__ ) . '/classes/values/posts.php';
@@ -47,7 +48,6 @@ require_once dirname( __FILE__ ) . '/classes/values/users.php';
 require_once dirname( __FILE__ ) . '/classes/values/media.php';
 require_once dirname( __FILE__ ) . '/classes/values/link.php';
 require_once dirname( __FILE__ ) . '/classes/values/comments.php';
-require_once dirname( __FILE__ ) . '/classes/wordpress_seo_fix.php';
 
 /**
  * Codepress Admin Columns Class
@@ -2375,7 +2375,7 @@ class Codepress_Admin_Columns
 	 *
 	 * 	@since     1.3.1
 	 */
-	public function get_post_count( $post_type, $user_id )
+	public static function get_post_count( $post_type, $user_id )
 	{
 		if ( ! post_type_exists($post_type) || ! get_userdata($user_id) )
 			return false;

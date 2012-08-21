@@ -38,7 +38,7 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 		add_action( 'admin_init', array( $this, 'register_sortable_columns' ) );
 		
 		// init filtering
-		// add_action( 'admin_init', array( $this, 'register_filtering_columns' ) );
+		add_action( 'admin_init', array( $this, 'register_filtering_columns' ) );
 		
 		// handle requests for sorting columns
 		add_filter( 'request', array( $this, 'handle_requests_orderby_column'), 1 );
@@ -190,15 +190,15 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	{			
 		// retrieve the default_order of this type
 		$db_columns = Codepress_Admin_Columns::get_stored_columns($type);
-
+		
 		if ( $db_columns ) {
 			foreach ( $db_columns as $column ) {
 				if ( empty($column['default_order'] ) )
 					continue;
 				
 				// overwrite with the new defaults
-				$vars['orderby'] = $this->sanitize_string($column['label']);				
-				$vars['order'] 	 = $column['default_order'];				
+				$vars['orderby'] = $this->sanitize_string($column['label']);
+				$vars['order'] = $column['default_order'];				
 			}
 		}
 
@@ -712,9 +712,10 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	{		
 		$post_type = $vars['post_type'];
 		
+		// todo: fix default sorting
 		// apply default sorting when it has been set
 		if ( empty( $vars['orderby'] ) ) {
-			$vars = $this->get_default_sorting_vars( 'post', $vars );
+			$vars = $this->get_default_sorting_vars( $post_type, $vars );
 			
 			// when sorting still isn't set we will just return the requested vars
 			if ( empty( $vars['orderby'] ) )
@@ -1114,7 +1115,7 @@ class Codepress_Sortable_Columns extends Codepress_Admin_Columns
 	 */
 	function register_filtering_columns()
 	{
-		if ( ! $this->unlocked )
+		if ( ! $this->unlocked || apply_filters( 'cpac-remove-filtering-columns', true ) )
 			return false;
 		
 		// hook into wordpress

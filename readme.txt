@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
 Tested up to: 3.4
-Stable tag: 1.4.6.1
+Stable tag: 1.4.6.2
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -170,7 +170,7 @@ add_filter('cpac_thumbnail_size', function() {
 = How can I enable the use of Hidden Custom Fields? =
 
 I am currently working on settings page where you can enable this feature. In the meanwhile you can enable this by adding
-this piece of code to your theme's functions.php to:
+this piece of code to your theme's functions.php:
 
 `
 <?php
@@ -179,6 +179,18 @@ add_filter('cpac_use_hidden_custom_fields', '__return_true'); // enables the use
 `
 
 Now you can select your HIDDEN custom fields in de dropdown menu under "Custom Field:".
+
+= How can I add the dropdown menu for taxonomy filtering? =
+
+This will also be included in the upcoming settings page, in the meanwhile you can enable this by adding
+this piece of code to your theme's functions.php:
+
+`
+<?php
+add_filter( 'cpac-remove-filtering-columns', '__return_false' ); // add dropdown taxonomy filtering to the overview pages
+?>
+`
+
 
 == Screenshots ==
 
@@ -191,6 +203,11 @@ Now you can select your HIDDEN custom fields in de dropdown menu under "Custom F
 7. Settings page showing the different displaying types for custom field.
 
 == Changelog ==
+
+= 1.4.6.2 =
+
+* bug fix with a static function which could cause an error in some cases
+* added filter to enable taxonomy filtering. add this to your functions.php to enable taxonomy filtering: `add_filter( 'cpac-remove-filtering-columns', '__return_false' )`
 
 = 1.4.6.1 =
 
