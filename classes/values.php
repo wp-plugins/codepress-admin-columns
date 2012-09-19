@@ -270,11 +270,18 @@ class CPAC_Values
 				$meta = $this->get_date($meta);
 				break;
 			
-			// Title
+			// Post Title
 			case "title_by_id" :
 				$titles = $this->get_custom_field_value_title($meta);
 				if ( $titles )
 					$meta = $titles;
+				break;
+			
+			// User Name
+			case "user_by_id" :
+				$names = $this->get_custom_field_value_user($meta);
+				if ( $names )
+					$meta = $names;		
 				break;
 				
 			// Checkmark
@@ -289,9 +296,9 @@ class CPAC_Values
 				break;
 			
 		endswitch;		
-		
+
 		// filter for customization
-		$meta = apply_filters('cpac_get_column_value_custom_field', $meta, $fieldtype, $field );
+		$meta = apply_filters('cpac_get_column_value_custom_field', $meta, $fieldtype, $field, $type, $object_id );
 		
 		// add before and after string
 		$meta = "{$before}{$meta}{$after}";
@@ -329,6 +336,41 @@ class CPAC_Values
 		}
 		
 		return implode('<span class="cpac-divider"></span>', $titles);
+	}
+	
+	/**
+	 *	Get custom field value 'User by ID'
+	 *
+	 * 	@since     1.4.6.3
+	 */
+	protected function get_custom_field_value_user($meta) 
+	{
+		//remove white spaces and strip tags
+		$meta = $this->strip_trim( str_replace(' ','', $meta) );
+		
+		// var
+		$ids = $names = array();
+		
+		// check for multiple id's
+		if ( strpos($meta, ',') !== false )
+			$ids = explode(',',$meta);
+		elseif ( is_numeric($meta) )
+			$ids[] = $meta;			
+		
+		// display username
+		if ( $ids && is_array($ids) ) {
+			foreach ( $ids as $id ) {
+				if ( !is_numeric($id) )
+					continue;
+				
+				$userdata = get_userdata($id);
+				if ( is_object($userdata) && !empty( $userdata->display_name ) ) {
+					$names[] = $userdata->display_name;
+				}				
+			}
+		}
+		
+		return implode('<span class="cpac-divider"></span>', $names);
 	}
 	
 	/**

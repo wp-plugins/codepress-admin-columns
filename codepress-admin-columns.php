@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.4.6.2
+Version: 			1.4.6.3
 Description: 		Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', 	'1.4.6.2' );
+define( 'CPAC_VERSION', 	'1.4.6.3' );
 define( 'CPAC_TEXTDOMAIN', 	'codepress-admin-columns' );
 define( 'CPAC_SLUG', 		'codepress-admin-columns' );
 define( 'CPAC_URL', 		plugins_url('', __FILE__) );
@@ -598,6 +598,7 @@ class Codepress_Admin_Columns
 			'numeric'		=> __('Numeric', CPAC_TEXTDOMAIN),
 			'date'			=> __('Date', CPAC_TEXTDOMAIN),
 			'title_by_id'	=> __('Post Title (Post ID\'s)', CPAC_TEXTDOMAIN),
+			'user_by_id'	=> __('Username (User ID\'s)', CPAC_TEXTDOMAIN),
 			'checkmark'		=> __('Checkmark (true/false)', CPAC_TEXTDOMAIN),
 		);
 		
@@ -964,7 +965,9 @@ class Codepress_Admin_Columns
 	 * 	@since     1.0
 	 */
 	private function get_wp_default_posts_columns($post_type = 'post') 
-	{		
+	{
+		global $current_screen;
+		
 		// some plugins depend on settings the $_GET['post_type'] variable such as ALL in One SEO
 		$_GET['post_type'] = $post_type;
 		
@@ -976,7 +979,7 @@ class Codepress_Admin_Columns
 		$columns = get_column_headers( 'edit-'.$post_type );
 		
 		// get default columns
-		if ( empty($columns) ) {		
+		if ( empty($columns) && isset($current_screen) ) {		
 			
 			// deprecated as of wp3.3
 			if ( file_exists(ABSPATH . 'wp-admin/includes/template.php') )
@@ -995,7 +998,7 @@ class Codepress_Admin_Columns
 			// we need to change the current screen
 			global $current_screen;
 			$org_current_screen = $current_screen;
-			
+				
 			// overwrite current_screen global with our post type of choose...
 			$current_screen->post_type = $post_type;
 			
@@ -1084,13 +1087,18 @@ class Codepress_Admin_Columns
 	 */
 	private function get_wp_default_media_columns()
 	{
-		// could use _get_list_table('WP_Media_List_Table') ?
+		global $current_screen;
+		
+		// @todo could use _get_list_table('WP_Media_List_Table') ?
 		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php') )
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-media-list-table.php') )
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-media-list-table.php');
 		
-		global $current_screen;
+		if ( !isset($current_screen) )
+			return false;
+		
+		// save original
 		$org_current_screen = $current_screen;
 		
 		// overwrite current_screen global with our media id...
@@ -1155,13 +1163,17 @@ class Codepress_Admin_Columns
 	 */
 	private function get_wp_default_comments_columns()
 	{
+		global $current_screen;
+		
 		// dependencies
 		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php') )
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-comments-list-table.php') )
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-comments-list-table.php');
 		
-		global $current_screen;
+		if ( !isset($current_screen) )
+			return false;
+			
 		$org_current_screen = $current_screen;
 		
 		// overwrite current_screen global with our media id...
@@ -1765,7 +1777,7 @@ class Codepress_Admin_Columns
 		$options 		= get_option('cpac_options');
 
 		// get saved columns
-		if ( isset($options['columns'][$type]) )
+		if ( !empty($options['columns'][$type]) )
 			return $options['columns'][$type];
 		
 		return false;
@@ -1808,7 +1820,7 @@ class Codepress_Admin_Columns
 		$class_current_settings = $this->is_menu_type_current('plugin_settings') ? ' current': '';
 		
 		// options button
-		$options_btn = "<a href='#cpac-box-plugin_settings' class='cpac-settings-link{$class_current_settings}'>".__('Addons')."</a>";
+		$options_btn = "<a href='#cpac-box-plugin_settings' class='cpac-settings-link{$class_current_settings}'>".__('Addons', CPAC_TEXTDOMAIN)."</a>";
 		//$options_btn = '';
 		
 		return "
@@ -1860,19 +1872,19 @@ class Codepress_Admin_Columns
 	{
 		// Links
 		if ( $type == 'wp-links' )
-			$label = 'Links';
+			$label = __('Links');
 			
 		// Comments
 		elseif ( $type == 'wp-comments' )
-			$label = 'Comments';
+			$label = __('Comments');
 			
 		// Users
 		elseif ( $type == 'wp-users' )
-			$label = 'Users';
+			$label = __('Users');
 		
 		// Media
 		elseif ( $type == 'wp-media' )
-			$label = 'Media Library';
+			$label = __('Media Library');
 		
 		// Posts
 		else {

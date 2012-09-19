@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
 Tested up to: 3.4
-Stable tag: 1.4.6.2
+Stable tag: 1.4.6.3
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -99,6 +99,7 @@ With the custom field column you can display any custom field values. It can sho
 * Multiple Values
 * Numeric value ( this also works for sorting by meta_value_num )
 * Post Titles
+* Usernames
 * Checkmark Image ( for true or false values )
 
 = Sortable Custom Columns for all Screens =
@@ -167,6 +168,9 @@ add_filter('cpac_thumbnail_size', function() {
 ?>
 `
 
+**my already uploaded images have a wrong size**
+If you want your already uploaded images to display the newly added size you will need to regenerate the thumbnail for them. Use this plugin to generate the newly added sized thumbnails: http://wordpress.org/extend/plugins/regenerate-thumbnails/.
+
 = How can I enable the use of Hidden Custom Fields? =
 
 I am currently working on settings page where you can enable this feature. In the meanwhile you can enable this by adding
@@ -191,6 +195,41 @@ add_filter( 'cpac-remove-filtering-columns', '__return_false' ); // add dropdown
 ?>
 `
 
+= How can I display a custom value in the Custom Fields Column? =
+
+With this filter 'cpac_get_column_value_custom_field' you can control what the value will be for any Custom Field Column.
+
+Filter explained:
+**$value** is the orgignal value which would otherwise be displayed
+**$internal_field_key** is only used internally to store the column
+**$custom_field** is the name of your custom field
+**$type** will return either the posttype or if it is any other type it will return wp-comments, wp-links, wp-users, wp-media.
+**$object_id** will return the ID of the object.
+
+For example if you have a custom posttype 'Demo' with a custom_field that is called 'city' and the result would be an integer '33'. You can change that integer '33' to Amsterdam.
+
+`
+<?php
+function my_custom_field_value( $value, $internal_field_key, $custom_field, $type, $object_id )
+{
+	$my_post_type  = 'demo';
+	$my_field_name = 'city';
+	
+	// make sure we have the correct posttype and fieldname
+	if ( $my_post_type == $type && $my_field_name == $custom_field ) {
+		
+		if ( '33' == $value )
+			$value = 'Amsterdam';
+		
+		elseif ( '34' == $value )
+			$value = 'New York';	
+	}
+	return $value;	
+}
+add_filter( 'cpac_get_column_value_custom_field', 'my_custom_field_value', 10, 5 );
+?>
+`
+
 
 == Screenshots ==
 
@@ -204,10 +243,17 @@ add_filter( 'cpac-remove-filtering-columns', '__return_false' ); // add dropdown
 
 == Changelog ==
 
+= 1.4.6.3 =
+
+* Added new custom field type: User by User ID
+* Added values to filter 'cpac_get_column_value_custom_field' for better control of the output
+* Added an example for above filter to FAQ section
+* Added fix where trash posts did not show with the sorting addon activated
+
 = 1.4.6.2 =
 
 * bug fix with a static function which could cause an error in some cases
-* added filter to enable taxonomy filtering. add this to your functions.php to enable taxonomy filtering: `add_filter( 'cpac-remove-filtering-columns', '__return_false' )`
+* added filter to enable taxonomy filtering. add this to your functions.php to enable taxonomy filtering: `add_filter( 'cpac-remove-filtering-columns', '__return_false' );`
 
 = 1.4.6.1 =
 
