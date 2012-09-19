@@ -200,11 +200,12 @@ add_filter( 'cpac-remove-filtering-columns', '__return_false' ); // add dropdown
 With this filter 'cpac_get_column_value_custom_field' you can control what the value will be for any Custom Field Column.
 
 Filter explained:
-**$value** is the orgignal value which would otherwise be displayed
-**$internal_field_key** is only used internally to store the column
-**$custom_field** is the name of your custom field
-**$type** will return either the posttype or if it is any other type it will return wp-comments, wp-links, wp-users, wp-media.
-**$object_id** will return the ID of the object.
+
+* **$value** is the orgignal value which would otherwise be displayed
+* **$internal_field_key** is only used internally to store the column
+* **$custom_field** is the name of your custom field
+* **$type** will return either the posttype or if it is any other type it will return wp-comments, wp-links, wp-users, wp-media.
+* **$object_id** will return the ID of the object.
 
 For example if you have a custom posttype 'Demo' with a custom_field that is called 'city' and the result would be an integer '33'. You can change that integer '33' to Amsterdam.
 
