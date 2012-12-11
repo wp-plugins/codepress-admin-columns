@@ -19,7 +19,7 @@ class CPAC_Values
 	{	
 		// number of words
 		$this->excerpt_length	= 20;		
-		$this->thumbnail_size	= apply_filters( 'cpac_thumbnail_size', array(80,80) );		
+		$this->thumbnail_size	= apply_filters( 'cpac_thumbnail_size', array(80,80) );
 	}
 	
 	/**
@@ -238,6 +238,12 @@ class CPAC_Values
 			$type = 'wp-users';
 		}
 		
+		/** Media */
+		if ( $meta_type == 'media' ) {
+			$type = 'wp-media';
+			$meta_type = 'post';
+		}
+		
 		/** Posts */
 		else {
 			$type 	= get_post_type($object_id);
@@ -272,7 +278,7 @@ class CPAC_Values
 		switch ($fieldtype) :			
 		
 			// Image
-			case "image" :			
+			case "image" :
 				$meta = $this->get_thumbnail($meta);
 				break;
 				
@@ -316,13 +322,22 @@ class CPAC_Values
 				$meta = $checkmark;				
 				break;
 			
+			// Color
+			case "color" :
+				if ( !empty($meta) ) {
+					$meta = "<div class='cpac-color'><span style='background-color:{$meta}'></span>{$meta}</div>";
+				}
+				break;
+			
 		endswitch;		
 
 		// filter for customization
 		$meta = apply_filters('cpac_get_column_value_custom_field', $meta, $fieldtype, $field, $type, $object_id );
 		
 		// add before and after string
-		$meta = "{$before}{$meta}{$after}";
+		if ( $meta ) {
+			$meta = "{$before}{$meta}{$after}";
+		}
 		
 		return $meta;
 	}
@@ -492,10 +507,7 @@ class CPAC_Values
 		if ( ! $date )
 			return false;
 			
-		if ( ! is_numeric($date) )
-			$date = strtotime($date);
-			
-		return date_i18n( get_option('date_format'), $date );
+		return date_i18n( get_option('date_format'), strtotime($date) );
 	}
 	
 	/**

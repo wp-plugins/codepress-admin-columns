@@ -2,7 +2,7 @@
 /*
 
 Plugin Name: 		Codepress Admin Columns
-Version: 			1.4.6.4
+Version: 			1.4.7
 Description: 		Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepress.nl
@@ -27,7 +27,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CPAC_VERSION', 	'1.4.6.4' );
+define( 'CPAC_VERSION', 	'1.4.7' );
 define( 'CPAC_TEXTDOMAIN', 	'codepress-admin-columns' );
 define( 'CPAC_SLUG', 		'codepress-admin-columns' );
 define( 'CPAC_URL', 		plugins_url('', __FILE__) );
@@ -49,6 +49,7 @@ require_once dirname( __FILE__ ) . '/classes/values/users.php';
 require_once dirname( __FILE__ ) . '/classes/values/media.php';
 require_once dirname( __FILE__ ) . '/classes/values/link.php';
 require_once dirname( __FILE__ ) . '/classes/values/comments.php';
+require_once dirname( __FILE__ ) . '/classes/license.php';
 
 /**
  * Codepress Admin Columns Class
@@ -116,7 +117,7 @@ class Codepress_Admin_Columns
 		
 		// action ajax
 		add_action( 'wp_ajax_cpac_addon_activation', array( $this, 'ajax_activation'));
-				
+		
 		// handle requests gets a low priority so it will trigger when all other plugins have loaded their columns
 		add_action( 'admin_init', array( $this, 'handle_requests' ), 1000 );		
 		
@@ -160,7 +161,10 @@ class Codepress_Admin_Columns
 	/**
 	 * Add Settings link to plugin page
 	 *
-	 * @since     1.0
+	 * @since	1.0
+	 * @param	$links string - all settings links
+	 * @param	$file string - plugin filename
+	 * @return	string - link to settings page
 	 */
 	function add_settings_link( $links, $file ) 
 	{
@@ -266,6 +270,18 @@ class Codepress_Admin_Columns
 		return $this->add_columns_headings('wp-comments', $columns);
 	}
 	
+	
+	
+	/**
+	 *	Add managed columns by Type
+	 *
+	 * 	@since 1.4.6.5
+	 */
+	private function get_comment_icon() 
+	{
+		return "<span class='vers'><img src='" . trailingslashit( get_admin_url() ) . 'images/comment-grey-bubble.png' . "' alt='Comments'></span>";
+	}
+	
 	/**
 	 *	Add managed columns by Type
 	 *
@@ -287,8 +303,15 @@ class Codepress_Admin_Columns
 			// is active
 			if ( isset($values['state']) && $values['state'] == 'on' ){				
 				
+				$label = $values['label'];
+				
+				// exception for comments
+				if( 'comments' == $id ) {
+					$label = $this->get_comment_icon();
+				}
+				
 				// register format
-				$set_columns[$id] = $values['label'];				
+				$set_columns[$id] = $label;
 			}
 		}
 		
@@ -341,9 +364,73 @@ class Codepress_Admin_Columns
 		if ( $display_columns ) {
 			foreach ( $display_columns as $id => $values ) {		
 				
-				// add items to the list
-				$list .= $this->get_box($type, $id, $values);
-			
+				$classes = array();
+
+				// set state
+				$state 	= isset($values['state']) ? $values['state'] : '';
+				
+				// class
+				$classes[] = "cpac-box-{$id}";
+				if ( $state ) {
+					$classes[] = 'active';
+				}
+				if ( ! empty($values['options']['class']) ) {
+					$classes[] = $values['options']['class'];
+				}
+				$class = implode(' ', $classes);
+					
+				// more box options	
+				$more_options 	= $this->get_additional_box_options($type, $id, $values);
+				$action 		= "<a class='cpac-action' href='#open'>open</a>";
+						
+				// type label
+				$type_label = isset($values['options']['type_label']) ? $values['options']['type_label'] : '';
+				
+				// label
+				$label = isset($values['label']) ? str_replace("'", '"', $values['label']) : '';
+				
+				// main label
+				$main_label = $values['label'];	
+				
+				// main label exception for comments
+				if ( 'comments' == $id ) {
+					$main_label = $this->get_comment_icon();
+				}
+				
+				// width
+				$width			= isset($values['width']) ? $values['width'] : 0;
+				$width_descr	= isset($values['width']) && $values['width'] > 0 ? $values['width'] . '%' : __('default', CPAC_TEXTDOMAIN);
+				
+				// hide box options
+				$label_hidden = '';
+				if ( ! empty($values['options']['hide_options']) || strpos($label, '<img') !== false ) {
+					$label_hidden = ' style="display:none"';
+				}
+				
+				$list .= "
+					<li class='{$class}'>
+						<div class='cpac-sort-handle'></div>
+						<div class='cpac-type-options'>					
+							<div class='cpac-checkbox'></div>
+							<input type='hidden' class='cpac-state' name='cpac_options[columns][{$type}][{$id}][state]' value='{$state}'/>
+							<label class='main-label'>{$main_label}</label>
+						</div>
+						<div class='cpac-meta-title'>
+							{$action}
+							<span>{$type_label}</span>
+						</div>
+						<div class='cpac-type-inside'>				
+							<label for='cpac_options-{$type}-{$id}-label'{$label_hidden}>Label: </label>
+							<input type='text' name='cpac_options[columns][{$type}][{$id}][label]' id='cpac_options-{$type}-{$id}-label' value='{$label}' class='text'{$label_hidden}/>
+							<label for='cpac_options-{$type}-{$id}-width'>" . __('Width', CPAC_TEXTDOMAIN) . ":</label>			
+							<input type='hidden' maxlength='4' class='input-width' name='cpac_options[columns][{$type}][{$id}][width]' id='cpac_options-{$type}-{$id}-width' value='{$width}' />
+							<div class='description width-decription' title='" . __('default', CPAC_TEXTDOMAIN) . "'>{$width_descr}</div>
+							<div class='input-width-range'></div>
+							<br/>
+							{$more_options}
+						</div>
+					</li>
+				";			
 			}
 		}
 		
@@ -482,10 +569,12 @@ class Codepress_Admin_Columns
 		
 		// class
 		$classes[] = "cpac-box-{$id}";
-		if ( $state )
+		if ( $state ) {
 			$classes[] = 'active';
-		if ( ! empty($values['options']['class']) )
+		}
+		if ( ! empty($values['options']['class']) ) {
 			$classes[] = $values['options']['class'];
+		}
 		$class = implode(' ', $classes);
 			
 		// more box options	
@@ -497,6 +586,14 @@ class Codepress_Admin_Columns
 		
 		// label
 		$label = isset($values['label']) ? str_replace("'", '"', $values['label']) : '';
+		
+		// main label
+		$main_label = $values['label'];	
+		
+		// main label exception for comments
+		if ( 'comments' == $id ) {
+			$main_label = $this->get_comment_icon();
+		}
 		
 		// width
 		$width			= isset($values['width']) ? $values['width'] : 0;
@@ -514,7 +611,7 @@ class Codepress_Admin_Columns
 				<div class='cpac-type-options'>					
 					<div class='cpac-checkbox'></div>
 					<input type='hidden' class='cpac-state' name='cpac_options[columns][{$type}][{$id}][state]' value='{$state}'/>
-					<label class='main-label'>{$values['label']}</label>
+					<label class='main-label'>{$main_label}</label>
 				</div>
 				<div class='cpac-meta-title'>
 					{$action}
@@ -523,9 +620,9 @@ class Codepress_Admin_Columns
 				<div class='cpac-type-inside'>				
 					<label for='cpac_options-{$type}-{$id}-label'{$label_hidden}>Label: </label>
 					<input type='text' name='cpac_options[columns][{$type}][{$id}][label]' id='cpac_options-{$type}-{$id}-label' value='{$label}' class='text'{$label_hidden}/>
-					<label for='cpac_options-{$type}-{$id}-width'>".__('Width', CPAC_TEXTDOMAIN).":</label>			
+					<label for='cpac_options-{$type}-{$id}-width'>" . __('Width', CPAC_TEXTDOMAIN) . ":</label>			
 					<input type='hidden' maxlength='4' class='input-width' name='cpac_options[columns][{$type}][{$id}][width]' id='cpac_options-{$type}-{$id}-width' value='{$width}' />
-					<div class='description width-decription' title='".__('default', CPAC_TEXTDOMAIN)."'>{$width_descr}</div>
+					<div class='description width-decription' title='" . __('default', CPAC_TEXTDOMAIN) . "'>{$width_descr}</div>
 					<div class='input-width-range'></div>
 					<br/>
 					{$more_options}
@@ -601,6 +698,7 @@ class Codepress_Admin_Columns
 			'title_by_id'	=> __('Post Title (Post ID\'s)', CPAC_TEXTDOMAIN),
 			'user_by_id'	=> __('Username (User ID\'s)', CPAC_TEXTDOMAIN),
 			'checkmark'		=> __('Checkmark (true/false)', CPAC_TEXTDOMAIN),
+			'color'			=> __('Color', CPAC_TEXTDOMAIN),
 		);
 		
 		// add filter
@@ -708,7 +806,7 @@ class Codepress_Admin_Columns
 		
 		/** Media */
 		elseif ( $type == 'wp-media') {
-			$sql = $wpdb->prepare( "SELECT DISTINCT meta_key FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON pm.post_id = p.ID WHERE p.post_type = 'attachment' ORDER BY 1");
+			$sql = "SELECT DISTINCT meta_key FROM {$wpdb->postmeta} pm JOIN {$wpdb->posts} p ON pm.post_id = p.ID WHERE p.post_type = 'attachment' ORDER BY 1";
 		}
 		
 		/** Posts */
@@ -749,6 +847,7 @@ class Codepress_Admin_Columns
 	 */
 	public function admin_scripts() 
 	{
+		wp_enqueue_script( 'wp-pointer' );
 		wp_enqueue_script( 'jquery-ui-slider' );		
 		wp_enqueue_script( 'cpac-qtip2', CPAC_URL.'/assets/js/jquery.qtip.js', array('jquery'), CPAC_VERSION );
 		wp_enqueue_script( 'cpac-admin', CPAC_URL.'/assets/js/admin-column.js', array('jquery', 'dashboard', 'jquery-ui-sortable'), CPAC_VERSION );
@@ -759,7 +858,7 @@ class Codepress_Admin_Columns
 	 *
 	 * 	@since     1.1
 	 */
-	private function get_types() 
+	private function get_types()
 	{
 		$types 					= $this->post_types;
 		$types['wp-users'] 		= 'wp-users';
@@ -793,6 +892,7 @@ class Codepress_Admin_Columns
 	 */
 	public function admin_styles()
 	{
+		wp_enqueue_style( 'wp-pointer' );
 		wp_enqueue_style( 'jquery-ui-lightness', CPAC_URL.'/assets/ui-theme/jquery-ui-1.8.18.custom.css', array(), CPAC_VERSION, 'all' );	
 		wp_enqueue_style( 'cpac-admin', CPAC_URL.'/assets/css/admin-column.css', array(), CPAC_VERSION, 'all' );	
 	}
@@ -815,8 +915,9 @@ class Codepress_Admin_Columns
 	public function register_settings() 
 	{
 		// If we have no options in the database, let's add them now.
-		if ( false === get_option('cpac_options') )
-			add_option( 'cpac_options', array($this, 'get_default_plugin_options') );
+		if ( false === get_option('cpac_options') ) {
+			add_option( 'cpac_options', $this->get_default_plugin_options() );
+		}
 		
 		register_setting( 'cpac-settings-group', 'cpac_options', array($this, 'options_callback') );
 	}	
@@ -828,11 +929,7 @@ class Codepress_Admin_Columns
 	 */
 	public function get_default_plugin_options() 
 	{
-		$default_plugin_options = array(		
-			'post'	=> '',
-			'page'	=> ''
-		);
-		return apply_filters( 'cpac_default_plugin_options', $default_plugin_options );
+		return apply_filters( 'cpac_default_plugin_options', array() );
 	}
 
 	/**
@@ -851,15 +948,20 @@ class Codepress_Admin_Columns
 	 * @since     1.0
 	 */
 	public function handle_requests() 
-	{	
-		// settings updated
-		if ( ! empty($_REQUEST['settings-updated']) )
-			$this->store_wp_default_columns();			
-		
-		// restore defaults 
-		if ( ! empty($_REQUEST['cpac-restore-defaults']) )
-			$this->restore_defaults();
-
+	{
+		// only handle updates from the admin columns page
+		if ( isset($_REQUEST['page']) && CPAC_SLUG == $_REQUEST['page'] ) {
+				
+			// settings updated
+			if ( ! empty($_REQUEST['settings-updated']) ) {
+				$this->store_wp_default_columns();
+			}
+			
+			// restore defaults 
+			if ( ! empty($_REQUEST['cpac-restore-defaults']) ) {
+				$this->restore_defaults();
+			}
+		}
 	}
 	
 	/**
@@ -966,12 +1068,21 @@ class Codepress_Admin_Columns
 	 * 	@since     1.0
 	 */
 	private function get_wp_default_posts_columns($post_type = 'post') 
-	{		
+	{
+		// we need to change the current screen
+		global $current_screen;
+			
 		// some plugins depend on settings the $_GET['post_type'] variable such as ALL in One SEO
 		$_GET['post_type'] = $post_type;
 		
+		// to prevent possible warning from initializing load-edit.php 
+		// we will set a dummy screen object
+		if ( empty($current_screen->post_type) ) {
+			$current_screen = (object) array( 'post_type' => $post_type, 'id' => '', 'base' => '' );			
+		}		
+		
 		// for 3rd party plugin support we will call load-edit.php so all the 
-		// additional columns that are set by them will be avaible for us
+		// additional columns that are set by them will be avaible for us		
 		do_action('load-edit.php');
 		
 		// some plugins directly hook into get_column_headers, such as woocommerce
@@ -992,26 +1103,34 @@ class Codepress_Admin_Columns
 			if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-list-table.php') )
 				require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 			if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php') )
-				require_once(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php');			
+				require_once(ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php');
+						
+			// As of WP Release 3.5 we can use the following.
+			if ( version_compare( get_bloginfo('version'), '3.4.10', '>=' ) ) {
+				
+				$table 		= new WP_Posts_List_Table( array( 'screen' => $post_type ) );
+				$columns 	= $table->get_columns();
+			}
 			
-			// we need to change the current screen
-			global $current_screen;
+			// WP versions older then 3.5
+			// @todo: make this deprecated
+			else {			
 			
-			// save original
-			$org_current_screen = $current_screen;
-			
-			// prevent php warning 
-			if ( !isset($current_screen) ) $current_screen = new stdClass;
-			
-			// overwrite current_screen global with our post type of choose...
-			$current_screen->post_type = $post_type;
-			
-			// ...so we can get its columns		
-			$columns = WP_Posts_List_Table::get_columns();				
-			
-			// reset current screen
-			$current_screen = $org_current_screen;
-
+				// we need to change the current screen... first lets save original
+				$org_current_screen = $current_screen;
+				
+				// prevent php warning 
+				if ( !isset($current_screen) ) $current_screen = new stdClass;
+				
+				// overwrite current_screen global with our post type of choose...
+				$current_screen->post_type = $post_type;
+				
+				// ...so we can get its columns		
+				$columns = WP_Posts_List_Table::get_columns();				
+				
+				// reset current screen
+				$current_screen = $org_current_screen;
+			}
 		}
 		
 		if ( empty ( $columns ) )
@@ -1061,28 +1180,11 @@ class Codepress_Admin_Columns
 		
 		// get users columns
 		$columns = WP_Users_List_Table::get_columns();
-
+		
 		// change to uniform format
 		$columns = $this->get_uniform_format($columns);
 
-		// add sorting to some of the default users columns
-		$columns = $this->set_sorting_to_default_users_columns($columns);
-
 		return apply_filters('cpac-default-users-columns', $columns);
-	}
-	
-	/**
-	 * 	Add Sorting to WP default Users columns
-	 *
-	 * 	@since     1.4
-	 */
-	private function set_sorting_to_default_users_columns($columns)
-	{
-		// Comment
-		if ( !empty($columns['role']) ) {
-			$columns['role']['options']['sortorder'] = 'on';
-		}
-		return $columns;
 	}
 	
 	/**
@@ -1098,28 +1200,42 @@ class Codepress_Admin_Columns
 		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-media-list-table.php') )
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-media-list-table.php');
 		
-		global $current_screen;
+		// As of WP Release 3.5 we can use the following.
+		if ( version_compare( get_bloginfo('version'), '3.4.10', '>=' ) ) {
+			
+			$table 		= new WP_Media_List_Table(array( 'screen' => 'upload' ));
+			$columns 	= $table->get_columns();
+		}
+		
+		// WP versions older then 3.5
+		// @todo: make this deprecated
+		else {	
+		
+			global $current_screen;
 
-		// save original
-		$org_current_screen = $current_screen;
-		
-		// prevent php warning 
-		if ( !isset($current_screen) ) $current_screen = new stdClass;
-		
-		// overwrite current_screen global with our media id...
-		$current_screen->id = 'upload';
-		
-		// init media class
-		$wp_media = new WP_Media_List_Table;
-		
-		// get media columns		
-		$columns = $wp_media->get_columns();
-		
-		// reset current screen
-		$current_screen = $org_current_screen;
+			// save original
+			$org_current_screen = $current_screen;
+			
+			// prevent php warning 
+			if ( !isset($current_screen) ) $current_screen = new stdClass;
+			
+			// overwrite current_screen global with our media id...
+			$current_screen->id = 'upload';
+			
+			// init media class
+			$wp_media = new WP_Media_List_Table;
+			
+			// get media columns		
+			$columns = $wp_media->get_columns();
+			
+			// reset current screen
+			$current_screen = $org_current_screen;
+		}
 		
 		// change to uniform format
-		return $this->get_uniform_format($columns);
+		$columns = $this->get_uniform_format($columns);
+		
+		return apply_filters('cpac-default-media-columns', $columns);
 	}
 	
 	/**
@@ -1174,25 +1290,37 @@ class Codepress_Admin_Columns
 		if ( file_exists(ABSPATH . 'wp-admin/includes/class-wp-comments-list-table.php') )
 			require_once(ABSPATH . 'wp-admin/includes/class-wp-comments-list-table.php');
 		
-		global $current_screen;
+		// As of WP Release 3.5 we can use the following.
+		if ( version_compare( get_bloginfo('version'), '3.4.10', '>=' ) ) {
+			
+			$table 		= new WP_Comments_List_Table( array( 'screen' => 'edit-comments' ) );
+			$columns 	= $table->get_columns();
+		}
+		
+		// WP versions older then 3.5
+		// @todo: make this deprecated
+		else {
+		
+			global $current_screen;
 
-		// save original		
-		$org_current_screen = $current_screen;
-		
-		// prevent php warning 
-		if ( !isset($current_screen) ) $current_screen = new stdClass;
-		
-		// overwrite current_screen global with our media id...
-		$current_screen->id = 'edit-comments';
-		
-		// init table object
-		$wp_comment = new WP_Comments_List_Table;		
-		
-		// get comments
-		$columns = $wp_comment->get_columns();
-		
-		// reset current screen
-		$current_screen = $org_current_screen;
+			// save original		
+			$org_current_screen = $current_screen;
+			
+			// prevent php warning 
+			if ( !isset($current_screen) ) $current_screen = new stdClass;
+			
+			// overwrite current_screen global with our media id...
+			$current_screen->id = 'edit-comments';
+			
+			// init table object
+			$wp_comment = new WP_Comments_List_Table;		
+			
+			// get comments
+			$columns = $wp_comment->get_columns();
+			
+			// reset current screen
+			$current_screen = $org_current_screen;
+		}
 		
 		// change to uniform format
 		$columns = $this->get_uniform_format($columns);
@@ -1234,8 +1362,9 @@ class Codepress_Admin_Columns
 			$hide_options 	= false;
 			$type_label 	= $label;
 			
-			// comment exception				
-			if ( strpos( $label, 'comment-grey-bubble.png') ) {
+			// comment exception		
+			if ( 'comments' == $id ) {					
+				$label 			= '';
 				$type_label 	= __('Comments', CPAC_TEXTDOMAIN);
 				$hide_options 	= true;
 			}
@@ -1245,7 +1374,7 @@ class Codepress_Admin_Columns
 				$type_label 	= __('Icon', CPAC_TEXTDOMAIN);
 			}
 			
-			$uniform_colums[$id] = array(
+			$uniform_columns[$id] = array(
 				'label'			=> $label,
 				'state'			=> 'on',
 				'options'		=> array(
@@ -1255,7 +1384,7 @@ class Codepress_Admin_Columns
 				)
 			);
 		}
-		return $uniform_colums;
+		return $uniform_columns;
 	}
 	
 	/**
@@ -1747,8 +1876,7 @@ class Codepress_Admin_Columns
 			// stored values
 			'label'			=> '', // custom label
 			'state' 		=> '', // display state
-			'width' 		=> '', // column width
-			'default_order'	=> '', // set default sorting: asc, desc or empty
+			'width' 		=> '', // column width			
 			
 			// static values
 			'options'		=> array(				
@@ -2021,7 +2149,7 @@ class Codepress_Admin_Columns
 	 *
 	 * @since     1.4
 	 */
-	function admin_class() 
+	function admin_class( $classes ) 
 	{		
 		global $current_screen;
 		
@@ -2043,10 +2171,12 @@ class Codepress_Admin_Columns
 			
 			// match against screen or wp-screen
 			if ( $type == $screen || $type == "wp-{$screen}" )
-				return "cp-{$type}";
+				$classes .= " cp-{$type}";
 		}
-		return false;
+
+		return $classes;
 	}
+
 	
 	/**
 	 * Admin CSS for Column width
@@ -2075,52 +2205,6 @@ class Codepress_Admin_Columns
 		
 		echo "<style type='text/css'>{$css}</style>";
 	}
-
-	/**
-	 * Unlocks
-	 *
-	 * @since     1.3
-	 */
-	protected function is_unlocked($type)
-	{
-		return preg_match('/^[a-f0-9]{40}$/i', $this->get_license_key($type));
-	}	
-	
-	/**
-	 * Check license key with API
-	 *
-	 * @since     1.3.3
-	 */
-	private function check_remote_key($type, $key)
-	{	
-		if ( empty($type) || empty($key) )
-			return false;
-		
-		// check key with remote API		
- 		$response = wp_remote_post( $this->api_url, array(			
-			'body'	=> array(
-				'api'	=> 'addon',
-				'key'	=> $key,
-				'type'	=> $type				
-			)
-		));
-
-		// license will be valid in case of WP error or succes
-		if ( is_wp_error($response) || ( isset($response['body']) && json_decode($response['body']) == 'valid' ) )
-			return true;
-	
-		return false;
-	}
-	
-	/**
-	 * Set masked license key
-	 *
-	 * @since     1.3.1
-	 */
-	private function get_masked_license_key($type) 
-	{
-		return '**************************'.substr( $this->get_license_key($type), -4 );		
-	}
 	
 	/**
 	 * Ajax activation
@@ -2133,53 +2217,24 @@ class Codepress_Admin_Columns
 		$key 	= $_POST['key'];
 		$type 	= $_POST['type'];
 		
+		$licence = new cpac_licence( $type );
+		
 		// update key
 		if ( $key == 'remove' ) {
-			$this->remove_license_key($type);
+			$licence->remove_license_key();
 		}
 			
 		// set license key
-		elseif ( $this->check_remote_key($type, $key) ) {
+		elseif ( $licence->check_remote_key( $key ) ) {
 		
 			// set key
-			$this->set_license_key($type, $key);
+			$licence->set_license_key( $key );
 			
 			// returned masked key
-			echo json_encode( $this->get_masked_license_key($type) );
+			echo json_encode( $licence->get_masked_license_key() );
 		}
 
 		exit;
-	}
-	
-	/**
-	 * Get license key
-	 *
-	 * @since     1.3
-	 */
-	private function get_license_key($type)
-	{
-		return get_option("cpac_{$type}_ac");
-	}
-	
-	/**
-	 * Set license key
-	 *
-	 * @since     1.3
-	 */
-	private function set_license_key($type, $key)
-	{
-		update_option( "cpac_{$type}_ac", trim($key) );
-	}
-	
-	/**
-	 * Remove license key
-	 *
-	 * @since     1.3.1
-	 */
-	private function remove_license_key($type)
-	{
-		delete_option( "cpac_{$type}_ac" );
-		delete_transient("cpac_{$type}_trnsnt");
 	}
 	
 	/**
@@ -2260,11 +2315,11 @@ class Codepress_Admin_Columns
 	}
 	
 	/**
-	 * Activation settings
+	 * Plugin Settings
 	 *
 	 * @since     1.3.1
 	 */
-	private function activation_settings() 
+	private function plugin_settings() 
 	{
 		$class_current_settings = $this->is_menu_type_current('plugin_settings') ? ' current' : ' hidden'; '';
 		
@@ -2274,8 +2329,10 @@ class Codepress_Admin_Columns
 		$class_sortorder_deactivate = ' hidden';
 		
 		// is unlocked
-		if ( $this->is_unlocked('sortable') ) {
-			$masked_key 	 = $this->get_masked_license_key('sortable');
+		$licence = new cpac_licence('sortable');
+		
+		if ( $licence->is_unlocked() ) {
+			$masked_key 	 = $licence->get_masked_license_key('sortable');
 			$class_sortorder_activate = ' hidden';
 			$class_sortorder_deactivate = '';
 		}
@@ -2293,39 +2350,92 @@ class Codepress_Admin_Columns
 			{$find_out_more}
 		";
 		
-		// markup
-		$sortable = "
-		<tr id='cpac-activation-sortable' class='last'>
-			<td class='activation_type'>
-				<span>" . __('Sortorder', CPAC_TEXTDOMAIN) . "</span>
-				<div class='cpac-tooltip hidden'>
-					<div class='qtip_title'>" . __('Sortorder', CPAC_TEXTDOMAIN) . "</div>
-					<div class='qtip_content'>
-						<p>" . __($sortable_tooltip, CPAC_TEXTDOMAIN) . "</p>
+		// addons 
+		$addons = "
+			<tr>
+				<td colspan='2'>
+					<h2>".__('Activate Add-ons', CPAC_TEXTDOMAIN)."</h2>
+					<p>".__('Add-ons can be unlocked by purchasing a license key. Each key can be used on multiple sites', CPAC_TEXTDOMAIN)." <a target='_blank' href='{$this->codepress_url}/sortorder-addon/'>Visit the Plugin Store</a>.</p>
+					<table class='widefat addons'>
+						<thead>
+							<tr>
+								<th class='activation_type'>".__('Addon', CPAC_TEXTDOMAIN)."</th>
+								<th class='activation_status'>".__('Status', CPAC_TEXTDOMAIN)."</th>
+								<th class='activation_code'>".__('Activation Code', CPAC_TEXTDOMAIN)."</th>
+								<th class='activation_more'></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr id='cpac-activation-sortable' class='last'>
+								<td class='activation_type'>
+									<span>" . __('Sortorder', CPAC_TEXTDOMAIN) . "</span>
+									<div class='cpac-tooltip hidden'>
+										<div class='qtip_title'>" . __('Sortorder', CPAC_TEXTDOMAIN) . "</div>
+										<div class='qtip_content'>
+											<p>" . __($sortable_tooltip, CPAC_TEXTDOMAIN) . "</p>
+										</div>
+									</div>
+								</td>
+								<td class='activation_status'>
+									<div class='activate{$class_sortorder_activate}'>
+										" . __('Inactive', CPAC_TEXTDOMAIN) . "
+									</div>
+									<div class='deactivate{$class_sortorder_deactivate}'>
+										" . __('Active', CPAC_TEXTDOMAIN) . "
+									</div>
+								</td>
+								<td class='activation_code'>
+									<div class='activate{$class_sortorder_activate}'>
+										<input type='text' value='" . __('Fill in your activation code', CPAC_TEXTDOMAIN) . "' name='cpac-sortable-key'>
+										<a href='javascript:;' class='button'>" . __('Activate', CPAC_TEXTDOMAIN) . "<span></span></a>
+									</div>
+									<div class='deactivate{$class_sortorder_deactivate}'>
+										<span class='masked_key'>{$masked_key}</span>
+										<a href='javascript:;' class='button'>" . __('Deactivate', CPAC_TEXTDOMAIN) . "<span></span></a>
+									</div>
+									<div class='activation-error-msg'></div>
+								</td>
+								<td class='activation_more'>{$find_out_more}</td>
+							</tr><!-- #cpac-activation-sortable -->
+						</tbody>					
+					</table>
+					<div class='addon-translation-string hidden'>
+						<span class='tstring-fill-in'>" . __('Enter your activation code', CPAC_TEXTDOMAIN) . "</span>
+						<span class='tstring-unrecognised'>" . __('Activation code unrecognised', CPAC_TEXTDOMAIN) . "</span>
 					</div>
-				</div>
-			</td>
-			<td class='activation_status'>
-				<div class='activate{$class_sortorder_activate}'>
-					" . __('Inactive', CPAC_TEXTDOMAIN) . "
-				</div>
-				<div class='deactivate{$class_sortorder_deactivate}'>
-					" . __('Active', CPAC_TEXTDOMAIN) . "
-				</div>
-			</td>
-			<td class='activation_code'>
-				<div class='activate{$class_sortorder_activate}'>
-					<input type='text' value='" . __('Fill in your activation code', CPAC_TEXTDOMAIN) . "' name='cpac-sortable-key'>
-					<a href='javascript:;' class='button'>" . __('Activate', CPAC_TEXTDOMAIN) . "<span></span></a>
-				</div>
-				<div class='deactivate{$class_sortorder_deactivate}'>
-					<span class='masked_key'>{$masked_key}</span>
-					<a href='javascript:;' class='button'>" . __('Deactivate', CPAC_TEXTDOMAIN) . "<span></span></a>
-				</div>
-				<div class='activation-error-msg'></div>
-			</td>
-			<td class='activation_more'>{$find_out_more}</td>
-		</tr><!-- #cpac-activation-sortable -->
+				</td>
+			</tr>
+		";
+				
+		// general options
+		$general_options = "
+			<!--
+			<tr class='last'>
+				<td colspan='2'>
+					<h2>Options</h2>
+					<ul class='cpac-options'>
+						<li>
+							<div class='cpac-option-label'>Thumbnail size</div>
+							<div class='cpac-option-inputs'>										
+								<input type='text' id='thumbnail_size_w' class='small-text' name='cpac_options[settings][thumb_width]' value='80'/>
+								<label for='thumbnail_size_w'>Width</label>
+								<br/>										
+								<input type='text' id='thumbnail_size_h' class='small-text' name='cpac_options[settings][thumb_height]' value='80'/>
+								<label for='thumbnail_size_h'>Height</label>
+							</div>
+						</li>
+						<li>
+							<div class='cpac-option-label'>Excerpt length</div>
+							<div class='cpac-option-inputs'>										
+								
+								<input type='text' id='excerpt_length' class='small-text' name='cpac_options[settings][excerpt_length]' value='15'/>
+								<label for='excerpt_length'>Number of words</label>
+							</div>
+						</li>
+					</ul>						
+				</td>
+			</tr>
+			-->
 		";
 		
 		// settings
@@ -2333,56 +2443,8 @@ class Codepress_Admin_Columns
 		<tr id='cpac-box-plugin_settings' valign='top' class='cpac-box-row {$class_current_settings}'>
 			<td colspan='2'>
 				<table class='nopadding'>
-					<tr class='last'>
-						<td>
-							<h2>".__('Activate Add-ons', CPAC_TEXTDOMAIN)."</h2>
-							<p>".__('Add-ons can be unlocked by purchasing a license key. Each key can be used on multiple sites', CPAC_TEXTDOMAIN)." <a target='_blank' href='{$this->codepress_url}/sortorder-addon/'>Visit the Plugin Store</a>.</p>
-							<table class='widefat addons'>
-								<thead>
-									<tr>
-										<th class='activation_type'>".__('Addon', CPAC_TEXTDOMAIN)."</th>
-										<th class='activation_status'>".__('Status', CPAC_TEXTDOMAIN)."</th>
-										<th class='activation_code'>".__('Activation Code', CPAC_TEXTDOMAIN)."</th>
-										<th class='activation_more'></th>
-									</tr>
-								</thead>
-								<tbody>
-									{$sortable}
-								</tbody>					
-							</table>
-							<div class='addon-translation-string hidden'>
-								<span class='tstring-fill-in'>" . __('Enter your activation code', CPAC_TEXTDOMAIN) . "</span>
-								<span class='tstring-unrecognised'>" . __('Activation code unrecognised', CPAC_TEXTDOMAIN) . "</span>
-							</div>
-						</td>
-					</tr>
-					<!--
-					<tr class='last'>
-						<td colspan='2'>
-							<h2>Options</h2>
-							<ul class='cpac-options'>
-								<li>
-									<div class='cpac-option-label'>Thumbnail size</div>
-									<div class='cpac-option-inputs'>										
-										<input type='text' id='thumbnail_size_w' class='small-text' name='cpac_options[settings][thumb_width]' value='80'/>
-										<label for='thumbnail_size_w'>Width</label>
-										<br/>										
-										<input type='text' id='thumbnail_size_h' class='small-text' name='cpac_options[settings][thumb_height]' value='80'/>
-										<label for='thumbnail_size_h'>Height</label>
-									</div>
-								</li>
-								<li>
-									<div class='cpac-option-label'>Excerpt length</div>
-									<div class='cpac-option-inputs'>										
-										
-										<input type='text' id='excerpt_length' class='small-text' name='cpac_options[settings][excerpt_length]' value='15'/>
-										<label for='excerpt_length'>Number of words</label>
-									</div>
-								</li>
-							</ul>						
-						</td>
-					</tr>
-					-->
+					{$addons}					
+					{$general_options}
 				</table>
 			</td>
 		</tr><!-- #cpac-box-plugin_settings -->
@@ -2398,16 +2460,20 @@ class Codepress_Admin_Columns
 	 */
 	public static function get_post_count( $post_type, $user_id )
 	{
-		if ( ! post_type_exists($post_type) || ! get_userdata($user_id) )
+		global $wpdb;
+		
+		if ( ! post_type_exists($post_type) || empty($user_id) )
 			return false;
-			
-		$user_posts = get_posts(array(
-			'post_type'		=> $post_type,
-			'numberposts' 	=> -1,
-			'author' 		=> $user_id,
-			'post_status' 	=> 'publish'
-		));
-		return count($user_posts);
+		
+		$sql = "
+			SELECT COUNT(ID)
+			FROM {$wpdb->posts}
+			WHERE post_status = 'publish'
+			AND post_author = %d
+			AND post_type = %s
+		";
+		
+		return $wpdb->get_var( $wpdb->prepare($sql, $user_id, $post_type) );
 	}
 	
 	/**
@@ -2426,12 +2492,7 @@ class Codepress_Admin_Columns
 		foreach ( $this->get_types() as $type ) {
 			
 			// post type label
-			$label = $this->get_singular_name($type);			
-			
-			// screen link
-			$screen_link = '';
-			//$screen_link = $this->get_type_screen_link($type);
-			//$screen_link = "<a href='{$screen_link}' class='go-to-screen'>" . sprintf( __('go to %s screen'), strtolower($label) ) . "</a>";	
+			$label = $this->get_singular_name($type);
 			
 			// id
 			$id = $this->sanitize_string($type); 
@@ -2445,7 +2506,7 @@ class Codepress_Admin_Columns
 			$rows .= "
 				<tr id='cpac-box-{$id}' valign='top' class='cpac-box-row{$class}'>
 					<th class='cpac_post_type' scope='row'>
-						{$label}{$screen_link}
+						{$label}
 					</th>
 					<td>
 						<h3 class='cpac_post_type hidden'>{$label}</h3>
@@ -2455,8 +2516,8 @@ class Codepress_Admin_Columns
 			";
 		}
 		
-		// Activation 
-		$activation_settings = $this->activation_settings();
+		// General Setttings
+		$general_settings = $this->plugin_settings();
 		
 		// Post Type Menu
 		$menu = $this->get_menu();
@@ -2556,7 +2617,7 @@ class Codepress_Admin_Columns
 									<?php echo $rows; ?>								
 									
 									<!-- activation -->
-									<?php echo $activation_settings; ?>
+									<?php echo $general_settings; ?>
 									
 									<tr class="bottom" valign="top">
 										<th scope="row"></th>

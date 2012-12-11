@@ -3,8 +3,8 @@ Contributors: codepress, tschutter, davidmosterd
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZDZRSYLQ4Z76J
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.1
-Tested up to: 3.4.2
-Stable tag: 1.4.6.4
+Tested up to: 3.5
+Stable tag: 1.4.7
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -163,9 +163,10 @@ $my_width  = 194;
 // stop editing
 
 add_image_size( 'admin-columns', $my_width, $my_height, true );
-add_filter('cpac_thumbnail_size', function() { 
+add_filter('cpac_thumbnail_size', 'cb_cpac_thumbnail_size' );
+function cb_cpac_thumbnail_size() { 
 	return 'admin-columns';
-});
+};
 ?>
 `
 
@@ -244,6 +245,16 @@ add_filter( 'cpac_get_column_value_custom_field', 'my_custom_field_value', 10, 5
 7. Settings page showing the different displaying types for custom field.
 
 == Changelog ==
+
+= 1.4.7 =
+* ready for WP 3.5
+* added support for custom fields for Media
+* added color to the custom field types
+* fixed default sorting for Post(types) and Media
+* fixed problem with different date formats in custom fields. all dates will parsed by strtotime() now.
+* fixed bug which could trigger a conflict when saving the setting on other plugins
+* fixed bug when returning an admin class atrribute
+* improved perfomance on post count on user overview screen
 
 = 1.4.6.4 =
 * Added 'before more tag' column, which will show the content which is placed before the more-tag
