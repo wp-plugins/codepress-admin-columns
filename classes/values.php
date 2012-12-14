@@ -518,7 +518,6 @@ class CPAC_Values
 		
 		return date_i18n( get_option('date_format'), $date );
 	}
-	}
 
 	/**
 	 * Get time
