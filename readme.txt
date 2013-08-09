@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.5
 Tested up to: 3.6
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -247,6 +247,10 @@ add_filter( 'cpac_get_column_value_custom_field', 'my_custom_field_value', 10, 5
 8. Posts Screen with custom fields.
 
 == Changelog ==
+
+
+= 2.0.1 =
+*[Fixed] Bug which caused columns to not include properly
 
 = 2.0.0 =
 * [Notice] Database needs an update, make sure to backup first
