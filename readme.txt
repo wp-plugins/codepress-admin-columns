@@ -2,9 +2,9 @@
 Contributors: codepress, tschutter, davidmosterd
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZDZRSYLQ4Z76J
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
-Requires at least: 3.1
-Tested up to: 3.5
-Stable tag: 1.4.9
+Requires at least: 3.5
+Tested up to: 3.6
+Stable tag: 2.0.0
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -115,24 +115,25 @@ It will work nice with other plugins and support their additional custom columns
 
 = Translations =
 
-If you like to contrinute a language, please send them to <a href="mailto:info@codepress.nl">info@codepress.nl</a>.
+If you like to contrinute a language, please use <a href="https://www.transifex.com/projects/p/admin-columns/">Transifex</a>.
 
-* Danish (da_DK) - Thanks for contributing the danish language goes to Morten Dalgaard Johansen
-* German (de_DE) - Thanks for contributing the german language goes to Uli
-* Polish (pl_PL) - Thanks for contributing the polish language goes to Bartosz
-* French (fr_FR) - Thanks for contributing the french language goes to Alexandre Girard
+* Swedish (sv_SE) - Thanks to Fredrik Andersson
+* Danish (da_DK) - Thanks to Morten Dalgaard Johansen
+* German (de_DE) - Thanks to Uli
+* Polish (pl_PL) - Thanks to Bartosz
+* French (fr_FR) - Thanks to Alexandre Girard
 
 = Upcoming releases =
 
-* support for default sorting for users, links and comments
+* We will post the upcoming features on <a href="http://www.codepresshq.com/wordpress-plugins/admin-columns/">our website</a>.
 
 **Feedback**
 
-You can leave any <a href='http://www.codepress.nl/plugins/codepress-admin-columns/feedback'>requests or feedback</a>.
+You can leave any <a href='http://www.codepresshq.com/support/'>requests or feedback</a>.
 
 **Related Links:**
 
-* http://www.codepress.nl/plugins/codepress-admin-columns/
+* http://www.codepresshq.com/wordpress-plugins/admin-columns/
 
 == Installation ==
 
@@ -243,174 +244,202 @@ add_filter( 'cpac_get_column_value_custom_field', 'my_custom_field_value', 10, 5
 5. Settings page for Users columns.
 6. Users Screen with the customized sortable columns.
 7. Settings page showing the different displaying types for custom field.
+8. Posts Screen with custom fields.
 
 == Changelog ==
 
-= 1.4.9
+= 2.0.0 =
+* [Notice] Database needs an update, make sure to backup first
+* [Changed] Sortorder licence is now an Pro Add-on
+* [Changed] Some filters and hooks have been changed, see online documentation
+* [Updated] Extensive refactoring of the code with improved API
+* [Updated] New UI with responsive design
+* [Updated] Hooks and filters has been replaced with one that follows the correct naming conventions with underscores.
+* [Updated] Columns menu will only display posttypes which have show_ui set to true
+* [Updated] Admin Columns will have a tabbed settings panel
+* [Added] Added settings page.
+* [Added] Added import/export capabilities
+* [Added] Column: Available_Sizes for media
+* [Added] Default sorting for Users, Comments, Media
+* [Added] Column: Parent for posts
+* [Added] Set your own excerpt length per column
+* [Added] Set your own image size per column
+* [Added] Restore settings per type
+* [Added] Column support for WooCommerce
+* [Added] Support for image headings by other plugin columns
+* [Added] Added edit/view-button for easy switching between overview screen and admin columns
+* [Added] Added capability manage_admin_columns to control which roles can set columns
+* [Removed] Column: Actions for comments
+* [Removed] Calling get_column_headers() interfered with storing columns
+* [Fixed] Issue: Sorting was not working when label contains the ':' character
+* [Addon] Added Pro add-on
+* [Addon] Pro add-on includes Sorting, Filtering and Import/Export
+
+= 1.4.9 =
 * fixed bug: thirdparty columns that were previous loaded through load-edit.php will now use do_action( 'cpac-get-default-columns-{$type}' )
 
 = 1.4.8 =
-* fixed bug: removed acf posttype placed by Advaced Custom Fields from settings menu
-* fixed bug: removed bbPress posttypes topic, forum and reply from admin columns settings menu
-* fixed bug: license key could not activate properly
+* [Fixed] Issue: removed acf posttype placed by Advaced Custom Fields from settings menu
+* [Fixed] Issue: removed bbPress posttypes topic, forum and reply from admin columns settings menu
+* [Fixed] Issue: license key could not activate properly
 
 = 1.4.7 =
-* ready for WP 3.5
-* added support for custom fields for Media
-* added color to the custom field types
-* fixed default sorting for Post(types) and Media
-* fixed problem with different date formats in custom fields. all dates will parsed by strtotime() now.
-* fixed bug which could trigger a conflict when saving the setting on other plugins
-* fixed bug when returning an admin class atrribute
-* improved perfomance on post count on user overview screen
+* [Upated] Ready for WP 3.5
+* [Added] support for custom fields for Media
+* [Added] color to the custom field types
+* [Fixed] default sorting for Post(types) and Media
+* [Fixed] problem with different date formats in custom fields. all dates will parsed by strtotime() now.
+* [Fixed] Issue: which could trigger a conflict when saving the setting on other plugins
+* [Fixed] Issue: when returning an admin class atrribute
+* [Improved] Perfomance on post count on user overview screen
 
 = 1.4.6.4 =
-* Added 'before more tag' column, which will show the content which is placed before the more-tag
-* bug fix: file images will now also be displayed when they can not be resized.
-* bug fix: the checkbox disappeared when resetting columns and resaving them.
+* [Added] 'before more tag' column, which will show the content which is placed before the more-tag
+* [Fixed] Issue: file images will now also be displayed when they can not be resized.
+* [Fixed] Issue: the checkbox disappeared when resetting columns and resaving them.
 
 = 1.4.6.3 =
 
-* Added new custom field type: User by User ID
-* Added values to filter 'cpac_get_column_value_custom_field' for better control of the output
-* Added an example for above filter to FAQ section
-* Added fix where trash posts did not show with the sorting addon activated
+* [Added] new custom field type: User by User ID
+* [Added] values to filter 'cpac_get_column_value_custom_field' for better control of the output
+* [Added] an example for above filter to FAQ section
+* [Fixed] Issue: where trash posts did not show with the sorting addon activated
 
 = 1.4.6.2 =
 
-* bug fix with a static function which could cause an error in some cases
-* added filter to enable taxonomy filtering. add this to your functions.php to enable taxonomy filtering: `add_filter( 'cpac-remove-filtering-columns', '__return_false' );`
+* [Fixed] Issue: with a static function which could cause an error in some cases
+* [Added] filter to enable taxonomy filtering. add this to your functions.php to enable taxonomy filtering: `add_filter( 'cpac-remove-filtering-columns', '__return_false' );`
 
 = 1.4.6.1 =
 
-* bug fix for possible warning when using Custompress ( props to scottsalisbury for the fix! )
-* bug fix for sorting by postcount for users
-* added 'Display Author As' column for post(types)
-* added sorting support for 'Display Author As' column
+* [Fixed] Issue: for possible warning when using Custompress ( props to scottsalisbury for the fix! )
+* [Fixed] Issue: for sorting by postcount for users
+* [Added] 'Display Author As' column for post(types)
+* [Added] sorting support for 'Display Author As' column
 
 = 1.4.6 =
 
-* added german language ( thanks to Uli )
-* added danish language ( thanks to Morten Dalgaard Johansen )
-* added filter for setting thumbnail size ( see FAQ on how to use it )
-* added support for hidden custom fields ( see FAQ on how to enable this )
-* added fix for WordPress SEO by Yoast Columns
+* [Added] german language ( thanks to Uli )
+* [Added] danish language ( thanks to Morten Dalgaard Johansen )
+* [Added] filter for setting thumbnail size ( see FAQ on how to use it )
+* [Added] support for hidden custom fields ( see FAQ on how to enable this )
+* [Fixed] Issue: for WordPress SEO by Yoast Columns
 
 = 1.4.5.1 =
 
-* removed taxonomy filtering ( will implement show/hide option )
+* [Removed] taxonomy filtering ( will implement show/hide option )
 
 = 1.4.5 =
 
-* added french language ( thanks to Alexandre Girard )
-* filtering by taxonomy ( only displays when column is used )
-* added compatibility with woocommerce
-* fix value media meta column ID
-* fixed bug with sorting users by postcount
-* added Actions column for Media (delete, view etc.)
-* added Actions column for Link (delete, view etc.)
-* added Actions column for Comments (delete, view etc.)
-* added Wordcount column for Comments
-* added Filesize column for Media ( supports sorting )
-* added default sorting for posts ( remembers your last sorting, only with addon )
-* added default sorting for media ( remembers your last sorting, only with addon )
-* added filters to the result output
+* [Added] french language ( thanks to Alexandre Girard )
+* [Added] filtering by taxonomy ( only displays when column is used )
+* [Added] compatibility with woocommerce
+* [Added] Actions column for Media (delete, view etc.)
+* [Added] Actions column for Link (delete, view etc.)
+* [Added] Actions column for Comments (delete, view etc.)
+* [Added] Wordcount column for Comments
+* [Added] Filesize column for Media ( supports sorting )
+* [Added] default sorting for posts ( remembers your last sorting, only with addon )
+* [Added] default sorting for media ( remembers your last sorting, only with addon )
+* [Added] filters to the result output
+* [Fixed] Issue: value media meta column ID
+* [Fixed] Issue: with sorting users by postcount
 
 = 1.4.4 =
 
-* added posts columns Last Modified and Comment count
-* added media columns for EXIF and IPTC image data
-* added custom fields columns to the Media Library
-* given column values it's own class
-* added bug fix for sorting bookmarks/links
-* added fix for possible php warning
+* [Added] posts columns Last Modified and Comment count
+* [Added] media columns for EXIF and IPTC image data
+* [Added] custom fields columns to the Media Library
+* [Improved] given column values it's own class
+* [Added] bug fix for sorting bookmarks/links
+* [Fixed] possible php warning
 
 = 1.4.3 =
 
-* removed taxonomy filtering
+* [Removed] taxonomy filtering
 
 = 1.4.2 =
 
-* added fix for unexpected output in the column value
-* added fix for better 3rd party plugin support
-* added column for Comment status
-* added column for Ping/Trackback status
-* added column for Posts Actions (delete, view etc.)
-* added column for Users Actions (delete, view etc.)
-* added sorting taxonomies ( only on first one )
-* added bug fix for sorting
-* added taxonomy filtering
+* [Fixed] Issue: for unexpected output in the column value
+* [Fixed] Issue: for better 3rd party plugin support
+* [Added] column for Comment status
+* [Added] column for Ping/Trackback status
+* [Added] column for Posts Actions (delete, view etc.)
+* [Added] column for Users Actions (delete, view etc.)
+* [Added] sorting taxonomies ( only on first one )
+* [Fixed] Issue: fix for sorting
+* [Added] taxonomy filtering
 
 = 1.4.1 =
 
-* added polish translation, thanks to Bartosz.
-* changed the license key validation proces
-* removed non-breaking-space-character from column output
+* [Added] polish translation, thanks to Bartosz.
+* [Upated] the license key validation proces to be complaint with WP rules
+* [Removed] non-breaking-space-character from column output
 
 = 1.4 =
 
-* added support for comment columns
-* added support for link columns
-* added links to taxonomies
-* added sorting user custom fields
-* added sorting to links columns
-* added user columns so you can see how many articles an author has published of a certain post type
-* added Textual help
-* added the option to specify column width
-* added role column to all posts screens
-* added posts status column to all posts screens
-* added image path to media library
-* added added apply_filters('cpac-get-post-types', $post_types) to filter out certain post types
-* added option to enter license key for activating sorting on ALL columns
-* fixed a php5 warning
-* fixed a conflict with the Co-Authors plugin
+* [Added] support for comment columns
+* [Added] support for link columns
+* [Added] links to taxonomies
+* [Added] sorting user custom fields
+* [Added] sorting to links columns
+* [Added] user columns so you can see how many articles an author has published of a certain post type
+* [Added] Textual help
+* [Added] the option to specify column width
+* [Added] role column to all posts screens
+* [Added] posts status column to all posts screens
+* [Added] image path to media library
+* [Added] added apply_filters('cpac-get-post-types', $post_types) to filter out certain post types
+* [Added] option to enter license key for activating sorting on ALL columns
+* [Fixed] Issue: a php5 warning
+* [Fixed] Issue: a conflict with the Co-Authors plugin
 
 = 1.3 =
 
-* added support for Media columns
-* added Media columns: filename, width, height, dimensions, description, alt, caption and mime-type
-* added date type to posts custom fields
-* added title type to posts custom fields
-* sorting has changed. when sorting; only results are shown which contain a value
-* str_word_count is used for excerpts
+* [Added] support for Media columns
+* [Added] Media columns: filename, width, height, dimensions, description, alt, caption and mime-type
+* [Added] date type to posts custom fields
+* [Added] title type to posts custom fields
+* [Improved] sorting has changed. when sorting; only results are shown which contain a value
+* [Improved] str_word_count is used for excerpts
 
 = 1.2.1 =
 
-* added word count sorting
-* added attachment count sorting
-* added template name sorting
-* minor styling changes
-* bug fix with sorting by slug
-* bug fix with sorting by attachment
+* [Added] word count sorting
+* [Added] attachment count sorting
+* [Added] template name sorting
+* [Improved] styling changes
+* [Fixed] Issue: with sorting by slug
+* [Fixed] Issue: with sorting by attachment
 
 = 1.2 =
 
-* added support for third party plugins
-* added user custom fields
-* added extra image check
-* bug fix with javascript (jquery) enqueue
+* [Added] support for third party plugins
+* [Added] user custom fields
+* [Added] extra image check
+* [Fixed] Issue: with javascript (jquery) enqueue
 
 = 1.1.3 =
 
-* added bug fix for WP3.3beta ( thanks to raonip and ronbme for pointing this out )
+* [Fixed] Issue: for WP3.3beta
 
 = 1.1.2 =
 
-* added dutch translation
+* [Added] dutch translation
 
 = 1.1.1 =
 
-* Bug fix: path separator for require_once
-* Added word count
+* [Fixed] Issue: path separator for require_once
+* [Added] word count column
 
 = 1.1 =
 
-* Added User Columns.
-* Added before / after text for custom fields
-* Added custom field type 'Numeric'.
-* Added custom field sortables.
-* Fixed domain path
-* Fixed settings link
+* [Added] User Columns.
+* [Added] before / after text for custom fields
+* [Added] custom field type 'Numeric'.
+* [Added] custom field sortables.
+* [Fixed] domain path
+* [Fixed] settings link
 
 = 1.0 =
 
