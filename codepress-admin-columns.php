@@ -2,7 +2,7 @@
 /*
 
 Plugin Name: 		Codepress Admin Columns
-Version: 			2.0.1
+Version: 			2.0.2
 Description: 		Customize columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepresshq.com
@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-define( 'CPAC_VERSION', 	 	'2.0.1' ); // current plugin version
+define( 'CPAC_VERSION', 	 	'2.0.2' ); // current plugin version
 define( 'CPAC_UPGRADE_VERSION', '2.0.0' ); // this is the latest version which requires an upgrade
 define( 'CPAC_URL', 			plugin_dir_url( __FILE__ ) );
 define( 'CPAC_DIR', 			plugin_dir_path( __FILE__ ) );
@@ -340,7 +340,11 @@ class CPAC {
 			.cpac-edit { margin-right: 3px; vertical-align: middle; }
 		</style>
 
-		<?php if ( current_user_can( 'manage_admin_columns' ) && $edit_link ) : ?>
+		<?php
+
+		$general_options = get_option( 'cpac_general_options' );
+
+		if ( current_user_can( 'manage_admin_columns' ) && $edit_link && isset( $general_options['show_edit_button'] ) && '1' === $general_options['show_edit_button'] ) : ?>
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
 				jQuery('.tablenav.top .actions:last').append('<a href="<?php echo $edit_link; ?>" class="cpac-edit add-new-h2"><?php _e( 'Edit columns', 'cpac' ); ?></a>');

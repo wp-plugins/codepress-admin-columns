@@ -47,6 +47,13 @@ abstract class CPAC_Storage_Model {
 	protected $custom_columns;
 
 	/**
+	 * Columns
+	 *
+	 * @since 2.0.1
+	 */
+	protected $columns;
+
+	/**
 	 * Get default columns
 	 *
 	 * @since 2.0.0
@@ -221,7 +228,8 @@ abstract class CPAC_Storage_Model {
 
 		foreach( $iterator as $leaf ) {
 
-			if ( $leaf->isDot() ) continue;
+			// skip files that start with . ( e.g: .SVN .DS_STORE )
+			if ( $leaf->isDot() || $leaf->isDir() || substr( $leaf->getFilename(), 0, 1 ) === '.' ) continue;
 
 			// build classname from filename
 			$class_name = implode( '_', array_map( 'ucfirst', explode( '-', basename( $leaf->getFilename(), '.php' ) ) ) );
@@ -375,6 +383,15 @@ abstract class CPAC_Storage_Model {
 	}
 
 	/**
+	 * Set Columns
+	 *
+	 * @since 2.0.2
+	 */
+	function set_columns() {
+		$this->columns = $this->get_columns();
+	}
+
+	/**
 	 * Get Columns
 	 *
 	 * @since 2.0.0
@@ -463,11 +480,15 @@ abstract class CPAC_Storage_Model {
 	 */
 	function get_column_by_name( $name ) {
 
-		$columns = $this->get_columns();
-		if ( ! isset( $columns[ $name ] ) )
+		// @todo check if no issues come up by using $this->columns
+		//$columns = $this->get_columns();
+		//if ( ! isset( $columns[ $name ] ) )
+		//	return false;*/
+
+		if ( ! isset( $this->columns[ $name ] ) )
 			return false;
 
-		return $columns[ $name ];
+		return $this->columns[ $name ];
 	}
 
 	/**

@@ -121,7 +121,7 @@ class CPAC_Column {
 		// set column name to column type
 		$properties['name'] = $properties['type'];
 
-		// show
+		// apply conditional statements wheter this column should be available or not.
 		if ( method_exists( $this, 'apply_conditional' ) )
 			$properties['is_registered'] = $this->apply_conditional();
 
@@ -754,11 +754,9 @@ class CPAC_Column {
 		<td class="label">
 			<label for="<?php $this->attr_id( $pointer ); ?>">
 				<?php echo stripslashes( $label ); ?>
+
+				<?php if( $description ) : ?><p class="description"><?php echo $description; ?></p><?php endif; ?>
 			</label>
-			<?php if( $description ) : ?>
-			<p class="description"><?php echo $description; ?></p>
-			<a href="javascript:;" class="more-info"></a>
-			<?php endif; ?>
 		</td>
 		<?php
 	}

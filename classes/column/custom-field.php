@@ -165,7 +165,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	}
 
 	/**
-	 * Get Users by ID - Value method
+	 * Get meta value
 	 *
 	 * @since 2.0.0
 	 *
@@ -292,18 +292,22 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	 */
 	function get_value( $id ) {
 
-		if ( ! $meta = $this->get_meta_by_id( $id ) )
-			return false;
+		$value = '';
 
-		// get value by meta
-		$meta = $this->get_value_by_meta( $meta );
+		if ( $meta = $this->get_meta_by_id( $id ) ) {
 
-		// add before and after string
-		if ( $meta ) {
-			$meta = "{$this->options->before}{$meta}{$this->options->after}";
+			// get value by meta
+			$value = $this->get_value_by_meta( $meta );
 		}
 
-		return $meta;
+		$value = apply_filters( 'cac/column/meta/value', $value, $id, $this );
+
+		// add before and after string
+		if ( $value ) {
+			$value = "{$this->options->before}{$value}{$this->options->after}";
+		}
+
+		return $value;
 	}
 
 	/**
@@ -379,13 +383,13 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 		<tr class="column_before">
 			<?php $this->label_view( __( "Before", 'cpac' ), __( 'This text will appear before the custom field value.', 'cpac' ), 'before' ); ?>
 			<td class="input">
-				<input type="text" class="cpac-before" name="<?php $this->attr_name( 'before' ); ?>" id="<?php $this->attr_id( 'before' ); ?>" value="<?php echo $this->options->before; ?>"/>
+				<input type="text" class="cpac-before" name="<?php $this->attr_name( 'before' ); ?>" id="<?php $this->attr_id( 'before' ); ?>" value="<?php echo esc_attr( stripslashes( $this->options->before ) ); ?>"/>
 			</td>
 		</tr>
 		<tr class="column_after">
 			<?php $this->label_view( __( "After", 'cpac' ), __( 'This text will appear after the custom field value.', 'cpac' ), 'after' ); ?>
 			<td class="input">
-				<input type="text" class="cpac-after" name="<?php $this->attr_name( 'after' ); ?>" id="<?php $this->attr_id( 'after' ); ?>" value="<?php echo $this->options->after; ?>"/>
+				<input type="text" class="cpac-after" name="<?php $this->attr_name( 'after' ); ?>" id="<?php $this->attr_id( 'after' ); ?>" value="<?php echo esc_attr( stripslashes( $this->options->after ) ); ?>"/>
 			</td>
 		</tr>
 		<?php

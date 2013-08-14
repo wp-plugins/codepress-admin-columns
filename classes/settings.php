@@ -123,6 +123,11 @@ class CPAC_Settings {
 		// columns
 		wp_enqueue_script( 'cpac-admin-columns', CPAC_URL . 'assets/js/admin-columns.js', array( 'jquery', 'dashboard', 'jquery-ui-slider', 'jquery-ui-sortable' ), CPAC_VERSION );
 		wp_enqueue_script( 'cpac-custom-fields-js', CPAC_URL . 'assets/js/custom-fields.js', array( 'jquery' ), CPAC_VERSION );
+
+		// javascript translations
+		wp_localize_script( 'cpac-admin-columns', 'cpac_i18n', array(
+			'clone'	=> __( '%s column is already present and can not be duplicated.', 'cpac' ),
+		));
 	}
 
 	/**
@@ -201,15 +206,14 @@ class CPAC_Settings {
 			),
 			array(
 				'title'		=> __( "Basics", 'cpac' ),
-				'content'	=>
-					"<h5>". __( "Show / Hide", 'cpac' ) . "</h5>
-					<p>". __( "You can switch columns on or off by clicking on the checkbox. This will show or hide each column heading.", 'cpac' ) . "</p>
-					<h5>". __( "Change order", 'cpac' ) . "</h5>
-					<p>". __( "By dragging the columns you can change the order which they will appear in.", 'cpac' ) . "</p>
-					<h5>". __( "Change label", 'cpac' ) . "</h5>
-					<p>". __( "By clicking on the triangle you will see the column options. Here you can change each label of the columns heading.", 'cpac' ) . "</p>
-					<h5>". __( "Change column width", 'cpac' ) . "</h5>
-					<p>". __( "By clicking on the triangle you will see the column options. By using the draggable slider yo can set the width of the columns in percentages.", 'cpac' ) . "</p>"
+				'content'	=> "
+					<h5>" 	. __( "Change order", 'cpac' ) . "</h5>
+					<p>" 	. __( "By dragging the columns you can change the order which they will appear in.", 'cpac' ) . "</p>
+					<h5>" 	. __( "Change label", 'cpac' ) . "</h5>
+					<p>" 	. __( "By clicking on the triangle you will see the column options. Here you can change each label of the columns heading.", 'cpac' ) . "</p>
+					<h5>" 	. __( "Change column width", 'cpac' ) . "</h5>
+					<p>" 	. __( "By clicking on the triangle you will see the column options. By using the draggable slider you can set the width of the columns in percentages.", 'cpac' ) . "</p>
+				"
 			),
 			array(
 				'title'		=> __( "Custom Field", 'cpac' ),
@@ -578,7 +582,7 @@ class CPAC_Settings {
 							<?php $has_been_stored = $storage_model->get_stored_columns() ? true : false; ?>
 							<div class="form-update">
 								<input type="hidden" name="cpac_action" value="update_by_type" />
-								<input type="submit" class="button-primary submit-update" value="<?php echo $has_been_stored ? __( 'Update' ) : __('Publish'); ?>" accesskey="u" >
+								<input type="submit" class="button-primary submit-update" value="<?php echo $has_been_stored ? __( 'Update' ) : __('Publish'); ?> <?php echo $storage_model->label; ?>" accesskey="u" >
 							</div>
 							<?php if ( $has_been_stored ) : ?>
 							<div class="form-reset">
@@ -697,11 +701,19 @@ class CPAC_Settings {
 							<form method="post" action="options.php">
 								<?php settings_fields( 'cpac-general-settings' ); ?>
 								<?php $options = get_option( 'cpac_general_options' ); ?>
-								<strong><?php _e( 'Custom field settings', 'cpac' ); ?></strong>
+								<p>
+									<br/>
+								</p>
 								<p>
 									<label for="show_hidden">
 										<input name="cpac_general_options[show_hidden]" id="show_hidden" type="checkbox" value="1" <?php checked( isset( $options['show_hidden'] ) ? $options['show_hidden'] : '', '1' ); ?>>
 										<?php _e( 'Show hidden custom fields. Default is <code>off</code>.', 'cpac' ); ?>
+									</label>
+								</p>
+								<p>
+									<label for="show_edit_button">
+										<input name="cpac_general_options[show_edit_button]" id="show_edit_button" type="checkbox" value="1" <?php checked( isset( $options['show_edit_button'] ) ? $options['show_edit_button'] : '', '1' ); ?>>
+										<?php _e( 'Show "Edit Columns" button on admin screens. Default is <code>off</code>.', 'cpac' ); ?>
 									</label>
 								</p>
 
