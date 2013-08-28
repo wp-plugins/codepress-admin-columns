@@ -163,7 +163,7 @@ This will enable you to select your HIDDEN custom fields in de dropdown menu und
 
 = How can I display a custom value in the Custom Fields Column? =
 
-With this filter 'cpac_get_column_value_custom_field' you can control what the value will be for any Custom Field Column.
+With this filter 'cac/column/meta/value' you can control what the value will be for any Custom Field Column.
 
 Filter explained:
 
