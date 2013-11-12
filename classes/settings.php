@@ -60,10 +60,6 @@ class CPAC_Settings {
 	 */
 	public function settings_menu() {
 
-		// add pages @remove
-		//$this->admin_page  = add_menu_page( __( 'Admin Columns Settings', 'cpac' ), __( 'Admin Columns', 'cpac' ), 'manage_admin_columns', 'codepress-admin-columns', array( $this, 'column_settings' ), false, 98 );
-		//$settings_page = add_submenu_page( 'codepress-admin-columns', __( 'Settings', 'cpac' ), __( 'Settings', 'cpac' ), 'manage_admin_columns', 'cpac-settings',	array( $this, 'general_settings' ) );
-
 		// add settings page
 		$settings_page = add_submenu_page( 'options-general.php', __( 'Admin Columns Settings', 'cpac' ), __( 'Admin Columns', 'cpac' ), 'manage_admin_columns', 'codepress-admin-columns', array( $this, 'display' ), false, 98 );
 
@@ -149,6 +145,7 @@ class CPAC_Settings {
 		switch ( $action ) :
 
 			case 'update_by_type' :
+
 				if ( wp_verify_nonce( $nonce, 'update-type' ) ) {
 					$storage_model = $this->cpac->get_storage_model( $key );
 					$storage_model->store();
@@ -231,6 +228,7 @@ class CPAC_Settings {
 						<li><strong>". __( "Usernames", 'cpac' ) . "</strong><br/>". __( "Value: can be one or more User ID's (seperated by ',').", 'cpac' ) . "</li>
 						<li><strong>". __( "Checkmark", 'cpac' ) . "</strong><br/>". __( "Value: should be a 1 (one) or 0 (zero).", 'cpac' ) . "</li>
 						<li><strong>". __( "Color", 'cpac' ) . "</strong><br/>". __( "Value: hex value color, such as #808080.", 'cpac' ) . "</li>
+						<li><strong>". __( "Counter", 'cpac' ) . "</strong><br/>". __( "Value: Can be either a string or array. This will display a count of the number of times the meta key is used by the item.", 'cpac' ) . "</li>
 					</ul>
 				"
 			)
@@ -559,10 +557,6 @@ class CPAC_Settings {
 			<?php foreach ( $this->cpac->storage_models as $storage_model ) : ?>
 
 			<div class="columns-container" data-type="<?php echo $storage_model->key ?>"<?php echo $storage_model->is_menu_type_current( $first ) ? '' : ' style="display:none"'; ?>>
-				<form method="post" action="">
-
-				<?php wp_nonce_field( 'update-type', '_cpac_nonce'); ?>
-				<input type="hidden" name="cpac_key" value="<?php echo $storage_model->key; ?>" />
 
 				<div class="columns-left">
 					<div id="titlediv">
@@ -581,8 +575,7 @@ class CPAC_Settings {
 							</h3>
 							<?php $has_been_stored = $storage_model->get_stored_columns() ? true : false; ?>
 							<div class="form-update">
-								<input type="hidden" name="cpac_action" value="update_by_type" />
-								<input type="submit" class="button-primary submit-update" value="<?php echo $has_been_stored ? __( 'Update' ) : __('Publish'); ?> <?php echo $storage_model->label; ?>" accesskey="u" >
+								<a href="javascript:;" class="button-primary submit-update"><?php echo $has_been_stored ? __( 'Update' ) : __('Publish'); ?> <?php echo $storage_model->label; ?></a>
 							</div>
 							<?php if ( $has_been_stored ) : ?>
 							<div class="form-reset">
@@ -591,11 +584,14 @@ class CPAC_Settings {
 								</a>
 							</div>
 							<?php endif; ?>
+
+							<?php do_action( 'cac/settings/form_actions', $storage_model ); ?>
+
 						</div><!--form-actions-->
 
 						<?php if ( ! class_exists( 'CAC_Addon_Pro' ) ) : ?>
 						<div class="sidebox" id="pro-version">
-							<div class="padding-box">
+							<div class="padding-box cta">
 								<h3>
 									<a href="<?php echo $this->get_url('pro_addon'); ?>"><?php _e( 'Get the Pro Add-on', 'cpac' ) ?></a>
 								</h3>
@@ -610,6 +606,25 @@ class CPAC_Settings {
 									</p>
 								</div>
 							</div>
+							<!--
+							<div class="padding-box newsletter">
+								<form action="http://codepress.us4.list-manage.com/subscribe/post?u=902ae7f162ce5bc38a0bc8a4f&amp;id=183e843a76" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank">
+									<?php $user = wp_get_current_user(); ?>
+									<p>
+										<?php _e ( "Subscribe to receive news &amp; updates below.", 'cpac' ); ?>
+									</p>
+									<div class="mc-field-group">
+										<label for="mce-FNAME"><?php _e( 'First Name', 'cpac' ); ?></label>
+										<input type="text" value="<?php echo trim( esc_attr( $user->first_name ) ); ?>" name="FNAME" class="" id="mce-FNAME">
+									</div>
+									<div class="mc-field-group">
+										<label for="mce-EMAIL"><?php _e( 'Your Email', 'cpac' ); ?></label>
+										<input type="email" value="<?php echo trim( esc_attr( $user->user_email ) ); ?>" name="EMAIL" class="required email" id="mce-EMAIL">
+									</div>
+									<input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button">
+								</form>
+							</div>
+							-->
 						</div>
 					<?php endif; ?>
 
@@ -630,11 +645,18 @@ class CPAC_Settings {
 					<div class="cpac-boxes">
 						<div class="cpac-columns">
 
-							<?php
-							foreach ( $storage_model->get_columns() as $column ) {
-								$column->display();
-							}
-							?>
+							<form method="post" action="">
+								<?php wp_nonce_field( 'update-type', '_cpac_nonce'); ?>
+
+								<input type="hidden" name="cpac_key" value="<?php echo $storage_model->key; ?>" />
+								<input type="hidden" name="cpac_action" value="update_by_type" />
+
+								<?php
+								foreach ( $storage_model->get_columns() as $column ) {
+									$column->display();
+								}
+								?>
+							</form>
 
 						</div><!--.cpac-columns-->
 
@@ -649,8 +671,6 @@ class CPAC_Settings {
 					</div><!--.cpac-boxes-->
 				</div><!--.columns-left-->
 				<div class="clear"></div>
-
-				</form>
 
 				<div class="for-cloning-only" style="display:none">
 					<?php
@@ -667,12 +687,11 @@ class CPAC_Settings {
 			<div class="clear"></div>
 
 		<?php
-			break; // case: general
+				break; // case: general
 
 			case 'settings' :
-
 				$this->display_settings();
-			break; // case: settings
+				break;
 
 		endswitch;
 		?>

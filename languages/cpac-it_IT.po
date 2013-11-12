@@ -1,134 +1,139 @@
+# 
+# Translators:
+# werther <werther.d@gmail.com>, 2013
 msgid ""
 msgstr ""
-"Project-Id-Version: Codepress Admin Columns\n"
+"Project-Id-Version: Admin Columns\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-13 19:08+0100\n"
-"PO-Revision-Date: 2013-08-13 19:08+0100\n"
-"Last-Translator: Codepress <info@codepress.nl>\n"
-"Language-Team: Codepress <info@codepress.nl>\n"
+"POT-Creation-Date: 2013-08-26 16:51+0100\n"
+"PO-Revision-Date: 2013-10-30 18:22+0000\n"
+"Last-Translator: werther <werther.d@gmail.com>\n"
+"Language-Team: Italian (Italy) (http://www.transifex.com/projects/p/admin-columns/language/it_IT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-KeywordsList: __;_e\n"
-"X-Poedit-Basepath: .\n"
-"X-Poedit-SourceCharset: utf-8\n"
+"Language: it_IT\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.5.7\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPath-1: ..\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
 #: ../codepress-admin-columns.php:227 ../classes/settings.php:535
 msgid "Settings"
-msgstr ""
+msgstr "Impostazioni"
 
 #: ../codepress-admin-columns.php:350
 msgid "Edit columns"
-msgstr ""
+msgstr "Modifica colonne"
 
 #: ../classes/column.php:479
 msgid "Thumbnail"
-msgstr ""
+msgstr "Miniatura"
 
 #: ../classes/column.php:480
 msgid "Medium"
-msgstr ""
+msgstr "Media"
 
 #: ../classes/column.php:481
 msgid "Large"
-msgstr ""
+msgstr "Grande"
 
 #: ../classes/column.php:482
 msgid "Full"
-msgstr ""
+msgstr "Dimensione reale"
 
 #: ../classes/column.php:774
 msgid "Date Format"
-msgstr ""
+msgstr "Formato Data"
 
 #: ../classes/column.php:775
 msgid "This will determine how the date will be displayed."
-msgstr ""
+msgstr "Questo determinerà il modo in cui verrà visualizzata la data."
 
 #: ../classes/column.php:781
 msgid "Example:"
-msgstr ""
+msgstr "Esempio:"
 
 #: ../classes/column.php:783
 #, php-format
 msgid ""
 "Leave empty for WordPress date format, change your <a href=\"%s\">default "
 "date format here</a>."
-msgstr ""
+msgstr "Lasciare vuoto per utilizzare il formato data di WordPress, o modifica <a href=\"%s\">qui il formato data</a>."
 
 #: ../classes/column.php:784
 msgid "Documentation on date and time formatting."
-msgstr ""
+msgstr "Documentazione sulla formattazione \"data e ora\"."
 
 #: ../classes/column.php:801
 msgid "Excerpt length"
-msgstr ""
+msgstr "Lunghezza riassunto"
 
 #: ../classes/column.php:802
 msgid "Number of words"
-msgstr ""
+msgstr "Numero di parole"
 
 #: ../classes/column.php:824
 msgid "Preview size"
-msgstr ""
+msgstr "Dimensione anteprima"
 
 #: ../classes/column.php:841 ../classes/column.php:897
 msgid "Custom"
-msgstr ""
+msgstr "Personalizzata"
 
 #: ../classes/column.php:844
 msgid "width"
-msgstr ""
+msgstr "larghezza"
 
 #: ../classes/column.php:847
 msgid "height"
-msgstr ""
+msgstr "altezza"
 
 #: ../classes/column.php:898 ../classes/settings.php:224
 #: ../classes/column/custom-field.php:72
 msgid "Default"
-msgstr ""
+msgstr "Predefinito"
 
 #: ../classes/column.php:923 ../classes/column.php:984
 #: ../classes/column/user/actions.php:65
 msgid "Remove"
-msgstr ""
+msgstr "Rimuovi"
 
 #: ../classes/column.php:942
 msgid "Type"
-msgstr ""
+msgstr "TIpo"
 
 #: ../classes/column.php:942
 msgid "Choose a column type."
-msgstr ""
+msgstr "Scegli un tipo di colonna."
 
 #: ../classes/column.php:952
 msgid "Label"
-msgstr ""
+msgstr "Etichetta"
 
 #: ../classes/column.php:952
 msgid "This is the name which will appear as the column header."
-msgstr ""
+msgstr "Questo è il nome che apparirà come intestazione della colonna."
 
 #: ../classes/column.php:959 ../classes/column/media/width.php:12
 msgid "Width"
-msgstr ""
+msgstr "Larghezza"
 
 #: ../classes/column.php:961 ../classes/column.php:962
 msgid "default"
-msgstr ""
+msgstr "predefinito"
 
 #: ../classes/settings.php:68
 msgid "Admin Columns Settings"
-msgstr ""
+msgstr "Impostazioni Admin Columns"
 
 #: ../classes/settings.php:68 ../classes/settings.php:534
 #: ../classes/upgrade.php:89
 msgid "Admin Columns"
-msgstr ""
+msgstr "Admin Columns"
 
 #: ../classes/settings.php:129
 #, php-format
@@ -137,11 +142,11 @@ msgstr ""
 
 #: ../classes/settings.php:184
 msgid "Default settings succesfully restored."
-msgstr ""
+msgstr "Le impostazioni predefinite sono state ripristinate."
 
 #: ../classes/settings.php:202 ../classes/settings.php:457
 msgid "Overview"
-msgstr ""
+msgstr "Panoramica"
 
 #: ../classes/settings.php:205
 msgid ""
@@ -156,41 +161,41 @@ msgstr ""
 
 #: ../classes/settings.php:210
 msgid "Change order"
-msgstr ""
+msgstr "Cambia ordine"
 
 #: ../classes/settings.php:211
 msgid ""
 "By dragging the columns you can change the order which they will appear in."
-msgstr ""
+msgstr "Trascinando le colonne puoi modificare l'ordine in cui appariranno."
 
 #: ../classes/settings.php:212
 msgid "Change label"
-msgstr ""
+msgstr "Cambia etichetta"
 
 #: ../classes/settings.php:213
 msgid ""
 "By clicking on the triangle you will see the column options. Here you can "
 "change each label of the columns heading."
-msgstr ""
+msgstr "Cliccando sul triangolo potrai vedere le opzioni della colonna. Qui puoi cambiare l'etichetta di ogni intestazione di colonna."
 
 #: ../classes/settings.php:214
 msgid "Change column width"
-msgstr ""
+msgstr "Cambia la larghezza della colonna"
 
 #: ../classes/settings.php:215
 msgid ""
 "By clicking on the triangle you will see the column options. By using the "
-"draggable slider yo can set the width of the columns in percentages."
+"draggable slider you can set the width of the columns in percentages."
 msgstr ""
 
 #: ../classes/settings.php:219 ../classes/column/custom-field.php:16
 #: ../classes/column/custom-field.php:324
 msgid "Custom Field"
-msgstr ""
+msgstr "Campo personalizzato"
 
 #: ../classes/settings.php:221
 msgid "'Custom Field' column"
-msgstr ""
+msgstr "Colonna 'Campo Personalizzato'"
 
 #: ../classes/settings.php:222
 msgid ""
@@ -207,7 +212,7 @@ msgstr ""
 #: ../classes/settings.php:225 ../classes/column/custom-field.php:73
 #: ../classes/column/link/image.php:12
 msgid "Image"
-msgstr ""
+msgstr "Immagine"
 
 #: ../classes/settings.php:225
 msgid ""
@@ -219,19 +224,20 @@ msgstr ""
 #: ../classes/column/comment/excerpt.php:13
 #: ../classes/column/post/excerpt.php:13
 msgid "Excerpt"
-msgstr ""
+msgstr "Riassunto"
 
 #: ../classes/settings.php:226
 msgid "Value: This will show the first 20 words of the Post content."
-msgstr ""
+msgstr "Valore: Mostrerà le prime 20 parole del contenuto dell'Articolo."
 
 #: ../classes/settings.php:227 ../classes/column/custom-field.php:76
 msgid "Multiple Values"
-msgstr ""
+msgstr "Valori Multipli"
 
 #: ../classes/settings.php:227
 msgid ""
-"Value: should be an array. This will flatten any ( multi dimensional ) array."
+"Value: should be an array. This will flatten any ( multi dimensional ) "
+"array."
 msgstr ""
 
 #: ../classes/settings.php:228 ../classes/column/custom-field.php:77
@@ -247,7 +253,7 @@ msgstr ""
 #: ../classes/settings.php:229 ../classes/column/custom-field.php:78
 #: ../classes/column/comment/date.php:12
 msgid "Date"
-msgstr ""
+msgstr "Data"
 
 #: ../classes/settings.php:229
 #, php-format
@@ -267,7 +273,7 @@ msgstr ""
 
 #: ../classes/settings.php:231
 msgid "Usernames"
-msgstr ""
+msgstr "Nomi utente"
 
 #: ../classes/settings.php:231
 msgid "Value: can be one or more User ID's (seperated by ',')."
@@ -309,15 +315,15 @@ msgstr ""
 
 #: ../classes/settings.php:387
 msgid "Changelog"
-msgstr ""
+msgstr "Changelog"
 
 #: ../classes/settings.php:389
 msgid "Download Addons"
-msgstr ""
+msgstr "Scarica i componenti aggiuntivi"
 
 #: ../classes/settings.php:395
 msgid "Addons"
-msgstr ""
+msgstr "Componenti aggiuntivi"
 
 #: ../classes/settings.php:397
 msgid ""
@@ -357,8 +363,8 @@ msgstr ""
 
 #: ../classes/settings.php:419
 msgid ""
-"The database has been changed between versions 1 and 2. But we made sure you "
-"can still roll back to version 1x without any issues."
+"The database has been changed between versions 1 and 2. But we made sure you"
+" can still roll back to version 1x without any issues."
 msgstr ""
 
 #: ../classes/settings.php:422
@@ -375,9 +381,9 @@ msgstr ""
 
 #: ../classes/settings.php:426
 msgid ""
-"Do to the sizable refactoring the code, surounding Addons and action/"
-"filters, your website may not operate correctly. It is important that you "
-"read the full"
+"Do to the sizable refactoring the code, surounding Addons and "
+"action/filters, your website may not operate correctly. It is important that"
+" you read the full"
 msgstr ""
 
 #: ../classes/settings.php:426
@@ -407,19 +413,19 @@ msgstr ""
 
 #: ../classes/settings.php:429
 msgid "version 1"
-msgstr ""
+msgstr "versione 1"
 
 #: ../classes/settings.php:429
 msgid "of this plugin."
-msgstr ""
+msgstr "di questo plugin."
 
 #: ../classes/settings.php:435
 msgid "Changelog for"
-msgstr ""
+msgstr "Changelog per"
 
 #: ../classes/settings.php:450
 msgid "Learn more"
-msgstr ""
+msgstr "Leggi altro"
 
 #: ../classes/settings.php:459
 msgid ""
@@ -429,7 +435,8 @@ msgstr ""
 
 #: ../classes/settings.php:460
 msgid ""
-"This page will assist you in downloading and installing each available Addon."
+"This page will assist you in downloading and installing each available "
+"Addon."
 msgstr ""
 
 #: ../classes/settings.php:461
@@ -474,8 +481,8 @@ msgstr ""
 
 #: ../classes/settings.php:490
 msgid ""
-"Once the plugin has been uploaded and installed, click the 'Activate Plugin' "
-"link"
+"Once the plugin has been uploaded and installed, click the 'Activate Plugin'"
+" link"
 msgstr ""
 
 #: ../classes/settings.php:491
@@ -507,8 +514,8 @@ msgstr ""
 #: ../classes/settings.php:589
 #, php-format
 msgid ""
-"Warning! The %s columns data will be deleted. This cannot be undone. \\'OK"
-"\\' to delete, \\'Cancel\\' to stop"
+"Warning! The %s columns data will be deleted. This cannot be undone. "
+"\\'OK\\' to delete, \\'Cancel\\' to stop"
 msgstr ""
 
 #: ../classes/settings.php:590 ../classes/column/comment/actions.php:86

@@ -2,7 +2,7 @@
 /*
 
 Plugin Name: 		Codepress Admin Columns
-Version: 			2.0.2
+Version: 			2.0.3
 Description: 		Customize columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepresshq.com
@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-define( 'CPAC_VERSION', 	 	'2.0.2' ); // current plugin version
+define( 'CPAC_VERSION', 	 	'2.0.3' ); // current plugin version
 define( 'CPAC_UPGRADE_VERSION', '2.0.0' ); // this is the latest version which requires an upgrade
 define( 'CPAC_URL', 			plugin_dir_url( __FILE__ ) );
 define( 'CPAC_DIR', 			plugin_dir_path( __FILE__ ) );
@@ -44,9 +44,7 @@ if ( ! is_admin() )
  * @since 1.3.0
  */
 require_once CPAC_DIR . 'classes/utility.php';
-require_once CPAC_DIR . 'classes/deprecated.php';
 require_once CPAC_DIR . 'classes/third_party.php';
-require_once CPAC_DIR . 'classes/api.php';
 
 /**
  * The Codepress Admin Columns Class
@@ -156,14 +154,14 @@ class CPAC {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @return array object Storage Model
+	 * @return array|false object Storage Model
 	 */
 	public function get_storage_model( $key ) {
 
-		if ( ! isset( $this->storage_models[ $key ] ) )
-			return false;
+		if ( isset( $this->storage_models[ $key ] ) )
+			return $this->storage_models[ $key ];
 
-		return $this->storage_models[ $key ];
+		return false;
 	}
 
 	/**
@@ -253,21 +251,18 @@ class CPAC {
 	 * @return string
 	 */
 	function admin_class( $classes ) {
-
 		global $current_screen;
 
 		// we dont need the 'edit-' part
 		$screen = str_replace( 'edit-', '', $current_screen->id );
 
 		// media library exception
-		if ( $current_screen->base == 'upload' && $current_screen->id == 'upload' ) {
+		if ( $current_screen->base == 'upload' && $current_screen->id == 'upload' )
 			$screen = 'media';
-		}
 
 		// link exception
-		if ( $current_screen->base == 'link-manager' && $current_screen->id == 'link-manager' ) {
+		if ( $current_screen->base == 'link-manager' && $current_screen->id == 'link-manager' )
 			$screen = 'links';
-		}
 
 		// loop the available types
 		foreach ( $this->storage_models as $storage_model ) {
@@ -287,14 +282,13 @@ class CPAC {
 	 * @since 1.4.0
 	 */
 	function admin_scripts() {
-
 		global $pagenow, $current_screen;
 
 		// CSS column widths
-		$css_column_width 	= '';
+		$css_column_width = '';
 
 		// JS
-		$edit_link 	= '';
+		$edit_link = '';
 
 		foreach ( $this->storage_models as $storage_model ) {
 
@@ -361,4 +355,5 @@ class CPAC {
  * @since 1.0.0
  */
 $cpac = new CPAC();
+
 

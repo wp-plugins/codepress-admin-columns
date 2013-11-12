@@ -51,7 +51,7 @@ abstract class CPAC_Storage_Model {
 	 *
 	 * @since 2.0.1
 	 */
-	protected $columns;
+	public $columns;
 
 	/**
 	 * Get default columns
@@ -237,6 +237,11 @@ abstract class CPAC_Storage_Model {
 			$columns[ 'CPAC_Column_' . ucfirst( $this->type ) . '_'  . $class_name  ] = $leaf->getPathname();
 		}
 
+		// cac/columns/custom - filter to register column
+		$this->custom_columns = apply_filters( 'cac/columns/custom', $columns, $this );
+
+		// cac/columns/custom/type={$type} - filter to register column based on it's content type
+		// type can be either a posttype or wp-users/wp-comments/wp-links/wp-media
 		$this->custom_columns = apply_filters( 'cac/columns/custom/type=' . $this->type, $columns, $this );
 	}
 
@@ -282,7 +287,7 @@ abstract class CPAC_Storage_Model {
 	 *
 	 * @return array Column Type | Column Instance
 	 */
-	function get_default_registered_columns() {
+	public function get_default_registered_columns() {
 
 		$columns = array();
 
@@ -480,11 +485,6 @@ abstract class CPAC_Storage_Model {
 	 */
 	function get_column_by_name( $name ) {
 
-		// @todo check if no issues come up by using $this->columns
-		//$columns = $this->get_columns();
-		//if ( ! isset( $columns[ $name ] ) )
-		//	return false;*/
-
 		if ( ! isset( $this->columns[ $name ] ) )
 			return false;
 
@@ -543,14 +543,11 @@ abstract class CPAC_Storage_Model {
 		// @todo: check if working properly. cuurently issues with woocommerce columns
 		/*
 		if ( $diff = array_diff( $this->get_default_stored_columns(), array_keys( $columns ) ) ) {
-			//echo '<pre>'; print_r( $diff ); echo '</pre>';
 			foreach ( $diff as $column_name ) {
 				if( isset( $column_headings[ $column_name ] ) )
 					unset( $column_headings[ $column_name ] );
 			}
 		}*/
-
-
 
 		return $column_headings;
 	}
@@ -586,4 +583,41 @@ abstract class CPAC_Storage_Model {
 
 		return add_query_arg( array( 'page' => 'codepress-admin-columns', 'cpac_key' => $this->key ), admin_url( 'options-general.php' ) );
 	}
+
+	/**
+	 * Is columns screen
+	 *
+	 * @since 2.0.3
+	 *
+	 * @global string $pagenow
+     * @global object $current_screen
+     * @return boolean
+	 */
+	function is_columns_screen() {
+
+		global $pagenow, $current_screen;
+
+		if ( $this->page . '.php' != $pagenow )
+			return false;
+
+		if ( ! empty( $current_screen->post_type ) && $this->key != $current_screen->post_type )
+			return false;
+
+		return true;
+	}
+
+    /**
+     * Checks if the current page is the settings page
+     *
+     * @since 2.0.2
+     *
+     * @global string $pagenow
+     * @global string $plugin_page
+     * @return boolean
+     */
+    public function is_settings_page() {
+        global $pagenow, $plugin_page;
+
+        return 'options-general.php' == $pagenow && ! empty( $plugin_page ) && 'codepress-admin-columns' == $plugin_page;
+    }
 }
