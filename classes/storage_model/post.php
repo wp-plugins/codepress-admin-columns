@@ -20,7 +20,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 		// add_action( 'admin_init', array( $this, 'set_columns' ) );
 		// also for the other types
 
-		$this->set_custom_columns();
+		$this->set_columns_filepath();
 
 		// Populate columns variable.
 		// This is used for manage_value. By storing these columns we greatly improve performance.
@@ -75,6 +75,9 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	public function get_default_columns() {
 
 		if ( ! function_exists('_get_list_table') ) return array();
+
+		//if ( ! $this->is_columns_screen() && ! $this->is_settings_page() )
+			//return array();
 
 		// You can use this filter to add thirdparty columns by hooking into this.
 		// See classes/third_party.php for an example.

@@ -44,14 +44,28 @@ abstract class CPAC_Storage_Model {
 	 *
 	 * @since 2.0.1
 	 */
-	protected $custom_columns;
+	protected $columns_filepath;
 
 	/**
 	 * Columns
 	 *
 	 * @since 2.0.1
 	 */
-	public $columns;
+	public $columns = array();
+
+	/**
+	 * Custom Column Instances
+	 *
+	 * @since 2.1.0
+	 */
+	public $custom_columns = array();
+
+	/**
+	 * Default Column Instances
+	 *
+	 * @since 2.1.0
+	 */
+	public $default_columns = array();
 
 	/**
 	 * Get default columns
@@ -165,6 +179,9 @@ abstract class CPAC_Storage_Model {
 		delete_option( "cpac_options_{$this->key}" );
 
 		cpac_admin_message( "<strong>{$this->label}</strong> " . __( 'settings succesfully restored.',  'cpac' ), 'updated' );
+
+		// refresh columns otherwise the removed columns will still display
+		$this->set_columns();
 	}
 
 	/**
@@ -207,6 +224,9 @@ abstract class CPAC_Storage_Model {
 
 		cpac_admin_message( sprintf( __( 'Settings for %s updated succesfully.',  'cpac' ), "<strong>{$this->label}</strong>" ), 'updated' );
 
+		// refresh columns otherwise the newly added columns will not be displayed
+		$this->set_columns();
+
 		return true;
 	}
 
@@ -219,7 +239,8 @@ abstract class CPAC_Storage_Model {
 	 *
 	 * @return array Column Classnames | Filepaths
 	 */
-	protected function set_custom_columns() {
+	protected function set_columns_filepath() {
+
 		$columns  = array(
 			'CPAC_Column_Custom_Field' => CPAC_DIR . 'classes/column/custom-field.php'
 		);
@@ -238,11 +259,11 @@ abstract class CPAC_Storage_Model {
 		}
 
 		// cac/columns/custom - filter to register column
-		$this->custom_columns = apply_filters( 'cac/columns/custom', $columns, $this );
+		$this->columns_filepath = apply_filters( 'cac/columns/custom', $columns, $this );
 
 		// cac/columns/custom/type={$type} - filter to register column based on it's content type
 		// type can be either a posttype or wp-users/wp-comments/wp-links/wp-media
-		$this->custom_columns = apply_filters( 'cac/columns/custom/type=' . $this->type, $columns, $this );
+		$this->columns_filepath = apply_filters( 'cac/columns/custom/type=' . $this->type, $columns, $this );
 	}
 
 	/**
@@ -320,7 +341,7 @@ abstract class CPAC_Storage_Model {
 
 		$columns = array();
 
-		foreach ( $this->custom_columns as $classname => $path ) {
+		foreach ( $this->columns_filepath as $classname => $path ) {
 
 			include_once $path;
 
@@ -340,19 +361,6 @@ abstract class CPAC_Storage_Model {
 		do_action( "cac/columns/registered/custom/storage_key={$this->key}", $columns );
 
 		return $columns;
-	}
-
-	/**
-	 * Get registered columns
-	 *
-	 * @todo: REMOVE
-	 * @since 2.0.0
-	 *
-	 * @return array Column Type | Column Instance
-	 */
-	function get_registered_columns() {
-
-		return array_merge( $this->get_custom_registered_columns(), $this->get_default_registered_columns() );
 	}
 
 	/**
@@ -393,7 +401,26 @@ abstract class CPAC_Storage_Model {
 	 * @since 2.0.2
 	 */
 	function set_columns() {
-		$this->columns = $this->get_columns();
+
+		// only set columns on allowed screens
+		// @todo_minor: maybe add exception for AJAX calls
+		if ( ! $this->is_columns_screen() && ! $this->is_settings_page() )
+			return;
+
+		$this->custom_columns   = $this->get_custom_registered_columns();
+		$this->default_columns  = $this->get_default_registered_columns();
+
+		$this->columns 			= $this->get_columns();
+	}
+
+	/**
+	 * Get registered columns
+	 *
+	 * @since 2.0.2
+	 */
+	function get_registered_columns() {
+
+		return array_merge( $this->custom_columns, $this->default_columns );
 	}
 
 	/**
@@ -409,10 +436,15 @@ abstract class CPAC_Storage_Model {
 		$columns = array();
 
 		// get columns
-		$default_columns 	= $this->get_default_registered_columns();
+		//$default_columns = $this->get_default_registered_columns();
+		//$custom_columns  = $this->get_custom_registered_columns();
+
+		// get columns
+		$default_columns = $this->default_columns;
+		$custom_columns  = $this->custom_columns;
 
 		// @todo check if this solves the issue with not displaying value when using "manage_{$post_type}_posts_columns" at CPAC_Storage_Model_Post
-		$registered_columns = array_merge( $default_columns, $this->get_custom_registered_columns() );
+		$registered_columns = array_merge( $default_columns, $custom_columns );
 
 		// Stored columns
 		if ( $stored_columns = $this->get_stored_columns() ) {
@@ -498,10 +530,8 @@ abstract class CPAC_Storage_Model {
 	 */
 	function add_headings( $columns ) {
 
-		global $pagenow;
-
 		// only add headings on overview screens, to prevent deactivating columns in the Storage Model.
-		if ( ! in_array( $pagenow, array( 'edit.php', 'users.php', 'edit-comments.php', 'upload.php', 'link-manager.php' ) ) )
+		if ( ! $this->is_columns_screen() )
 			return $columns;
 
 		// stored columns exists?
