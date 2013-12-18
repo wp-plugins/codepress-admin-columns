@@ -30,6 +30,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 		$this->options['excerpt_length']	= 15;
 
 		$this->options['date_format']		= '';
+		$this->options['date_save_format']	= '';
 
 		// for retireving sorting preference
 		$this->user_settings = get_option( 'cpac_general_options' );
@@ -43,12 +44,6 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	 * @since 1.0
 	 */
 	function sanitize_options( $options ) {
-
-		//if ( ! empty( $options['before'] ) )
-		//	$options['before'] = trim( $options['before'] );
-
-		//if ( ! empty( $options['after'] ) )
-		//	$options['after'] = trim( $options['after'] );
 
 		if ( empty( $options['date_format'] ) ) {
 			$options['date_format'] = get_option( 'date_format' );
@@ -125,14 +120,15 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	 */
 	private function get_titles_by_id( $meta ) {
 
-		$ids = $this->get_ids_from_meta( $meta );
+		$titles = array();
 
 		// display title with link
-		if ( $ids && is_array( $ids ) ) {
-			foreach ( $ids as $id ) {
+		if ( $ids = $this->get_ids_from_meta( $meta ) ) {
+			foreach ( (array) $ids as $id ) {
+
 				if ( ! is_numeric( $id ) ) continue;
 
-				$link  = get_edit_post_link( $id );
+				$link = get_edit_post_link( $id );
 				if ( $title = get_the_title( $id ) )
 					$titles[] = $link ? "<a href='{$link}'>{$title}</a>" : $title;
 			}
@@ -151,11 +147,11 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	 */
 	private function get_users_by_id( $meta )	{
 
-		$ids = $this->get_ids_from_meta( $meta );
+		$names = array();
 
 		// display username
-		if ( $ids && is_array( $ids ) ) {
-			foreach ( $ids as $id ) {
+		if ( $ids = $this->get_ids_from_meta( $meta ) ) {
+			foreach ( (array) $ids as $id ) {
 				if ( ! is_numeric( $id ) ) continue;
 
 				$userdata = get_userdata( $id );
@@ -203,19 +199,17 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 				break;
 
 			case "title_by_id" :
-				if ( $titles = $this->get_titles_by_id( $meta ) )
-					$meta = $titles;
+				$meta = $this->get_titles_by_id( $meta );
 				break;
 
 			case "user_by_id" :
-				if ( $names = $this->get_users_by_id( $meta ) )
-					$meta = $names;
+				$meta = $this->get_users_by_id( $meta );
 				break;
 
 			case "checkmark" :
 				$checkmark = $this->get_asset_image( 'checkmark.png' );
 
-				if ( empty($meta) || 'false' === $meta || '0' === $meta ) {
+				if ( empty( $meta ) || 'false' === $meta || '0' === $meta ) {
 					$checkmark = '';
 				}
 

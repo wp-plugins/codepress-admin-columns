@@ -123,6 +123,7 @@ class CPAC_Column {
 			'hide_label'		=> false,	// Should the Label be hidden?
 			'is_registered'		=> true,	// Should the column be registered based on conditional logic, example usage see: 'post/page-template.php'
 			'is_cloneable'		=> true,	// Should the column be cloneable
+			'default'			=> false,	// Is this a WP default column
 		);
 
 		// merge arguments with defaults. turn into object for easy handling
@@ -795,7 +796,8 @@ class CPAC_Column {
 				</p>
 			</td>
 		</tr>
-<?php
+
+		<?php
 	}
 
 	/**
@@ -818,7 +820,7 @@ class CPAC_Column {
 				<input type="text" name="<?php $this->attr_name( $field_key ); ?>" id="<?php $this->attr_id( $field_key ); ?>" value="<?php echo $this->options->excerpt_length; ?>"/>
 			</td>
 		</tr>
-<?php
+	<?php
 	}
 
 	/**
