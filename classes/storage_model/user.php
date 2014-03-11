@@ -13,17 +13,15 @@ class CPAC_Storage_Model_User extends CPAC_Storage_Model {
 		$this->label 	= __( 'Users' );
 		$this->type 	= 'user';
 		$this->page 	= 'users';
-
-		$this->set_columns_filepath();
-
-		// populate columns variable
-		add_action( 'admin_init', array( $this, 'set_columns' ) );
+		$this->menu_type = 'other';
 
 		// headings
 		add_filter( "manage_{$this->page}_columns",  array( $this, 'add_headings' ) );
 
 		// values
 		add_filter( 'manage_users_custom_column', array( $this, 'manage_value_callback' ), 10, 3 );
+
+		parent::__construct();
 	}
 
 	/**
@@ -43,7 +41,11 @@ class CPAC_Storage_Model_User extends CPAC_Storage_Model {
 
 		// get columns
 		$table 		= _get_list_table( 'WP_Users_List_Table', array( 'screen' => 'users' ) );
-		$columns 	= $table->get_columns();
+		$columns 	= (array) $table->get_columns();
+
+		if ( $this->is_settings_page() ) {
+			$columns = array_merge( get_column_headers( 'users' ), $columns );
+		}
 
 		return $columns;
 	}

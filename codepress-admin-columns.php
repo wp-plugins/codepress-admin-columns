@@ -2,7 +2,7 @@
 /*
 
 Plugin Name: 		Codepress Admin Columns
-Version: 			2.1.1
+Version: 			2.1.2
 Description: 		Customize columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepresshq.com
@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-define( 'CPAC_VERSION', 	 	'2.1.1' ); // current plugin version
+define( 'CPAC_VERSION', 	 	'2.1.2' ); // current plugin version
 define( 'CPAC_UPGRADE_VERSION', '2.0.0' ); // this is the latest version which requires an upgrade
 define( 'CPAC_URL', 			plugin_dir_url( __FILE__ ) );
 define( 'CPAC_DIR', 			plugin_dir_path( __FILE__ ) );
@@ -78,13 +78,19 @@ class CPAC {
 		// translations
 		load_plugin_textdomain( 'cpac', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
-		// styling & scripts
-		add_action( 'admin_enqueue_scripts' , array( $this, 'column_styles') );
-		add_filter( 'admin_body_class', array( $this, 'admin_class' ) );
-		add_action( 'admin_head', array( $this, 'admin_scripts') );
-
 		// add settings link
-		add_filter( 'plugin_action_links',  array( $this, 'add_settings_link'), 1, 2);
+		add_filter( 'plugin_action_links',  array( $this, 'add_settings_link' ), 1, 2 );
+
+		// Settings
+		include_once CPAC_DIR . 'classes/settings.php';
+		new CPAC_Settings( $this );
+
+		// Upgrade
+		require_once CPAC_DIR . 'classes/upgrade.php';
+		new CPAC_Upgrade( $this );
+
+		// load scripts
+		$this->init_scripts();
 
 		// add capabilty to roles to manage admin columns
 		$this->set_capabilities();
@@ -92,11 +98,75 @@ class CPAC {
 		// set storage models
 		$this->set_storage_models();
 
-		// ini controllers
-		$this->init_controllers();
-
 		// for third party plugins
 		do_action( 'cac/loaded', $this );
+	}
+
+	/**
+	 * Is doing ajax
+	 *
+	 * @since 2.0.5
+	 *
+     * @return boolean
+	 */
+	function is_doing_ajax() {
+
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
+			return true;
+
+		return false;
+	}
+
+	/**
+	 * Is columns screen
+	 *
+	 * @since 2.1.2
+	 */
+	function is_columns_screen() {
+
+		global $pagenow;
+
+		if ( ! in_array( $pagenow, array( 'edit.php', 'upload.php', 'link-manager.php', 'edit-comments.php', 'users.php', 'edit-tags.php' ) ) )
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Is CAC screen
+	 *
+	 * @since 2.1.2
+	 */
+	function is_settings_screen() {
+
+		global $pagenow;
+
+		if ( ! ( 'options-general.php' === $pagenow && isset( $_GET['page'] ) && ( 'codepress-admin-columns' === $_GET['page'] ) ) )
+			return false;
+
+		return true;
+	}
+
+	function is_cac_screen() {
+		return apply_filters( 'cac/is_cac_screen', $this->is_columns_screen() || $this->is_doing_ajax() || $this->is_settings_screen() );
+	}
+
+	/**
+	 * Init scripts
+	 *
+	 * @since 2.1.1
+	 */
+	public function init_scripts() {
+
+		add_action( 'admin_head', array( $this, 'global_head_scripts') );
+
+		if ( ! $this->is_columns_screen() )
+			return;
+
+		// styling & scripts
+		add_action( 'admin_enqueue_scripts' , array( $this, 'column_styles') );
+		add_filter( 'admin_body_class', array( $this, 'admin_class' ) );
+		add_action( 'admin_head', array( $this, 'admin_scripts') );
 	}
 
 	/**
@@ -109,8 +179,9 @@ class CPAC {
 	public function set_capabilities() {
 
 		// add capabilty to administrator to manage admin columns
-		if ( $role = get_role( 'administrator' ) )
+		if ( $role = get_role( 'administrator' ) ) {
    			$role->add_cap( 'manage_admin_columns' );
+   		}
 	}
 
 	/**
@@ -121,7 +192,10 @@ class CPAC {
 	 */
 	private function set_storage_models() {
 
-		$this->storage_models = array();
+		if ( ! $this->is_cac_screen() )
+			return;
+
+		$storage_models = array();
 
 		// include parent and childs
 		require_once CPAC_DIR . 'classes/column.php';
@@ -135,29 +209,28 @@ class CPAC {
 		// add Posts
 		foreach ( $this->get_post_types() as $post_type ) {
 			$storage_model = new CPAC_Storage_Model_Post( $post_type );
-			$this->storage_models[ $storage_model->key ] = $storage_model;
+			$storage_models[ $storage_model->key ] = $storage_model;
 		}
 
 		// add User
 		$storage_model = new CPAC_Storage_Model_User();
-		$this->storage_models[ $storage_model->key ] = $storage_model;
+		$storage_models[ $storage_model->key ] = $storage_model;
 
 		// add Media
 		$storage_model = new CPAC_Storage_Model_Media();
-		$this->storage_models[ $storage_model->key ] = $storage_model;
+		$storage_models[ $storage_model->key ] = $storage_model;
 
 		// add Comment
 		$storage_model = new CPAC_Storage_Model_Comment();
-		$this->storage_models[ $storage_model->key ] = $storage_model;
+		$storage_models[ $storage_model->key ] = $storage_model;
 
 		// add Link
 		if ( apply_filters( 'pre_option_link_manager_enabled', false ) ) { // as of 3.5 link manager is removed
 			$storage_model = new CPAC_Storage_Model_Link();
-			$this->storage_models[ $storage_model->key ] = $storage_model;
+			$storage_models[ $storage_model->key ] = $storage_model;
 		}
 
-		// Hook to add more models
-		do_action( 'cac/storage_models', $this->storage_models );
+		$this->storage_models = apply_filters( 'cac/storage_models', $storage_models );
 	}
 
 	/**
@@ -173,25 +246,6 @@ class CPAC {
 			return $this->storage_models[ $key ];
 
 		return false;
-	}
-
-	/**
-	 * Init controllers
-	 *
-	 * @since 2.0.0
-	 *
-	 */
-	 function init_controllers() {
-
-	 	do_action( 'cac/controllers', $this );
-
-		// Settings
-		include_once CPAC_DIR . 'classes/settings.php';
-		new CPAC_Settings( $this );
-
-		// Upgrade
-		require_once CPAC_DIR . 'classes/upgrade.php';
-		new CPAC_Upgrade( $this );
 	}
 
 	/**
@@ -244,11 +298,7 @@ class CPAC {
 	 */
 	public function column_styles() {
 
-		global $pagenow;
-
-		if ( in_array( $pagenow, array( 'edit.php', 'upload.php', 'link-manager.php', 'edit-comments.php', 'users.php' ) ) ) {
-			wp_enqueue_style( 'cpac-columns', CPAC_URL . 'assets/css/column.css', array(), CPAC_VERSION, 'all' );
-		}
+		wp_enqueue_style( 'cpac-columns', CPAC_URL . 'assets/css/column.css', array(), CPAC_VERSION, 'all' );
 	}
 
 	/**
@@ -262,30 +312,29 @@ class CPAC {
 	 * @return string
 	 */
 	function admin_class( $classes ) {
-		global $current_screen;
 
-		// we dont need the 'edit-' part
-		$screen = str_replace( 'edit-', '', $current_screen->id );
-
-		// media library exception
-		if ( $current_screen->base == 'upload' && $current_screen->id == 'upload' )
-			$screen = 'media';
-
-		// link exception
-		if ( $current_screen->base == 'link-manager' && $current_screen->id == 'link-manager' )
-			$screen = 'links';
-
-		// loop the available types
-		foreach ( $this->storage_models as $storage_model ) {
-
-			// match against screen or wp-screen
-			if ( $storage_model->key == $screen || $storage_model->key == "wp-{$screen}" )
-				$classes .= " cp-{$storage_model->key}";
+		if ( $this->storage_models ) {
+			foreach ( $this->storage_models as $storage_model ) {
+				if ( $storage_model->is_columns_screen() ) {
+					$classes .= " cp-{$storage_model->key}";
+				}
+			}
 		}
 
 		return $classes;
 	}
 
+	/**
+	 * Admin CSS to hide upgrade menu and place icon
+	 *
+	 * @since 1.4.0
+	 */
+	function global_head_scripts() { ?>
+		<style type="text/css">
+			#menu-settings a[href="options-general.php?page=cpac-upgrade"] { display: none; }
+		</style>
+		<?php
+	}
 
 	/**
 	 * Admin CSS for Column width and Settings Icon
@@ -293,18 +342,14 @@ class CPAC {
 	 * @since 1.4.0
 	 */
 	function admin_scripts() {
-		global $pagenow, $current_screen;
 
-		// CSS column widths
-		$css_column_width = '';
-
-		// JS
-		$edit_link = '';
+		$css_column_width 	= '';
+		$edit_link 			= '';
 
 		if ( $this->storage_models ) {
 			foreach ( $this->storage_models as $storage_model ) {
 
-				if ( $storage_model->page . '.php' !== $pagenow )
+				if ( ! $storage_model->is_columns_screen() )
 					continue;
 
 				// CSS: columns width
@@ -318,47 +363,27 @@ class CPAC {
 				}
 
 				// JS: edit button
-				if (
-					// All types except Posts
-					empty( $current_screen->post_type ) ||
-					// Posts
-					( ! empty( $current_screen->post_type ) && $storage_model->key == $current_screen->post_type )
-					)
-					{
+				$general_options = get_option( 'cpac_general_options' );
+				if ( current_user_can( 'manage_admin_columns' ) && isset( $general_options['show_edit_button'] ) && '1' === $general_options['show_edit_button'] ) {
 					$edit_link = $storage_model->get_edit_link();
 				}
 			}
 		}
-
 		?>
+		<?php if ( $css_column_width ) : ?>
 		<style type="text/css">
 			<?php echo $css_column_width; ?>
-			#adminmenu #toplevel_page_codepress-admin-columns .wp-menu-image {
-				background: transparent url("<?php echo CPAC_URL; ?>assets/images/icon_20.png") no-repeat 6px -24px;
-			}
-			#adminmenu #toplevel_page_codepress-admin-columns:hover .wp-menu-image,
-			#adminmenu #toplevel_page_codepress-admin-columns.wp-menu-open .wp-menu-image {
-				background-position: 6px 6px;
-			}
-			#menu-settings a[href="options-general.php?page=cpac-upgrade"],
-			#adminmenu #toplevel_page_codepress-admin-columns a[href="admin.php?page=cpac-upgrade"] {
-				display: none;
-			}
-			.cpac-edit { margin-right: 3px; vertical-align: middle; }
 		</style>
-
-		<?php
-
-		$general_options = get_option( 'cpac_general_options' );
-
-		if ( current_user_can( 'manage_admin_columns' ) && $edit_link && isset( $general_options['show_edit_button'] ) && '1' === $general_options['show_edit_button'] ) : ?>
+		<?php endif; ?>
+		<?php if ( $edit_link ) : ?>
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
 				jQuery('.tablenav.top .actions:last').append('<a href="<?php echo $edit_link; ?>" class="cpac-edit add-new-h2"><?php _e( 'Edit columns', 'cpac' ); ?></a>');
 			});
 		</script>
+		<?php endif; ?>
+
 		<?php
-		endif;
 	}
 }
 

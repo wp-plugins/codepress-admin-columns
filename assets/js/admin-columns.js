@@ -7,7 +7,6 @@ jQuery(document).ready(function() {
 	if ( jQuery('#cpac').length === 0 )
 		return false;
 
-
 	// General
 	cpac_pointer();
 	cpac_submit_form();
@@ -22,10 +21,11 @@ jQuery(document).ready(function() {
 	cpac_add_column();
 	cpac_sidebar_scroll();
 
-	/** we start by binding the toggle and remove events. */
-	jQuery('.cpac-column').each( function(i,col) {
-		jQuery(col).column_bind_toggle();
-		jQuery(col).column_bind_remove();
+	// we start by binding the toggle and remove events.
+	jQuery('.cpac-column').each( function( i, col ) {
+		jQuery( col ).column_bind_toggle();
+		jQuery( col ).column_bind_remove();
+		jQuery( col ).cpac_bind_container_addon_events();
 	});
 });
 
@@ -53,18 +53,20 @@ jQuery.fn.column_bind_toggle = function() {
 
 	var column = jQuery(this);
 
-	column.find('td.column_edit, td.column_label a.toggle' ).click( function(){
+	column.find( 'td.column_type a, td.column_edit, td.column_label a.toggle, td.column_label .edit-button' ).click( function( e ) {
+		e.preventDefault();
+		
+		column.toggleClass( 'opened' ).find( '.column-form' ).slideToggle( 150 );
 
-		column.toggleClass('opened').find('.column-form').slideToggle(150);
-
-		if ( !column.hasClass('events-binded') )
+		if ( ! column.hasClass( 'events-binded' ) ) {
 			column.column_bind_events();
+		}
 
 		column.addClass('events-binded');
 
 		// hook for addons
-		jQuery(document).trigger( 'column_init', column );
-	});
+		jQuery( document ).trigger( 'column_init', column );
+	} );
 };
 
 /*
@@ -81,6 +83,35 @@ jQuery.fn.column_bind_remove = function() {
 	});
 };
 
+jQuery.fn.cpac_column_refresh = function() {
+	var el = jQuery( this );
+
+	// Mark column as loading
+	el.addClass( 'loading' );
+	el.find( '.column-form' ).prepend( '<span class="spinner" />' );
+
+	// Fetch new form HTML
+	jQuery.post( ajaxurl, {
+		action: 'cpac_column_refresh',
+		column: jQuery( this ).find( 'input.column-name' ).val(),
+		formdata: jQuery( this ).parents( 'form' ).serialize()
+	}, function( data ) {
+		// Replace current form by new form
+		el.html( data );
+
+		// Bind events
+		el.column_bind_toggle();
+		el.column_bind_remove();
+		el.column_bind_events();
+
+		// Remove "loading" marking from column
+		el.removeClass( 'loading' ).addClass( 'opened' ).find( '.column-form' ).show();
+
+		// Allow plugins to hook into this event
+		jQuery( document ).trigger( 'column_change', el );
+	} );
+};
+
 /*
  * Form Events
  *
@@ -88,58 +119,50 @@ jQuery.fn.column_bind_remove = function() {
  */
 jQuery.fn.column_bind_events = function() {
 
-	var column		= jQuery(this);
-	var container	= column.closest('.columns-container');
-	var storage_model = container.attr('data-type');
+	var column			= jQuery( this );
+	var container		= column.closest( '.columns-container ');
+	var storage_model	= container.attr( 'data-type' );
 
-	/** select column type */
-	var default_value =  column.find('.column_type select option:selected').val();
+	// Current column type
+	var default_value =  column.find( '.column_type select option:selected' ).val();
 
-	column.find('.column_type select').change( function() {
-
-		var option	= jQuery('optgroup', this).children(":selected");
+	column.find( '.column_type select' ).change( function() {
+		var option	= jQuery( 'optgroup', this ).children( ':selected' );
 		var type	= option.val();
 		var label	= option.text();
-		var msg		= jQuery(this).next('.msg').hide();
+		var msg		= jQuery( this ).next( '.msg' ).hide();
 
-		// create clone
-		var clone = container.find(".for-cloning-only .cpac-column[data-type='" + type + "']").clone();
-		if ( clone.length > 0 ) {
+		// Find template element for this field type
+		var template = container.find( '.for-cloning-only .cpac-column[data-type="' + type + '"]' );
 
-			// column can have only one instance of itself and should not have another instance present?
-			if ( 'undefined' === typeof clone.attr('data-clone') ) {
-				if ( jQuery( '.cpac-columns', container ).find("[data-type='" + type + "']").length > 0 ) {
-					msg.html( cpac_i18n.clone.replace( '%s', '<strong>' + label + '</strong>' ) ).show();
+		if ( template.length ) {
+			// Prevent column types that do not allow it to have multiple instances
+			if ( typeof template.attr( 'data-clone' ) === 'undefined' && jQuery( '.cpac-columns', container ).find( '[data-type="' + type + '"]' ).length ) {
+				msg.html( cpac_i18n.clone.replace( '%s', '<strong>' + label + '</strong>' ) ).show();
 
-					// set to default
-					jQuery(this).find('option').removeAttr('selected');
-					jQuery(this).find('option[value="' + default_value + '"]').attr('selected', 'selected');
-					return;
-				}
+				// Set to default
+				jQuery(this).find('option').removeAttr('selected');
+				jQuery(this).find('option[value="' + default_value + '"]').attr('selected', 'selected');
+
+				return;
 			}
+			else {
+				var clone = template.clone();
 
-			// open settings
-			clone.addClass('opened').find('.column-form').show();
+				// Open settings
+				clone.addClass('opened').find('.column-form').show();
+				clone.find( '.column-meta' ).replaceWith( column.find( '.column-meta' ) );
+				clone.find( '.column-form' ).replaceWith( column.find( '.column-form' ) );
 
-			// increment clone id
-			clone.cpac_update_clone_id( storage_model );
+				// Increment clone id
+				clone.cpac_update_clone_id( storage_model );
 
-			// add to DOM
-			column.replaceWith( clone );
-
-			// rebind toggle events
-			clone.column_bind_toggle();
-
-			// rebind remove events
-			clone.column_bind_remove();
-
-			// rebind all other events
-			clone.column_bind_events();
-
-			// hook for addons
-			jQuery(document).trigger( 'column_change', clone );
+				// Load clone
+				column.replaceWith( clone );
+				clone.cpac_column_refresh();
+			}
 		}
-	});
+	} );
 
 	/** change label */
 	column.find('.column_label .input input').bind( 'keyup change', function() {
@@ -249,6 +272,7 @@ jQuery.fn.cpac_update_clone_id = function( storage_model ) {
 	// set clone ID
 	el.attr( 'data-clone', id );
 	el.find( 'input.clone' ).val( id );
+	el.find( 'input.column-name' ).val( type + '-' + id );
 
 	// update input names with clone ID
 	var inputs = el.find( 'input, select, label' );
@@ -478,8 +502,10 @@ function cpac_sortable() {
  * @since 1.5
  */
 function cpac_menu() {
+
+	var menu = jQuery('#cpac div.cpac-menu');
 	// click
-	jQuery('#cpac div.cpac-menu a').click( function(e, el) {
+	menu.find('a').click( function(e, el) {
 
 		var id = jQuery(this).attr('href');
 
@@ -493,11 +519,72 @@ function cpac_menu() {
 
 			// set current
 			jQuery(this).addClass('current');
-			jQuery('.columns-container[data-type="' + type + '"]').show();
+			var container = jQuery('.columns-container[data-type="' + type + '"]').show();
+			var columns = container.find( '.cpac-columns' );
+
+			// hook for addons
+			jQuery( document ).trigger( 'cac_menu_change', columns );
 		}
 
 		e.preventDefault();
 	});
+
+	// activate first menu
+	menu.find('a.current').trigger('click');
 }
 
+/*
+ * Bind events: triggered after column is init, changed or added
+ *
+ */
+jQuery( document ).bind('column_init column_change column_add', function( e, column ){
+	jQuery( column ).cpac_bind_column_addon_events();
+	jQuery( column ).cpac_bind_container_addon_events();
+});
 
+/*
+ * Radio Click events
+ *
+ */
+jQuery.fn.cpac_bind_column_addon_events = function() {
+
+	var column = jQuery( this );
+	var inputs = column.find('[data-toggle-id] label');
+
+	// Enable editing: radio button
+	inputs.click( function(){
+
+		var id = jQuery( this ).closest('td.input').data('toggle-id');
+		var label = column.find('[data-indicator-id="' + id + '"]' ).removeClass( 'on' );
+		var status = jQuery( 'input', this ).val();
+
+		if ( 'on' == status ) {
+			label.addClass( 'on' );
+		}
+	});
+};
+
+/*
+ * Indicator Click Events
+ *
+ */
+jQuery.fn.cpac_bind_container_addon_events = function() {
+
+	var column = jQuery( this );
+	var indicator = column.find('[data-indicator-id]');
+
+	indicator.unbind('click').click( function() {
+
+		var id = jQuery( this ).data('indicator-id');
+		var radio = column.find('[data-toggle-id="' + id + '"] input' );
+
+		if ( jQuery( this ).hasClass('on') ) {
+			jQuery( this ).removeClass('on').addClass('off');
+			radio.filter('[value=off]').prop('checked', true);
+		}
+		else {
+			jQuery( this ).removeClass('off').addClass('on');
+			radio.filter('[value=on]').prop('checked', true);
+		}
+	});
+};
