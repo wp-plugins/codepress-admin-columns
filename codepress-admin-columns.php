@@ -63,6 +63,9 @@ class CPAC {
 	 */
 	function __construct() {
 
+		// add capabilty to roles to manage admin columns
+		register_activation_hook( __FILE__, array( $this, 'set_capabilities' ) );
+
 		add_action( 'wp_loaded', array( $this, 'init') );
 	}
 
@@ -85,9 +88,6 @@ class CPAC {
 
 		// add settings link
 		add_filter( 'plugin_action_links',  array( $this, 'add_settings_link'), 1, 2);
-
-		// add capabilty to roles to manage admin columns
-		register_activation_hook( __FILE__, array( $this, 'set_capabilities' ) );
 
 		// set storage models
 		$this->set_storage_models();
