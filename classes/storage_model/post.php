@@ -14,22 +14,30 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 		$this->type 	 = 'post';
 		$this->page 	 = 'edit';
 		$this->post_type = $post_type;
-		$this->menu_type = 'post';
+
+		// @todo_minor
+		// Add parent::__construct and move these two over:
+		// $this->set_custom_columns()
+		// add_action( 'admin_init', array( $this, 'set_columns' ) );
+		// also for the other types
+
+		$this->set_columns_filepath();
+
+		// Populate columns variable.
+		// This is used for manage_value. By storing these columns we greatly improve performance.
+		add_action( 'admin_init', array( $this, 'set_columns' ) );
 
 		// Headings
 
 		// Since 3.1
-		add_filter( "manage_{$post_type}_posts_columns", array( $this, 'add_headings' ), 10, 1 );
+		add_filter( "manage_{$post_type}_posts_columns", array( $this, 'add_headings' ), 100, 1 );
 
 		// Deprecated ( as of 3.1 ) Note: This one is still used by woocommerce.
-		// Priority set to 11 top make sure the WooCommerce headings are overwritten by CAC
 		// @todo_minor check compatibility issues for this deprecated filter
-		add_filter( "manage_{$this->page}-{$post_type}_columns",  array( $this, 'add_headings' ), 11, 1 );
+		add_filter( "manage_{$this->page}-{$post_type}_columns",  array( $this, 'add_headings' ), 100, 1 );
 
 		// values
-		add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'manage_value' ), 10, 2 );
-
-		parent::__construct();
+		add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'manage_value' ), 100, 2 );
 	}
 
 	/**
@@ -67,8 +75,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	 */
 	public function get_default_columns() {
 
-		if ( ! function_exists('_get_list_table') )
-			return array();
+		if ( ! function_exists('_get_list_table') ) return array();
 
 		//if ( ! $this->is_columns_screen() && ! $this->is_settings_page() )
 			//return array();
@@ -80,7 +87,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 
         // Get the WP default columns
 		$table 	 = _get_list_table( 'WP_Posts_List_Table', array( 'screen' => $this->key ) );
-        $columns = (array) $table->get_columns();
+        $columns = $table->get_columns();
 
         // Get columns that have been set by other plugins. If a plugin use the hook "manage_edit-{$post_type}_columns"
 		// we know that the columns have been overwritten. Use these columns instead of the WP default ones.
@@ -88,7 +95,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 		// We have to make sure this filter only loads on the Admin Columns settings page. To prevent a loop
 		// when it's being called by CPAC_Storage_Model::add_headings()
 		if ( $this->is_settings_page() )
-			$columns = array_merge( get_column_headers( 'edit-' . $this->key ), $columns );
+			$columns =  array_merge( get_column_headers( 'edit-' . $this->key ), $columns );
 
 		return array_filter( $columns );
 	}

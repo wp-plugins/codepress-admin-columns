@@ -250,8 +250,8 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	 *
 	 * @since 1.0
 	 */
-	function hex2rgb( $hex ) {
-		$hex = str_replace( "#", "", $hex );
+	function hex2rgb($hex) {
+		$hex = str_replace("#", "", $hex);
 
 		if(strlen($hex) == 3) {
 			$r = hexdec(substr($hex,0,1).substr($hex,0,1));
@@ -329,11 +329,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	 */
 	function get_raw_value( $id, $single = true ) {
 
-		$field_key = $this->get_field_key();
-
-		$raw_value = get_metadata( $this->storage_model->type, $id, $field_key, $single );
-
-		return apply_filters( 'cac/column/meta/raw_value', $raw_value, $id, $field_key, $this );
+		return get_metadata( $this->storage_model->type, $id, $this->get_field_key(), $single );
 	}
 
 	/**
@@ -349,7 +345,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 			// get value by meta
 			$value = $this->get_value_by_meta( $meta, $id );
 		}
-		
+
 		$value = apply_filters( 'cac/column/meta/value', $value, $id, $this );
 
 		$before = $this->get_before();
@@ -408,6 +404,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 		 *
 		 */
 		$is_hidden = in_array( $this->options->field_type, array( 'date' ) ) ? false : true;
+
 		$this->display_field_date_format( $is_hidden );
 
 		/**
@@ -415,6 +412,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 		 *
 		 */
 		$is_hidden = in_array( $this->options->field_type, array( 'image', 'library_id' ) ) ? false : true;
+
 		$this->display_field_preview_size( $is_hidden );
 
 		/**
@@ -422,12 +420,28 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 		 *
 		 */
 		$is_hidden = in_array( $this->options->field_type, array( 'excerpt' ) ) ? false : true;
+
 		$this->display_field_excerpt_length( $is_hidden );
 
 		/**
 		 * Before / After
 		 *
 		 */
-		$this->display_field_before_after();
+		?>
+
+		<tr class="column_before">
+			<?php $this->label_view( __( "Before", 'cpac' ), __( 'This text will appear before the custom field value.', 'cpac' ), 'before' ); ?>
+			<td class="input">
+				<input type="text" class="cpac-before" name="<?php $this->attr_name( 'before' ); ?>" id="<?php $this->attr_id( 'before' ); ?>" value="<?php echo esc_attr( stripslashes( $this->options->before ) ); ?>"/>
+			</td>
+		</tr>
+		<tr class="column_after">
+			<?php $this->label_view( __( "After", 'cpac' ), __( 'This text will appear after the custom field value.', 'cpac' ), 'after' ); ?>
+			<td class="input">
+				<input type="text" class="cpac-after" name="<?php $this->attr_name( 'after' ); ?>" id="<?php $this->attr_id( 'after' ); ?>" value="<?php echo esc_attr( stripslashes( $this->options->after ) ); ?>"/>
+			</td>
+		</tr>
+		<?php
+
 	}
 }

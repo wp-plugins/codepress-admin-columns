@@ -335,19 +335,6 @@ class CPAC_Column {
 	}
 
 	/**
-	 * Get cache ID
-	 *
-	 * @since 2.1.2
-	 *
-	 * @param $id Cache ID
-	 * @return string MD5 Cache ID
-	 */
-	function get_cache_id( $id ) {
-
-		return md5( $this->storage_model->key . $this->properties->name . $id );
-	}
-
-	/**
 	 * Set cache objects
 	 *
 	 * @since 2.0.0
@@ -360,7 +347,14 @@ class CPAC_Column {
 		if ( empty( $cache_object ) )
 			return false;
 
-		set_transient( $this->get_cache_id( $id ), $cache_object );
+		$cache_name = $this->storage_model->key . $this->properties->name . $id;
+
+		if ( strlen( $cache_name ) > 64 ) {
+			trigger_error( 'Cache name too long.' );
+			return false;
+		}
+
+		set_transient( $cache_name, $cache_object );
 	}
 
 	/**
@@ -372,9 +366,8 @@ class CPAC_Column {
 	 * @return false | mixed Returns either false or the cached objects
 	 */
 	function get_cache( $id ) {
-		$cache = get_transient( $this->get_cache_id( $id ) );
-
-		if ( empty( $cache ) )
+		$cache = get_transient( $this->storage_model->key . $this->properties->name . $id );
+		if( empty( $cache ) )
 			return false;
 
 		return $cache;
@@ -389,7 +382,7 @@ class CPAC_Column {
 	 */
 	function delete_cache( $id ) {
 
-		delete_transient( $this->get_cache_id( $id ) );
+		delete_transient( $this->storage_model->key . $this->properties->name . $id );
 	}
 
 	/**
@@ -427,15 +420,8 @@ class CPAC_Column {
 
 		$save_post 	= $post;
 		$post 		= get_post( $post_id );
-
-		setup_postdata( $post );
-
 		$excerpt 	= get_the_excerpt();
 		$post 		= $save_post;
-
-		if ( $post ) {
-			setup_postdata( $post );
-		}
 
 		$output = $this->get_shortened_string( $excerpt, $words );
 
@@ -656,8 +642,8 @@ class CPAC_Column {
 
 				// image size by name
 				if ( $sizes = $this->get_image_size_by_name( $image_size ) ) {
-					$width 	= $sizes['width'];
-					$height	= $sizes['height'];
+					$width 	= $sizes['image_size_w'];
+					$height	= $sizes['image_size_h'];
 				}
 
 				// maximum dimensions
@@ -879,28 +865,6 @@ class CPAC_Column {
 	}
 
 	/**
-	 * Display field Preview Size
-	 *
-	 * @since 2.1.1
-	 */
-	function display_field_before_after() {
-		?>
-		<tr class="column_before">
-			<?php $this->label_view( __( "Before", 'cpac' ), __( 'This text will appear before the custom field value.', 'cpac' ), 'before' ); ?>
-			<td class="input">
-				<input type="text" class="cpac-before" name="<?php $this->attr_name( 'before' ); ?>" id="<?php $this->attr_id( 'before' ); ?>" value="<?php echo esc_attr( stripslashes( $this->options->before ) ); ?>"/>
-			</td>
-		</tr>
-		<tr class="column_after">
-			<?php $this->label_view( __( "After", 'cpac' ), __( 'This text will appear after the custom field value.', 'cpac' ), 'after' ); ?>
-			<td class="input">
-				<input type="text" class="cpac-after" name="<?php $this->attr_name( 'after' ); ?>" id="<?php $this->attr_id( 'after' ); ?>" value="<?php echo esc_attr( stripslashes( $this->options->after ) ); ?>"/>
-			</td>
-		</tr>
-<?php
-	}
-
-	/**
 	 * Get column list
 	 *
 	 * @since 2.0.0
@@ -951,7 +915,6 @@ class CPAC_Column {
 
 		?>
 		<div class="cpac-column <?php echo $classes; ?>" data-type="<?php echo $this->properties->type; ?>"<?php echo $data_clone; ?>>
-			<input type="hidden" class="column-name" name="<?php echo $this->attr_name( 'column-name' ); ?>" value="<?php echo esc_attr( $this->properties->name ); ?>" />
 			<input type="hidden" class="type"  name="<?php echo $this->attr_name( 'type' ); ?>" value="<?php echo $this->properties->type; ?>" />
 			<input type="hidden" class="clone" name="<?php echo $this->attr_name( 'clone' ); ?>" value="<?php echo $this->properties->clone; ?>" />
 			<div class="column-meta">
@@ -966,14 +929,17 @@ class CPAC_Column {
 										<?php do_action( 'cac/column/label', $this ); ?>
 
 									</div>
-									<a class="toggle" href="javascript:;"><?php echo stripslashes( $this->get_label() ); ?></a>
-									<a class="edit-button" href="javascript:;"><?php _e( 'Edit', 'cpac' ); ?></a>
-									<a class="remove-button" href="javascript:;"><?php _e( 'Remove', 'cpac' ); ?></a>
+									<a class="toggle" href="javascript:;">
+										<?php echo stripslashes( $this->get_label() ); ?>
+									</a>
+									<a class="remove-button" href="javacript:;">
+										<?php _e( 'Remove', 'cpac' ); ?>
+									</a>
 								</div>
 							</td>
 							<td class="column_type">
 								<div class="inner">
-									<a href="#"><?php echo stripslashes( $this->properties->label ); ?></a>
+									<?php echo stripslashes( $this->properties->label ); ?>
 								</div>
 							</td>
 							<td class="column_edit"></td>
@@ -1022,7 +988,6 @@ class CPAC_Column {
 						 *
 						 */
 						$this->display_settings();
-
 						?>
 
 						<?php do_action( 'cac/column/settings_after', $this ); ?>
@@ -1031,6 +996,7 @@ class CPAC_Column {
 							<td colspan="2">
 								<p>
 									<a href="javascript:;" class="remove-button"><?php _e( 'Remove' );?></a>
+									<!--<span class="description alignright"><?php _e('type','cpac'); ?>: <em><?php echo $this->properties->type; ?></em></span>-->
 								</p>
 							</td>
 						</tr>

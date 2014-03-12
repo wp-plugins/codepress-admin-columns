@@ -53,30 +53,27 @@ class CPAC_Column_Post_Author_Name extends CPAC_Column {
 	 */
 	public function get_display_name( $user_id ) {
 
+		$name = '';
+
 		if ( ! $userdata = get_userdata( $user_id ) )
 			return false;
 
-		$name = '';
-
 		$display_as = $this->options->display_author_as;
 
-		if ( 'first_last_name' == $display_as ) {
-			$first 	= ! empty( $userdata->first_name ) ? $userdata->first_name : '';
-			$last 	= ! empty( $userdata->last_name ) ? " {$userdata->last_name}" : '';
-			$name 	= $first.$last;
-		}
-
-		elseif ( ! empty( $userdata->{$display_as} ) ) {
+		// first check variables in userdata
+		if ( ! empty( $userdata->{$display_as} ) ) {
 			$name = $userdata->{$display_as};
 		}
 
-		// default to display_name
-		if ( ! $name ) {
-			$name = $userdata->display_name;
+		elseif ( 'first_last_name' == $display_as ) {
+			$first 	= !empty($userdata->first_name) ? $userdata->first_name : '';
+			$last 	= !empty($userdata->last_name) ? " {$userdata->last_name}" : '';
+			$name 	= $first.$last;
 		}
 
 		return $name;
 	}
+
 
 	/**
 	 * @see CPAC_Column::get_value()
@@ -112,6 +109,7 @@ class CPAC_Column_Post_Author_Name extends CPAC_Column {
 	 * @since 2.0.0
 	 */
 	function display_settings() {
+
 		?>
 
 		<tr class="column-author-name">

@@ -33,15 +33,6 @@ abstract class CPAC_Storage_Model {
 	public $type;
 
 	/**
-	 * Menu Type
-	 *
-	 * Groups the storage model in the menu.
-	 *
-	 * @since 2.0.0
-	 */
-	public $menu_type;
-
-	/**
 	 * Page
 	 *
 	 * @since 2.0.0
@@ -84,21 +75,6 @@ abstract class CPAC_Storage_Model {
 	 * @return array Column Name | Column Label
 	 */
 	abstract function get_default_columns();
-
-	/**
-	 * Construct
-	 *
-	 * @since 2.1.2
-	 */
-	function __construct() {
-
-		// set columns paths
-		$this->set_columns_filepath();
-
-		// Populate columns variable.
-		// This is used for manage_value. By storing these columns we greatly improve performance.
-		add_action( 'admin_init', array( $this, 'set_columns' ) );
-	}
 
 	/**
 	 * Checks if menu type is currently viewed
@@ -263,47 +239,59 @@ abstract class CPAC_Storage_Model {
 	 *
 	 * @return array Column Classnames | Filepaths
 	 */
-	public function set_columns_filepath() {
+	protected function set_columns_filepath() {
 
 		$columns  = array(
 			'CPAC_Column_Custom_Field' 	=> CPAC_DIR . 'classes/column/custom-field.php',
-			'CPAC_Column_Taxonomy' 		=> CPAC_DIR . 'classes/column/taxonomy.php'
+			'CPAC_Column_Taxonomy' => CPAC_DIR . 'classes/column/taxonomy.php'
 		);
 
-		// Directory to iterate
-		$columns_dir = CPAC_DIR . 'classes/column/' . $this->type;
+		$iterator = new DirectoryIterator( CPAC_DIR . 'classes/column/' . $this->type );
 
-		// check if directory exists
-		if ( is_dir( $columns_dir ) ) {
+		foreach( $iterator as $leaf ) {
 
-			$iterator = new DirectoryIterator( $columns_dir );
+			if ( $leaf->isDot() || $leaf->isDir() )
+				continue;
 
-			foreach( $iterator as $leaf ) {
+			// only allow php files, exclude .SVN .DS_STORE and such
+			if ( substr( $leaf->getFilename(), -4 ) !== '.php' )
+    			continue;
 
-				if ( $leaf->isDot() || $leaf->isDir() )
-					continue;
+			// build classname from filename
+			$class_name = 'CPAC_Column_' . ucfirst( $this->type ) . '_'  . implode( '_', array_map( 'ucfirst', explode( '-', basename( $leaf->getFilename(), '.php' ) ) ) );
 
-				// only allow php files, exclude .SVN .DS_STORE and such
-				if ( substr( $leaf->getFilename(), -4 ) !== '.php' )
-	    			continue;
-
-				// build classname from filename
-				$class_name = 'CPAC_Column_' . ucfirst( $this->type ) . '_'  . implode( '_', array_map( 'ucfirst', explode( '-', basename( $leaf->getFilename(), '.php' ) ) ) );
-
-				// classname | filepath
-				$columns[ $class_name ] = $leaf->getPathname();
-			}
+			// classname | filepath
+			$columns[ $class_name ] = $leaf->getPathname();
 		}
 
-		// cac/columns/custom - filter to register column
+		/**
+		 * Filter the available custom column types
+		 * Use this to register a custom column type
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param array $columns Available custom columns ([class_name] => [class file path])
+		 * @param CPAC_Storage_Model $storage_model Storage model class instance
+		 */
 		$columns = apply_filters( 'cac/columns/custom', $columns, $this );
 
-		// cac/columns/custom/post_type={$post_type} - filter to register column based on it's posttype
+		/**
+		 * Filter the available custom column types for a specific type
+		 *
+		 * @since 2.0.0
+		 * @see Filter cac/columns/custom
+		 */
+		$columns = apply_filters( 'cac/columns/custom/type=' . $this->type, $columns, $this );
+
+		/**
+		 * Filter the available custom column types for a specific type
+		 *
+		 * @since 2.0.0
+		 * @see Filter cac/columns/custom
+		 */
 		$columns = apply_filters( 'cac/columns/custom/post_type=' . $this->key, $columns, $this );
 
-		// cac/columns/custom/type={$type} - filter to register column based on it's content META type
-		// type can be either a post, user, comment, link or media
-		$this->columns_filepath = apply_filters( 'cac/columns/custom/type=' . $this->type, $columns, $this );
+		$this->columns_filepath = $columns;
 	}
 
 	/**
@@ -383,6 +371,7 @@ abstract class CPAC_Storage_Model {
 		$columns = array();
 
 		foreach ( $this->columns_filepath as $classname => $path ) {
+
 			include_once $path;
 
 			if ( ! class_exists( $classname ) )
@@ -424,7 +413,7 @@ abstract class CPAC_Storage_Model {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $key
+	 * @paran string $key
 	 * @return array Column options
 	 */
 	public function get_stored_columns() {
@@ -439,14 +428,12 @@ abstract class CPAC_Storage_Model {
 	 * Set Columns
 	 *
 	 * @since 2.0.2
-	 *
-	 * @param bool $ignore_check This will allow (3rd party plugins) to populate columns outside the approved screens.
 	 */
-	public function set_columns( $ignore_screen_check = false ) {
+	function set_columns() {
 
 		// only set columns on allowed screens
 		// @todo_minor: maybe add exception for AJAX calls
-		if ( ! $ignore_screen_check && ! $this->is_doing_ajax() && ! $this->is_columns_screen() && ! $this->is_settings_page() )
+		if ( ! $this->is_doing_ajax() && ! $this->is_columns_screen() && ! $this->is_settings_page() )
 			return;
 
 		$this->custom_columns   = $this->get_custom_registered_columns();
@@ -476,6 +463,10 @@ abstract class CPAC_Storage_Model {
 		do_action( 'cac/get_columns', $this );
 
 		$columns = array();
+
+		// get columns
+		//$default_columns = $this->get_default_registered_columns();
+		//$custom_columns  = $this->get_custom_registered_columns();
 
 		// get columns
 		$default_columns = $this->default_columns;
@@ -545,9 +536,6 @@ abstract class CPAC_Storage_Model {
 			}
 		}
 
-		do_action( "cac/columns", $columns );
-		do_action( "cac/columns/storage_key={$this->key}", $columns );
-
 		return $columns;
 	}
 
@@ -569,7 +557,7 @@ abstract class CPAC_Storage_Model {
 	 *
 	 * @since 2.0.0
 	 */
-	public function add_headings( $columns ) {
+	function add_headings( $columns ) {
 
 		// only add headings on overview screens, to prevent deactivating columns in the Storage Model.
 		if ( ! $this->is_columns_screen() )
@@ -680,7 +668,7 @@ abstract class CPAC_Storage_Model {
 	 */
 	function is_columns_screen() {
 
-		global $pagenow;
+		global $pagenow, $current_screen;
 
 		if ( $this->page . '.php' != $pagenow )
 			return false;
@@ -690,14 +678,6 @@ abstract class CPAC_Storage_Model {
 			$post_type = isset( $_REQUEST['post_type'] ) ? $_REQUEST['post_type'] : $this->type;
 
 			if ( $this->key != $post_type )
-				return false;
-		}
-
-		// taxonomy
-		if ( 'taxonomy' == $this->type ) {
-			$taxonomy = isset( $_GET['taxonomy'] ) ? $_GET['taxonomy'] : '';
-
-			if ( $this->taxonomy != $taxonomy )
 				return false;
 		}
 

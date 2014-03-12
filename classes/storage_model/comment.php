@@ -9,19 +9,21 @@ class CPAC_Storage_Model_Comment extends CPAC_Storage_Model {
 	 */
 	function __construct() {
 
-		$this->key 		 = 'wp-comments';
-		$this->label 	 = __( 'Comments' );
-		$this->type 	 = 'comment';
-		$this->page 	 = 'edit-comments';
-		$this->menu_type = 'other';
+		$this->key 		= 'wp-comments';
+		$this->label 	= __( 'Comments' );
+		$this->type 	= 'comment';
+		$this->page 	= 'edit-comments';
+
+		$this->set_columns_filepath();
+
+		// populate columns variable
+		add_action( 'admin_init', array( $this, 'set_columns' ) );
 
 		// headings
-		add_filter( "manage_{$this->page}_columns",  array( $this, 'add_headings' ) );
+		add_filter( "manage_{$this->page}_columns",  array( $this, 'add_headings' ), 100 );
 
 		// values
-		add_action( 'manage_comments_custom_column', array( $this, 'manage_value' ), 10, 2 );
-
-		parent::__construct();
+		add_action( 'manage_comments_custom_column', array( $this, 'manage_value' ), 100, 2 );
 	}
 
 	/**
@@ -42,7 +44,7 @@ class CPAC_Storage_Model_Comment extends CPAC_Storage_Model {
 
 		// get columns
 		$table 		= _get_list_table( 'WP_Comments_List_Table', array( 'screen' => 'comments' ) );
-		$columns 	= (array) $table->get_columns();
+		$columns 	= $table->get_columns();
 
 		return $columns;
 	}
