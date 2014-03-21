@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.5
 Tested up to: 3.8.1
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -219,6 +219,17 @@ Here you will find an overview of filters and examples: http://www.codepresshq.c
 8. Posts Screen with custom fields.
 
 == Changelog ==
+
+= 2.1.4 =
+* [Added] CSS now is compiled with LESS
+* [Updated] Menu is split between posttypes and media, comments and users.
+* [Fixed] WordPress SEO 1.5.2 columns support
+* [Updated] Refactored JS and cleanup
+* [Updated] Registered Date column now uses GMT date
+* [Updated] Display author as column has fallback to display_name
+* [Updated] Added conditional checks for featured-image-, ping-status and comment-status-columns
+* [Fixed] Fixed warning for available-sizes column
+* [Updated] Column labels can no longer contain ":" characters
 
 = 2.1.3 =
 * [Updated] Undo changes from 2.1.2, will be in the next major release
