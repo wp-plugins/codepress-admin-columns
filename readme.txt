@@ -3,8 +3,8 @@ Contributors: codepress, tschutter, davidmosterd, engelen
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZDZRSYLQ4Z76J
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.5
-Tested up to: 3.8.1
-Stable tag: 2.1.4
+Tested up to: 3.9
+Stable tag: 2.1.5
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -219,6 +219,9 @@ Here you will find an overview of filters and examples: http://www.codepresshq.c
 8. Posts Screen with custom fields.
 
 == Changelog ==
+
+= 2.1.5 =
+* [Added] Pro add-on deprecation
 
 = 2.1.4 =
 * [Added] CSS now is compiled with LESS
