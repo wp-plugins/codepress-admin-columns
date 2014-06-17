@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.5
 Tested up to: 3.9.1
-Stable tag: 2.2
+Stable tag: 2.2.1
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -246,6 +246,15 @@ You can find a list of the available actions and filters (and examples on how to
 
 == Changelog ==
 
+= 2.2.1 =
+* [Added] Option to make permalink in permalink column clickable (linking to post)
+* [Added] Direct support box in Admin Columns settings screen sidebar
+* [Added] Added filter to suppress pro add-on notice (`cpac/suppress_proaddon_notice`)
+* [Updated] Minor adjustments for WooCommerce and other third party plugin support, setting up the post object in post columns
+* [Updated] Minor update in default column retrieval for improved 3rd party plugin support
+* [Fixed] Fixed problem with column groups incorrectly handling default 3rd party columns
+* [Updated] Updated translations from Transifex
+
 = 2.2 =
 * [Added] AJAX refreshing of columns in columns settings screen
 * [Added] Support for managing columns via code instead of UI
@@ -295,7 +304,7 @@ You can find a list of the available actions and filters (and examples on how to
 = 2.0.3 =
 * [Updated] Danish translation - thanks to iosoftgame
 * [Updated] Spanish translation - thanks to redywebs
-* [Added] Chinese translation - thanks to å€¡èŒ
+* [Added] Chinese translation - thanks to Ã¥â‚¬Â¡Ã¨ÂÅ’
 * [Fixed] Solved bug with before and after field
 * [Added] Fieldtype "Counter" to Custom Fields
 * [Added] Column type ID when you hover over the column type label

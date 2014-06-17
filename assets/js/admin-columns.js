@@ -22,6 +22,7 @@ jQuery(document).ready(function() {
 	cpac_sidebar_scroll();
 	cpac_addons();
 	cpac_importexport();
+	cpac_sidebar_feedback();
 
 	// we start by binding the toggle and remove events.
 	jQuery('.cpac-column').each( function( i, col ) {
@@ -375,6 +376,29 @@ function cpac_add_column() {
 
 		e.preventDefault();
 	});
+}
+
+/**
+ * @since 2.2.1
+ */
+function cpac_sidebar_feedback() {
+	jQuery( function( $ ) {
+		var sidebox = $( '.sidebox#direct-feedback' );
+
+		sidebox.find( '#feedback-choice a.no' ).click( function( e ) {
+			e.preventDefault();
+
+			sidebox.find( '#feedback-choice' ).slideUp();
+			sidebox.find( '#feedback-support' ).slideDown();
+		} );
+
+		sidebox.find( '#feedback-choice a.yes' ).click( function( e ) {
+			e.preventDefault();
+
+			sidebox.find( '#feedback-choice' ).slideUp();
+			sidebox.find( '#feedback-rate' ).slideDown();
+		} );
+	} );
 }
 
 /*
