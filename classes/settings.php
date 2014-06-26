@@ -3,19 +3,19 @@
 /**
  * CPAC_Settings Class
  *
- * @since 2.0.0
+ * @since 2.0
  */
 class CPAC_Settings {
 
 	/**
 	 * CPAC class
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	private $cpac;
 
 	/**
-	 * @since 2.0.0
+	 * @since 2.0
 	 * @param object CPAC
 	 */
 	function __construct( $cpac ) {
@@ -147,7 +147,7 @@ class CPAC_Settings {
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	public function settings_menu() {
 
@@ -171,14 +171,14 @@ class CPAC_Settings {
 	/**
 	 * Allows the capaiblity 'manage_admin_columns' to store data through /wp-admin/options.php
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	public function add_capability() {
 		return 'manage_admin_columns';
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	public function admin_styles() {
 		wp_enqueue_style( 'wp-pointer' );
@@ -187,7 +187,7 @@ class CPAC_Settings {
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	public function admin_scripts() {
 
@@ -205,7 +205,7 @@ class CPAC_Settings {
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	public function handle_column_request() {
 
@@ -246,7 +246,7 @@ class CPAC_Settings {
 	/**
 	 * Restore all column defaults
 	 *
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	private function restore_all() {
 		global $wpdb;
@@ -318,7 +318,7 @@ class CPAC_Settings {
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 * @param string $storage_model URL type.
 	 * @return string Url.
 	 */
@@ -345,7 +345,7 @@ class CPAC_Settings {
 	}
 
 	/**
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	public function uses_custom_fields() {
 
@@ -366,7 +366,7 @@ class CPAC_Settings {
 	/**
 	 * Welcome screen
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	public function welcome_screen() {
 
@@ -510,7 +510,7 @@ class CPAC_Settings {
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	public function display_settings() {
 	?>
@@ -609,7 +609,7 @@ class CPAC_Settings {
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	public function display() {
 

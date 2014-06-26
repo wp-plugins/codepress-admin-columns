@@ -5,13 +5,14 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	/**
 	 * Constructor
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	function __construct( $post_type ) {
 
 		$this->key 		 = $post_type;
 		$this->label 	 = $this->get_label();
 		$this->type 	 = 'post';
+		$this->meta_type = 'post';
 		$this->page 	 = 'edit';
 		$this->post_type = $post_type;
 		$this->menu_type = 'post';
@@ -29,7 +30,6 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 		// values
 		add_action( "manage_{$this->post_type}_posts_custom_column", array( $this, 'manage_value' ), 100, 2 );
 
-		// Re-load the columns after the posts page load actions are performed
 		add_action( 'load-edit.php', array( $this, 'set_columns' ), 1000 );
 
 		parent::__construct();
@@ -80,7 +80,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	/**
 	 * Get screen link
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 *
 	 * @return string Link
 	 */
@@ -110,7 +110,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	/**
 	 * Get Label
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 *
 	 * @return string Singular posttype name
 	 */
@@ -124,7 +124,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	 * Get WP default supported admin columns per post type.
 	 *
 	 * @see CPAC_Type::get_default_columns()
-	 * @since 1.0.0
+	 * @since 1.0
 	 *
 	 * @return array
 	 */
@@ -153,7 +153,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	/**
      * Get Meta
      *
-	 * @since 2.0.0
+	 * @since 2.0
 	 *
 	 * @return array
      */
@@ -166,7 +166,7 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	/**
 	 * Manage value
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 *
 	 * @param string $column_name
 	 * @param int $post_id

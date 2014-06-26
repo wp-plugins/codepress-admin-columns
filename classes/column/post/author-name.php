@@ -2,21 +2,26 @@
 /**
  * CPAC_Column_Post_Author_Name
  *
- * @since 2.0.0
+ * @since 2.0
  */
 class CPAC_Column_Post_Author_Name extends CPAC_Column {
 
-	function __construct( $storage_model ) {
+	/**
+	 * @see CPAC_Column::init()
+	 * @since 2.3
+	 */
+	public function init() {
 
+		parent::init();
+
+		// Properties
 		$this->properties['type']	 			= 'column-author_name';
 		$this->properties['label']	 			= __( 'Display Author As', 'cpac' );
 		$this->properties['is_cloneable']		= true;
 		$this->properties['object_property']	= 'post_author';
 
-		// define additional options
+		// Options
 		$this->options['display_author_as'] = '';
-
-		parent::__construct( $storage_model );
 	}
 
 	/**
@@ -24,7 +29,7 @@ class CPAC_Column_Post_Author_Name extends CPAC_Column {
 	 *
 	 * Used by posts and sortable
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 *
 	 * @return array Authortypes
 	 */
@@ -49,7 +54,7 @@ class CPAC_Column_Post_Author_Name extends CPAC_Column {
 	 *
 	 * Can also be used by addons.
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	public function get_display_name( $user_id ) {
 
@@ -80,7 +85,7 @@ class CPAC_Column_Post_Author_Name extends CPAC_Column {
 
 	/**
 	 * @see CPAC_Column::get_value()
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	function get_value( $post_id ) {
 
@@ -109,7 +114,7 @@ class CPAC_Column_Post_Author_Name extends CPAC_Column {
 	 * Display Settings
 	 *
 	 * @see CPAC_Column::display_settings()
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	function display_settings() {
 		?>

@@ -7,17 +7,21 @@
  */
 class CPAC_Column_Custom_Field extends CPAC_Column {
 
-	private $user_settings;
+	/**
+	 * @see CPAC_Column::init()
+	 * @since 2.3
+	 */
+	function init() {
 
-	function __construct( $storage_model ) {
+		parent::init();
 
-		// define properties
+		// Properties
 		$this->properties['type']	 		= 'column-meta';
 		$this->properties['label']	 		= __( 'Custom Field', 'cpac' );
 		$this->properties['classes']		= 'cpac-box-metafield';
 		$this->properties['is_cloneable']	= true;
 
-		// define additional options
+		// Options
 		$this->options['field']				= '';
 		$this->options['field_type']		= '';
 		$this->options['before']			= '';
@@ -31,12 +35,6 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 
 		$this->options['date_format']		= '';
 		$this->options['date_save_format']	= '';
-
-		// for retireving sorting preference
-		$this->user_settings = get_option( 'cpac_general_options' );
-
-		// call construct
-		parent::__construct( $storage_model );
 	}
 
 	/**
@@ -177,7 +175,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	/**
 	 * Get meta value
 	 *
-	 * @since 2.0.0
+	 * @since 2.0
 	 *
 	 * @param string $meta Contains Meta Value
 	 * @param int $id Optional Object ID
@@ -288,7 +286,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	/**
 	 * Get meta by ID
 	 *
-	 * @since 1.0.0
+	 * @since 1.0
 	 *
 	 * @param int $id ID
 	 * @return string Meta Value
@@ -337,7 +335,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 
 		$field_key = $this->get_field_key();
 
-		$raw_value = get_metadata( $this->storage_model->type, $id, $field_key, $single );
+		$raw_value = get_metadata( $this->storage_model->meta_type, $id, $field_key, $single );
 
 		return apply_filters( 'cac/column/meta/raw_value', $raw_value, $id, $field_key, $this );
 	}
@@ -375,9 +373,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	 */
 	function display_settings() {
 
-		//$show_hidden_meta = isset( $this->user_settings['show_hidden'] ) && '1' === $this->user_settings['show_hidden'] ? true : false;
 		$show_hidden_meta = true;
-
 		?>
 
 		<tr class="column_field">
@@ -424,4 +420,5 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 
 		$this->display_field_before_after();
 	}
+
 }

@@ -2,7 +2,7 @@
 /*
 
 Plugin Name: 		Codepress Admin Columns
-Version: 			2.2.1.1
+Version: 			2.2.2
 Description: 		Customize columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepresshq.com
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) )  {
 }
 
 // Plugin information
-define( 'CPAC_VERSION', 	 	'2.2.1.1' ); // current plugin version
+define( 'CPAC_VERSION', 	 	'2.2.2' ); // current plugin version
 define( 'CPAC_UPGRADE_VERSION', '2.0.0' ); // this is the latest version which requires an upgrade
 define( 'CPAC_URL', 			plugin_dir_url( __FILE__ ) );
 define( 'CPAC_DIR', 			plugin_dir_path( __FILE__ ) );
@@ -55,7 +55,7 @@ require_once CPAC_DIR . 'api.php';
 /**
  * The Codepress Admin Columns Class
  *
- * @since 1.0.0
+ * @since 1.0
  */
 class CPAC {
 
@@ -87,7 +87,7 @@ class CPAC {
 	private $_settings;
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	function __construct() {
 
@@ -132,7 +132,7 @@ class CPAC {
 		 * Fires when Admin Columns is fully loaded
 		 * Use this for setting up addon functionality
 		 *
-		 * @since 2.0.0
+		 * @since 2.0
 		 * @param CPAC $cpac_instance Main Admin Columns plugin class instance
 		 */
 		do_action( 'cac/loaded', $this );
@@ -254,7 +254,7 @@ class CPAC {
 	}
 
 	/**
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	public function set_storage_models() {
 
@@ -265,6 +265,7 @@ class CPAC {
 
 		// include parent and childs
 		require_once CPAC_DIR . 'classes/column.php';
+		require_once CPAC_DIR . 'classes/column/default.php';
 		require_once CPAC_DIR . 'classes/storage_model.php';
 		require_once CPAC_DIR . 'classes/storage_model/post.php';
 		require_once CPAC_DIR . 'classes/storage_model/user.php';
@@ -295,14 +296,14 @@ class CPAC {
 		 * Filter the available storage models
 		 * Used by external plugins to add additional storage models
 		 *
-		 * @since 2.0.0
+		 * @since 2.0
 		 * @param array $storage_models List of storage model class instances ( [key] => [CPAC_Storage_Model object], where [key] is the storage key, such as "user", "post" or "my_custom_post_type")
 		 */
 		$this->storage_models = apply_filters( 'cac/storage_models', $storage_models );
 	}
 
 	/**
-	 * @since 2.0.0
+	 * @since 2.0
 	 * @return array|false object Storage Model
 	 */
 	public function get_storage_model( $key ) {
@@ -315,7 +316,7 @@ class CPAC {
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 * @return array Posttypes
 	 */
 	public function get_post_types() {
@@ -336,14 +337,14 @@ class CPAC {
 		/**
 		 * Filter the post types for which Admin Columns is active
 		 *
-		 * @since 2.0.0
+		 * @since 2.0
 		 * @param array $post_types List of active post type names
 		 */
 		return apply_filters( 'cac/post_types', $post_types );
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	function add_settings_link( $links, $file ) {
 
@@ -356,7 +357,7 @@ class CPAC {
 	}
 
 	/**
-	 * @since 1.0.0
+	 * @since 1.0
 	 */
 	public function column_styles() {
 
@@ -471,7 +472,7 @@ class CPAC {
 /**
  * Init Class Codepress_Admin_Columns ( sets Global for backwards compatibility. )
  *
- * @since 1.0.0
+ * @since 1.0
  */
 $GLOBALS['cpac'] = new CPAC();
 

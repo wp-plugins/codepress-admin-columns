@@ -2,25 +2,30 @@
 /**
  * CPAC_Column_Post_Taxonomy
  *
- * @since 2.0.0
+ * @since 2.0
  */
 class CPAC_Column_Taxonomy extends CPAC_Column {
 
-	function __construct( $storage_model ) {
+	/**
+	 * @see CPAC_Column::init()
+	 * @since 2.3
+	 */
+	public function init() {
 
+		parent::init();
+		
+		// Properties
 		$this->properties['type']			= 'column-taxonomy';
 		$this->properties['label']			= __( 'Taxonomy', 'cpac' );
 		$this->properties['is_cloneable']	= true;
 
-		// define additional options
-		$this->options['taxonomy']	= ''; // taxonomy slug
-
-		parent::__construct( $storage_model );
+		// Options
+		$this->options['taxonomy']	= ''; // Taxonomy slug
 	}
 
 	/**
 	 * @see CPAC_Column::get_value()
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	function get_value( $post_id ) {
 
@@ -67,7 +72,7 @@ class CPAC_Column_Taxonomy extends CPAC_Column {
 
 	/**
 	 * @see CPAC_Column::apply_conditional()
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	function apply_conditional() {
 
@@ -84,7 +89,7 @@ class CPAC_Column_Taxonomy extends CPAC_Column {
 	 * Display Settings
 	 *
 	 * @see CPAC_Column::display_settings()
-	 * @since 2.0.0
+	 * @since 2.0
 	 */
 	function display_settings() {
 
