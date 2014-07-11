@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.5
 Tested up to: 3.9.1
-Stable tag: 2.2.3
+Stable tag: 2.2.4
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -245,6 +245,16 @@ You can find a list of the available actions and filters (and examples on how to
 8. Posts Screen with custom fields.
 
 == Changelog ==
+
+= 2.2.4 =
+* [Added] New filter `cpac/storage_model/columns_default` for filtering the columns that should be loaded if there are no stored columns
+* [Added] Option (column property `hidden`) to hide column types from the dropdown list of column types
+* [Added] Use tooltip library for enhanced column value representation
+* [Added] Box for direct feedback on Admin Columns settings screen
+* [Added] Added method for retrieving current storage model (for overview pages such as the posts and page overviews)
+* [Added] Added WooCommerce add-on to list of add-ons
+* [Updated] Hide ACF5 field group post type from list of post types columns settings
+* [Updated] Updated structure of scripts and styles and way of enqueuing them
 
 = 2.2.3 =
 * [Added] Added Path column for post(types). Uses the permalink without the home url.

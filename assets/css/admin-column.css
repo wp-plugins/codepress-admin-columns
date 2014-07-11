@@ -367,6 +367,9 @@ h2.cpac-nav-tab-wrapper {
   -webkit-border-radius: 3px;
   border-radius: 3px;
 }
+.cpac-column .column-form table tr td.input .section {
+  padding: 12px;
+}
 .cpac-column .column-form table tr.column_width div.description {
   font-size: 11px;
   width: 12%;
@@ -714,7 +717,7 @@ h2.cpac-nav-tab-wrapper {
   text-align: center;
   line-height: 64px;
   font-weight: bold;
-  color: #CCC;
+  color: #222;
   display: inline-block;
   text-decoration: none;
 }
@@ -774,6 +777,9 @@ h2.cpac-nav-tab-wrapper {
 }
 .columns-right .sidebox#direct-feedback .inside ul.share li:first-child {
   margin-left: 0;
+}
+.columns-right .sidebox#direct-feedback #feedback-support .inside ul.share li {
+  width: 48%;
 }
 /**
  * Setting Tab

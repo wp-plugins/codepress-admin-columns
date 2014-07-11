@@ -2,7 +2,7 @@
 /*
 
 Plugin Name: 		Codepress Admin Columns
-Version: 			2.2.3
+Version: 			2.2.4
 Description: 		Customize columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepresshq.com
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) )  {
 }
 
 // Plugin information
-define( 'CPAC_VERSION', 	 	'2.2.3' ); // current plugin version
+define( 'CPAC_VERSION', 	 	'2.2.4' ); // current plugin version
 define( 'CPAC_UPGRADE_VERSION', '2.0.0' ); // this is the latest version which requires an upgrade
 define( 'CPAC_URL', 			plugin_dir_url( __FILE__ ) );
 define( 'CPAC_DIR', 			plugin_dir_path( __FILE__ ) );
@@ -105,8 +105,8 @@ class CPAC {
 		// Add settings link
 		add_filter( 'plugin_action_links',  array( $this, 'add_settings_link' ), 1, 2 );
 
-		// Load scripts
-		$this->init_scripts();
+		// Scripts
+		add_action( 'admin_enqueue_scripts', array( $this, 'scripts' ) );
 
 		// Settings
 		include_once CPAC_DIR . 'classes/settings.php';
@@ -228,16 +228,31 @@ class CPAC {
 	}
 
 	/**
-	 * @since 2.1.1
+	 * @since 2.2.4
 	 */
-	public function init_scripts() {
+	public function scripts() {
 
 		add_action( 'admin_head', array( $this, 'global_head_scripts') );
 
+		wp_register_script( 'cpac-admin-columns', CPAC_URL . 'assets/js/admin-columns.js', array( 'jquery', 'jquery-qtip2' ), CPAC_VERSION );
+
 		if ( $this->is_columns_screen() ) {
-			add_action( 'admin_enqueue_scripts' , array( $this, 'column_styles') );
 			add_filter( 'admin_body_class', array( $this, 'admin_class' ) );
 			add_action( 'admin_head', array( $this, 'admin_scripts') );
+
+			wp_enqueue_script( 'cpac-admin-columns' );
+
+			$data = array();
+
+			if ( $storage_model = $this->get_current_storage_model() ) {
+				$data['storage_model'] = array(
+					'is_table_header_fixed' => $storage_model->is_table_header_fixed()
+				);
+			}
+
+			wp_localize_script( 'cpac-admin-columns', 'CPAC', $data );
+
+			$this->column_styles();
 		}
 	}
 
@@ -316,6 +331,20 @@ class CPAC {
 	}
 
 	/**
+	 * @since 2.2.4
+	 */
+	public function get_current_storage_model() {
+
+		if ( $this->storage_models ) {
+			foreach ( $this->storage_models as $storage_model ) {
+				if ( $storage_model->is_columns_screen() ) {
+					return $storage_model;
+				}
+			}
+		}
+	}
+
+	/**
 	 * @since 1.0
 	 * @return array Posttypes
 	 */
@@ -361,7 +390,13 @@ class CPAC {
 	 */
 	public function column_styles() {
 
-		wp_enqueue_style( 'cpac-columns', CPAC_URL . 'assets/css/column.css', array(), CPAC_VERSION, 'all' );
+		wp_register_script( 'jquery-qtip2', CPAC_URL . 'external/qtip2/jquery.qtip.min.js', array( 'jquery' ), CPAC_VERSION );
+		wp_register_style( 'jquery-qtip2', CPAC_URL . 'external/qtip2/jquery.qtip.min.css', array(), CPAC_VERSION, 'all' );
+		wp_register_style( 'cpac-columns', CPAC_URL . 'assets/css/column.css', array(), CPAC_VERSION, 'all' );
+
+		wp_enqueue_script( 'jquery-qtip2' );
+		wp_enqueue_style( 'jquery-qtip2' );
+		wp_enqueue_style( 'cpac-columns' );
 	}
 
 	/**
