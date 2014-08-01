@@ -165,9 +165,7 @@ class CPAC_Column {
 		}
 
 		// Check whether the column should be available
-		if ( ! isset( $this->properties['is_registered'] ) ) {
-			$this->properties['is_registered'] = $this->apply_conditional();
-		}
+		$this->properties['is_registered'] = $this->apply_conditional();
 
 		/**
 		 * Filter the properties of a column type, such as type and is_cloneable
@@ -665,7 +663,7 @@ class CPAC_Column {
 	 * @param array $pieces
 	 * @return string Imploded array
 	 */
-	protected function recursive_implode( $glue, $pieces ) {
+	public function recursive_implode( $glue, $pieces ) {
 		foreach( $pieces as $r_pieces )	{
 			if ( is_array( $r_pieces ) ) {
 				$retVal[] = $this->recursive_implode( $glue, $r_pieces );
@@ -912,7 +910,6 @@ class CPAC_Column {
 		$column_list = '';
 
 		$groups = $this->storage_model->get_column_type_groups();
-
 		foreach ( $groups as $group => $label ) {
 			$column_list .= $this->get_column_list( $this->storage_model->column_types[ $group ], $label );
 		}
@@ -1038,8 +1035,8 @@ class CPAC_Column {
 
 					</tbody>
 				</table>
-			</div><!--.column-form-->
-		</div><!--.cpac-column-->
+			</div>
+		</div>
 		<?php
 	}
 }

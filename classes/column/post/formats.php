@@ -8,7 +8,7 @@ class CPAC_Column_Post_Formats extends CPAC_Column {
 
 	/**
 	 * @see CPAC_Column::init()
-	 * @since 2.3
+	 * @since 2.2.1
 	 */
 	public function init() {
 
@@ -25,8 +25,9 @@ class CPAC_Column_Post_Formats extends CPAC_Column {
 	 */
 	function apply_conditional() {
 
-		if ( post_type_supports( $this->storage_model->key, 'post-formats' ) )
+		if ( post_type_supports( $this->storage_model->key, 'post-formats' ) ) {
 			return true;
+		}
 
 		return false;
 	}
@@ -37,8 +38,9 @@ class CPAC_Column_Post_Formats extends CPAC_Column {
 	 */
 	function get_value( $post_id ) {
 
-		if ( ! $format = $this->get_raw_value( $post_id ) )
+		if ( ! ( $format = $this->get_raw_value( $post_id ) ) ) {
 			return false;
+		}
 
 		return esc_html( get_post_format_string( $format ) );
 	}
@@ -49,8 +51,9 @@ class CPAC_Column_Post_Formats extends CPAC_Column {
 	 */
 	function get_raw_value( $post_id ) {
 
-		if ( ! $format = get_post_format( $post_id ) )
+		if ( ! ( $format = get_post_format( $post_id ) ) ) {
 			return false;
+		}
 
 		return $format;
 	}
