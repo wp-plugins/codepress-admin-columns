@@ -2,7 +2,7 @@
 /*
 
 Plugin Name: 		Codepress Admin Columns
-Version: 			2.2.5
+Version: 			2.2.5.1
 Description: 		Customize columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepresshq.com
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) )  {
 }
 
 // Plugin information
-define( 'CPAC_VERSION', 	 	'2.2.5' ); // current plugin version
+define( 'CPAC_VERSION', 	 	'2.2.5.1' ); // current plugin version
 define( 'CPAC_UPGRADE_VERSION', '2.0.0' ); // this is the latest version which requires an upgrade
 define( 'CPAC_URL', 			plugin_dir_url( __FILE__ ) );
 define( 'CPAC_DIR', 			plugin_dir_path( __FILE__ ) );
@@ -233,7 +233,7 @@ class CPAC {
 		add_action( 'admin_head', array( $this, 'global_head_scripts') );
 
 		wp_register_script( 'cpac-admin-columns', CPAC_URL . 'assets/js/admin-columns.js', array( 'jquery', 'jquery-qtip2' ), CPAC_VERSION );
-		wp_register_script( 'jquery-floatthead', CPAC_URL . 'external/floatThead/jquery.floatThead.js', array( 'jquery' ), CPAC_VERSION );
+		wp_register_script( 'jquery-floatthead', CPAC_URL . 'external/floatthead/jquery.floatThead.js', array( 'jquery' ), CPAC_VERSION );
 
 		if ( $this->is_columns_screen() ) {
 			add_filter( 'admin_body_class', array( $this, 'admin_class' ) );
