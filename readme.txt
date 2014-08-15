@@ -252,6 +252,7 @@ You can find a list of the available actions and filters (and examples on how to
 * [Changed] Display "edit columns" button by default
 * [Improved] Improved memory usage by only loading columns for the current screen
 * [Changed] Removed floatHead library
+* [Updated] Only display ACF placeholder with ACF active.
 
 = 2.2.5.1 =
 * [Fixed] Unavailable included JS-file on editing pages
