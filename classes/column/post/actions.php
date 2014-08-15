@@ -4,54 +4,16 @@
  *
  * @since 2.0
  */
-class CPAC_Column_Post_Actions extends CPAC_Column {
+class CPAC_Column_Post_Actions extends CPAC_Column_Actions {
 
 	/**
-	 * @see CPAC_Column::init()
-	 * @since 2.2.1
+	 * @see CPAC_Column_Actions::get_actions()
+	 * @since 2.2.6
 	 */
-	public function init() {
-
-		parent::init();
-
-		// Properties
-		$this->properties['type'] = 'column-actions';
-		$this->properties['label'] = __( 'Actions', 'cpac' );
-
-		// Options
-		$this->options['use_icons'] = false;
-	}
-
-	/**
-	 * @see CPAC_Column::get_value()
-	 * @since 2.0
-	 */
-	function get_value( $post_id ) {
-		return $this->get_raw_value( $post_id );
-	}
-
-	/**
-	 * @see CPAC_Column::get_value()
-	 * @since 2.0
-	 */
-	function get_raw_value( $post_id ) {
-		return $this->get_column_value_actions( $post_id );
-	}
-
-	/**
-	 * Get column value of post actions
-	 *
-	 * This part is copied from the Posts List Table class
-	 *
-	 * @since 1.4.2
-	 *
-	 * @param int $post_id
-	 * @return string Actions
-	 */
-	private function get_column_value_actions( $post_id ) {
+	public function get_actions( $item_id ) {
 		$actions = array();
 
-		$post 				= get_post($post_id);
+		$post 				= get_post( $item_id );
 		$title 				= _draft_or_post_title();
 		$post_type_object 	= get_post_type_object( $post->post_type );
 		$can_edit_post 		= current_user_can( $post_type_object->cap->edit_post, $post->ID );
@@ -89,70 +51,7 @@ class CPAC_Column_Post_Actions extends CPAC_Column {
 			}
 		}
 
-		// Use icons instead of links
-		/*
-		@todo: debug first
-		if ( ! empty( $this->options->use_icons ) ) {
-			$icons = array(
-				'edit' => 'edit',
-				'trash' => 'trash',
-				'delete' => 'trash',
-				'untrash' => 'undo',
-				'view' => 'visibility',
-				'inline hide-if-no-js' => 'welcome-write-blog'
-			);
-
-			foreach ( $actions as $action => $link ) {
-				if ( isset( $icons[ $action ] ) ) {
-					if ( strpos( $link, 'class=' ) === false ) {
-						$link = str_replace( '<a ', '<a class="" ', $link );
-					}
-
-					$link = preg_replace( '/class=["\'](.*?)["\']/', 'class="$1 cpac-tip button cpac-button-action dashicons hide-content dashicons-' . $icons[ $action ] . '"', $link, 1 );
-					$link = preg_replace_callback( '/>(.*?)<\/a>/', function( $matches ) {
-						return ' data-tip="' . esc_attr( $matches[1] ) . '">' . $matches[1] . '</a>';
-					}, $link );
-
-					$actions[ $action ] = $link;
-				}
-			}
-
-			return implode( '', $actions );
-		}
-		*/
-
-		return implode(' | ', $actions);
+		return $actions;
 	}
 
-	/**
-	 * @see CPAC_Column::display_settings()
-	 * @since 2.2.4
-	 */
-	public function display_settings() {
-
-		parent::display_settings();
-
-		//$this->display_field_use_icons();
-	}
-
-	/**
-	 * @since 2.2.4
-	 */
-	public function display_field_use_icons() {
-		?>
-		<tr class="column_editing">
-			<?php $this->label_view( __( 'Use icons?', 'cpac' ), __( 'Use icons instead of text for displaying the actions.', 'cpac' ), 'use_icons' ); ?>
-			<td class="input">
-				<label for="<?php $this->attr_id( 'use_icons' ); ?>-yes">
-					<input type="radio" value="1" name="<?php $this->attr_name( 'use_icons' ); ?>" id="<?php $this->attr_id( 'use_icons' ); ?>-yes"<?php checked( $this->options->use_icons, '1' ); ?> />
-					<?php _e( 'Yes'); ?>
-				</label>
-				<label for="<?php $this->attr_id( 'use_icons' ); ?>-no">
-					<input type="radio" value="" name="<?php $this->attr_name( 'use_icons' ); ?>" id="<?php $this->attr_id( 'use_icons' ); ?>-no"<?php checked( $this->options->use_icons, '' ); ?> />
-					<?php _e( 'No'); ?>
-				</label>
-			</td>
-		</tr>
-		<?php
-	}
 }
