@@ -2,7 +2,7 @@
 /*
 
 Plugin Name: 		Codepress Admin Columns
-Version: 			2.2.6.2
+Version: 			2.2.6.3
 Description: 		Customize columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: 			Codepress
 Author URI: 		http://www.codepresshq.com
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) )  {
 }
 
 // Plugin information
-define( 'CPAC_VERSION', 	 	'2.2.6.2' ); // current plugin version
+define( 'CPAC_VERSION', 	 	'2.2.6.3' ); // current plugin version
 define( 'CPAC_UPGRADE_VERSION', '2.0.0' ); // this is the latest version which requires an upgrade
 define( 'CPAC_URL', 			plugin_dir_url( __FILE__ ) );
 define( 'CPAC_DIR', 			plugin_dir_path( __FILE__ ) );
@@ -50,6 +50,7 @@ if ( ! is_admin() ) {
  */
 require_once CPAC_DIR . 'classes/utility.php';
 require_once CPAC_DIR . 'classes/third_party.php';
+require_once CPAC_DIR . 'includes/arrays.php';
 require_once CPAC_DIR . 'api.php';
 
 /**
@@ -97,7 +98,7 @@ class CPAC {
 		add_action( 'init', array( $this, 'localize' ) );
 
 		// Storage models
-		add_action( 'wp_loaded', array( $this, 'set_storage_models' ), 5 );
+		add_action( 'wp_loaded', array( $this, 'set_storage_models_on_cac_screen' ), 5 );
 
 		// Setup callback, important to load after set_storage_models
 		add_action( 'wp_loaded', array( $this, 'after_setup' ) );
@@ -267,14 +268,22 @@ class CPAC {
    		}
 	}
 
-	/**
+		/**
 	 * @since 2.0
 	 */
-	public function set_storage_models() {
+	public function set_storage_models_on_cac_screen() {
 
 		if ( ! $this->is_cac_screen() ) {
 			return;
 		}
+
+		$this->set_storage_models();
+	}
+
+	/**
+	 * @since 2.0
+	 */
+	public function set_storage_models() {
 
 		$storage_models = array();
 
