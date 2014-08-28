@@ -374,23 +374,18 @@ class CPAC_Settings {
 		$show_welcome = false !== get_transient('cpac_show_welcome');
 
 		// Should only be set manual
-		if ( isset( $_GET['info'] ) )
+		if ( isset( $_GET['info'] ) ) {
 			$show_welcome = true;
+		}
 
-		if ( ! $show_welcome )
+		if ( ! $show_welcome ) {
 			return false;
+		}
 
 		// Set check that welcome should not be displayed.
 		delete_transient('cpac_show_welcome');
 
 		$tab = !empty( $_GET['info'] ) ? $_GET['info'] : 'whats-new';
-
-		// check if old site used custom field columns
-		$uses_customfields 	= $this->uses_custom_fields();
-		$uses_sortorder 	= get_option( "cpac_sortable_ac" ) && ! class_exists( 'CAC_Addon_Pro' ) ? true : false;
-
-		$installed_customfields = false;
-		$installed_sortorder 	= false;
 
 		?>
 
@@ -410,27 +405,6 @@ class CPAC_Settings {
 				</h2>
 
 			<?php if ( 'whats-new' === $tab ) : ?>
-
-				<h3><?php _e( "Addons", 'cpac' ); ?></h3>
-				<p>
-					<?php _e( "Addons are now activated by downloading and installing individual plugins. Although these plugins will not be hosted on the wordpress.org repository, each Add-on will continue to receive updates in the usual way.",'cpac'); ?>
-				</p>
-			<?php if ( $uses_sortorder ) : ?>
-				<h4><?php _e( "This website uses the Sortorder Addon. This addon needs to be downloaded." ,'cpac' ); ?></h4>
-				<div class="cpac-alert cpac-alert-success">
-					<p>
-						<?php _e( "Addons are seperate plugins which need to be downloaded.", 'cpac' ); ?> <a href="<?php echo $this->get_settings_url( 'info' ); ?>download-add-ons" class="button-primary" style="display: inline-block;"><?php _e( "Download your Addons", 'cpac'); ?></a>
-					</p>
-				</div>
-			<?php else : ?>
-				<div class="cpac-alert cpac-alert-success">
-					<p>
-						<strong><?php _e( 'This website does not use add-ons', 'cpac' ); ?></strong>. <a target="_blank" href="<?php echo $this->get_url('admincolumnspro'); ?>"><?php _e( 'See our website for Admin Columns Pro.', 'cpac' ); ?></a>
-					</p>
-				</div>
-			<?php endif; ?>
-
-				<hr />
 
 				<h3><?php _e( "Important", 'cpac' ); ?></h3>
 
@@ -455,8 +429,8 @@ class CPAC_Settings {
 				<?php
 
 				$items = file_get_contents( CPAC_DIR . 'readme.txt' );
-
-				$items = end( explode('= ' . CPAC_VERSION . ' =', $items) );
+				$items = explode('= ' . CPAC_VERSION . ' =', $items);
+				$items = end( $items );
 				$items = current( explode("\n\n", $items) );
 				$items = current( explode("= ", $items) );
 				$items = array_filter( array_map('trim', explode("*", $items)) );
