@@ -79,7 +79,7 @@ class CPAC_Column {
 	/**
 	 * Determine whether this column type should be available
 	 *
-	 * @since 2.3
+	 * @since 2.2
 	 *
 	 * @return bool Whether the column type should be available
 	 */
@@ -139,8 +139,10 @@ class CPAC_Column {
 
 		// Default options
 		$default_options = array(
-			'width'	=> null, // Width for this column.
-			'state'	=> 'off' // Active state for this column.
+			'before'	=> '', // Before field
+			'after'		=> '', // After field
+			'width'		=> null, // Width for this column.
+			'state'		=> 'off' // Active state for this column.
 		);
 
 		/**
@@ -830,6 +832,26 @@ class CPAC_Column {
 		}
 
 		return date_i18n( $format, $date );
+	}
+
+	/**
+	 * Get before value
+	 *
+	 * @since 1.0
+	 */
+	public function get_before() {
+
+		return stripslashes( $this->options->before );
+	}
+
+	/**
+	 * Get after value
+	 *
+	 * @since 1.0
+	 */
+	public function get_after() {
+
+		return stripslashes( $this->options->after );
 	}
 
 	/**
