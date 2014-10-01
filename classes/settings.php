@@ -210,8 +210,9 @@ class CPAC_Settings {
 	public function handle_column_request() {
 
 		// only handle updates from the admin columns page
-		if ( ! ( isset($_GET['page'] ) && in_array( $_GET['page'], array( 'codepress-admin-columns' ) ) && isset( $_REQUEST['cpac_action'] ) ) )
+		if ( ! ( isset($_GET['page'] ) && in_array( $_GET['page'], array( 'codepress-admin-columns' ) ) && isset( $_REQUEST['cpac_action'] ) ) ) {
 			return false;
+		}
 
 		// use $_REQUEST because the values are send both over $_GET and $_POST
 		$action = isset( $_REQUEST['cpac_action'] ) ? $_REQUEST['cpac_action'] 	: '';
@@ -575,7 +576,9 @@ class CPAC_Settings {
 	 */
 	public function display() {
 
-		if ( $this->welcome_screen() ) return;
+		if ( $this->welcome_screen() ) {
+			return;
+		}
 
 		$tabs = array(
 			'general'	=> __( 'Admin Columns', 'cpac' ),
