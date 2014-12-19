@@ -41,6 +41,34 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	}
 
 	/**
+	 * @since 3.2.1
+	 */
+	public function is_field_type( $type ) {
+		return $type === $this->get_field_type();
+	}
+
+	/**
+	 * @since 3.2.1
+	 */
+	public function is_field( $field ) {
+		return $type === $this->get_field();
+	}
+
+	/**
+	 * @since 3.2.1
+	 */
+	public function get_field_type() {
+		return $this->options->field_type;
+	}
+
+	/**
+	 * @since 3.2.1
+	 */
+	public function get_field() {
+		return $this->options->field;
+	}
+
+	/**
 	 * @see CPAC_Column::sanitize_options()
 	 * @since 1.0
 	 */
@@ -75,6 +103,7 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 			'numeric'		=> __( 'Numeric', 'cpac' ),
 			'title_by_id'	=> __( 'Post Title (Post ID\'s)', 'cpac' ),
 			'user_by_id'	=> __( 'Username (User ID\'s)', 'cpac' ),
+			'term_by_id'	=> __( 'Term Name (Term ID\'s)', 'cpac' ),
 		);
 
 		// deprecated. do not use, will be removed.
@@ -176,6 +205,21 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 	}
 
 	/**
+	 * Get Terms by ID - Value method
+	 *
+	 * @since 2.3.2
+	 *
+	 * @param array $meta_value Term ID's
+	 * @return string Terms
+	 */
+	public function get_terms_by_id( $meta_value )	{
+		if ( ! is_array( $meta_value) || ! isset( $meta_value['term_id'] ) || ! isset( $meta_value['taxonomy'] ) ) {
+			return false;
+		}
+		return $this->get_terms_for_display( $meta_value['term_id'], $meta_value['taxonomy'] );
+	}
+
+	/**
 	 * Get meta value
 	 *
 	 * @since 2.0
@@ -213,6 +257,10 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 				$meta = $this->get_users_by_id( $meta );
 				break;
 
+			case "term_by_id" :
+				$meta = $this->get_terms_by_id( $this->get_raw_value( $id ) );
+				break;
+
 			case "checkmark" :
 				$checkmark = $this->get_asset_image( 'checkmark.png' );
 
@@ -230,8 +278,9 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 				break;
 
 			case "count" :
-				if ( $count = $this->get_raw_value( $id, false ) )
+				if ( $count = $this->get_raw_value( $id, false ) ) {
 					$meta = count( $count );
+				}
 				break;
 
 		endswitch;
@@ -269,8 +318,9 @@ class CPAC_Column_Custom_Field extends CPAC_Column {
 			$meta = $this->recursive_implode( ', ', $meta );
 		}
 
-		if ( ! is_string( $meta ) )
+		if ( ! is_string( $meta ) ) {
 			return false;
+		}
 
 		return $meta;
 	}

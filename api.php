@@ -9,9 +9,8 @@
  * @param array $columns List of columns ([column_name] => [column_options])
  */
 function cpac_set_storage_model_columns( $storage_model, $columns ) {
-	global $_acp_export_columns;
-	$_acp_export_columns = $columns;
-	add_filter( 'cpac/storage_model/stored_columns/storage_key=' . $storage_model, 'cpac_set_exported_columns' );
+	global $_cac_exported_columns;
+	$_cac_exported_columns[ $storage_model ] = $columns;
 }
 
 /**
@@ -19,10 +18,14 @@ function cpac_set_storage_model_columns( $storage_model, $columns ) {
  *
  * @since 3.2
  */
-function cpac_set_exported_columns( $columns ) {
-	global $_acp_export_columns;
-	if ( $_acp_export_columns ) {
-		$columns = $_acp_export_columns;
+function cpac_set_exported_columns( $cpac ) {
+	global $_cac_exported_columns;
+	if ( $_cac_exported_columns ) {
+		foreach( $_cac_exported_columns as $model => $columns ) {
+			if ( $storage_model = $cpac->get_storage_model( $model ) ) {
+				$storage_model->set_stored_columns( $columns );
+			}
+		}
 	}
-	return $columns;
 }
+add_action( 'cac/loaded', 'cpac_set_exported_columns', 5 );

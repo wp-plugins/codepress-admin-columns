@@ -477,7 +477,7 @@ class CPAC_Settings {
 	/**
 	 * @since 2.2
 	 */
-	function display_menu_by_type( $menu_type = '', $label = '', $active_item = '' ) {
+	public function display_menu_by_type( $menu_type = '', $label = '', $active_item = '' ) {
 
 		$storage_models_by_type = array();
 
@@ -643,7 +643,7 @@ class CPAC_Settings {
 
 								<?php if ( $storage_model->stored_columns !== NULL ) : ?>
 									<div class="error below-h2">
-										<p><?php printf( __( 'The columns for <strong>%s</strong> are set up via PHP and can therefore not be edited in the admin panel.', 'cpac' ), $storage_model->label ); ?></p>
+										<p><?php printf( __( 'The columns for %s are set up via PHP and can therefore not be edited in the admin panel.', 'cpac' ), '<strong>' . $storage_model->label . '</strong>' ); ?></p>
 									</div>
 								<?php endif; ?>
 							</div>

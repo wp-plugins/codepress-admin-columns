@@ -82,8 +82,12 @@ add_action( 'cac/set_columns', 'cac_add_wpml_columns' );
  */
 function cpac_remove_acf_from_cpac_post_types( $post_types ) {
 	if ( class_exists('Acf') ) {
-		unset( $post_types['acf'] );
-		unset( $post_types['acf-field-group'] );
+		if ( isset( $post_types['acf'] ) ) {
+			unset( $post_types['acf'] );
+		}
+		if ( isset( $post_types['acf-field-group'] ) ) {
+			unset( $post_types['acf-field-group'] );
+		}
 	}
 
 	return $post_types;
@@ -107,6 +111,24 @@ function cpac_posttypes_remove_bbpress( $post_types ) {
 	return $post_types;
 }
 add_filter( 'cac/post_types', 'cpac_posttypes_remove_bbpress' );
+
+/**
+ * Fix for Ninja Forms
+ *
+ * @since 2.0
+ *
+ * @return array Posttypes
+ */
+function cpac_remove_ninja_forms_from_cpac_post_types( $post_types ) {
+	if ( class_exists('Ninja_Forms') ) {
+		if ( isset( $post_types['nf_sub'] ) ) {
+			unset( $post_types['nf_sub'] );
+		}
+	}
+
+	return $post_types;
+}
+add_filter( 'cac/post_types', 'cpac_remove_ninja_forms_from_cpac_post_types' );
 
 /**
  * Add support for All in SEO columns
@@ -172,16 +194,3 @@ function cpac_wpml_is_cac_screen( $is_columns_screen ) {
 	return $is_columns_screen;
 }
 add_filter( 'cac/is_cac_screen', 'cpac_wpml_is_cac_screen' );
-
-
-/**
- * Disable qTip when using Pods
- *
- * @since 2.2
- */
-function cpac_pods_dequeue_qtip() {
-	if ( class_exists( 'PodsInit' ) ) {
-		wp_deregister_script( 'jquery-qtip2' );
-	}
-}
-add_action( 'admin_enqueue_scripts', 'cpac_pods_dequeue_qtip', 11 );
