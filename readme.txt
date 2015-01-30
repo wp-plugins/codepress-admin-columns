@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.5
 Tested up to: 4.1
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -249,6 +249,13 @@ You can find a list of the available actions and filters (and examples on how to
 
 == Changelog ==
 
+= 2.3.3 =
+* [Added] Added user column: Visual Editor
+* [Added] Added post column: Estimated Reading Time
+* [Added] Added method CPAC_Column::get_sorting_value()
+* [Added] Added user column display name
+* [Fixed] Fixed media actions column
+
 = 2.3.2 =
 * [Updated] All translations from Transifex - ttps://www.transifex.com/projects/p/admin-columns
 * [Updated] 100% Spanish translation thanks to Carlos
@@ -333,7 +340,7 @@ You can find a list of the available actions and filters (and examples on how to
 
 = 2.2.2 =
 * [Fixed] Custom Fields for Media Library did not work.
-* [Fixed] Column type dropdown displayed an empty item
+* [Fixed] Column type dropdown displayed an empty item.
 
 = 2.2.1.1 =
 * [Fixed] Fixed issue with Posts 2 Posts (and other third party plugins) columns not being displayed because of  hooking into late actions on post pages

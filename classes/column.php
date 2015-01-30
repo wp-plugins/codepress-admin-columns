@@ -59,6 +59,15 @@ class CPAC_Column {
 	protected function display_settings() {}
 
 	/**
+	 * Get the sorting value. This value will be used to sort the column.
+	 *
+	 * @since 2.3.2
+	 * @param int $id Object ID
+	 * @return string Value for sorting
+	 */
+	public function get_sorting_value( $id ) {}
+
+	/**
 	 * Overwrite this function in child class to sanitize
 	 * user submitted values.
 	 *
@@ -641,6 +650,36 @@ class CPAC_Column {
 	}
 
 	/**
+	 * Count the number of words in a string (multibyte-compatible)
+	 *
+	 * @since 2.3
+	 *
+	 * @param string $input Input string
+	 * @return int Number of words
+	 */
+	public function str_count_words( $input ) {
+
+		$patterns = array(
+			'strip' => '/<[a-zA-Z\/][^<>]*>/',
+			'clean' => '/[0-9.(),;:!?%#$¿\'"_+=\\/-]+/',
+			'w' => '/\S\s+/',
+			'c' => '/\S/'
+		);
+
+		$type = 'w';
+
+		$input = preg_replace( $patterns['strip'], ' ', $input );
+		$input = preg_replace( '/&nbsp;|&#160;/i', ' ', $input );
+		$input = preg_replace( $patterns['clean'], '', $input );
+
+		if ( ! strlen( preg_replace( '/\s/', '', $input ) ) ) {
+			return 0;
+		}
+
+		return preg_match_all( $patterns[ $type ], $input, $matches ) + 1;
+	}
+
+	/**
 	 * @since 1.0
 	 * @param mixed $meta Image files or Image ID's
 	 * @param array $args
@@ -1075,7 +1114,7 @@ class CPAC_Column {
 		}
 
 		// clone attribute
-		$data_clone =  $this->properties->is_cloneable ? " data-clone='{$this->properties->clone}'" : '';
+		$data_clone = $this->properties->is_cloneable ? " data-clone='{$this->properties->clone}'" : '';
 
 		?>
 		<div class="cpac-column <?php echo $classes; ?>" data-type="<?php echo $this->properties->type; ?>"<?php echo $data_clone; ?>>
@@ -1110,6 +1149,9 @@ class CPAC_Column {
 									</div>
 									<a class="toggle" href="javascript:;"><?php echo stripslashes( $this->get_label() ); ?></a>
 									<a class="edit-button" href="javascript:;"><?php _e( 'Edit', 'cpac' ); ?></a>
+									<?php if ( $this->properties->is_cloneable ) : ?>
+										<a class="clone-button" href="#"><?php _e( 'Clone', 'cpac' ); ?></a>
+									<?php endif; ?>
 									<a class="remove-button" href="javascript:;"><?php _e( 'Remove', 'cpac' ); ?></a>
 								</div>
 							</td>
@@ -1188,6 +1230,9 @@ class CPAC_Column {
 						<tr class="column_action">
 							<td colspan="2">
 								<p>
+									<?php if ( $this->properties->is_cloneable ) : ?>
+										<a class="clone-button" href="#"><?php _e( 'Clone', 'cpac' ); ?></a>
+									<?php endif; ?>
 									<a href="javascript:;" class="remove-button"><?php _e( 'Remove' );?></a>
 								</p>
 							</td>
