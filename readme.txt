@@ -3,8 +3,8 @@ Contributors: codepress, tschutter, davidmosterd, engelen
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZDZRSYLQ4Z76J
 Tags: plugins, wordpress, admin, column, columns, custom columns, custom fields, image, dashboard, sortable, filters, posts, media, users, pages, posttypes, manage columns, wp-admin
 Requires at least: 3.5
-Tested up to: 4.1
-Stable tag: 2.3.3
+Tested up to: 4.1.1
+Stable tag: 2.3.5
 
 Customise columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 
@@ -249,11 +249,21 @@ You can find a list of the available actions and filters (and examples on how to
 
 == Changelog ==
 
+= 2.3.5 =
+* [Added] Added a width indicator to the column settings header
+
+= 2.3.4 =
+* [Added] A column can have it's own JS/CSS files by using the CPAC_Column::scripts() method
+* [Added] Column Name can be found by hovering over the "Type" label in your column settings
+* [Fixed] Fixed a quick edit issue for comments
+* [Fixed] is_field() method of the custom field column works as intended
+
 = 2.3.3 =
 * [Added] Added user column: Visual Editor
 * [Added] Added post column: Estimated Reading Time
 * [Added] Added method CPAC_Column::get_sorting_value()
 * [Added] Added user column display name
+* [Fixed] fixed wordcount issue with PHP 5.3 or lower
 * [Fixed] Fixed media actions column
 
 = 2.3.2 =

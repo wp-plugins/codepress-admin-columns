@@ -281,17 +281,10 @@ h2.cpac-nav-tab-wrapper {
 								span {
 									cursor: pointer;
 
-									/*background: #ccc;
-									border-radius: 2px;
-									padding: 0 4px;
-									color: #fff;
-									display: inline-block;
-									height: 15px;
-									line-height: 15px;
-
-									&.on {
-										background: #1e8cbe;
-									}*/
+									&.width {
+										margin-right: 5px;
+										cursor: auto;
+									}
 								}
 							}
 						}
@@ -378,6 +371,15 @@ h2.cpac-nav-tab-wrapper {
 					select,
 					input[type=text] {
 						width: 99.95%; // excl padding
+
+						&.small {
+							width: 100px;
+						}
+					}
+
+					span.suffix {
+						line-height: 40px;
+						color: #808080;
 					}
 
 					select optgroup:nth-child(2n) {

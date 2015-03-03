@@ -96,7 +96,7 @@ jQuery.fn.column_bind_remove = function() {
 /**
  * Column: bind clone events
  *
- * @since NEWVERSION
+ * @since 2.3.4
  */
 jQuery.fn.column_bind_clone = function() {
 
@@ -220,6 +220,7 @@ jQuery.fn.column_bind_events = function() {
 
 		var input				= jQuery(this).closest('td').find('.input-width');
 		var descr				= jQuery(this).closest('td').find('.width-decription');
+		var indicator			= jQuery(this).closest('.cpac-column').find('.column-meta span.width');
 		var input_default		= jQuery(input)[0].defaultValue;
 		var translation_default = descr.attr('title');
 
@@ -233,12 +234,14 @@ jQuery.fn.column_bind_events = function() {
 
 				// set default
 				var descr_value = ui.value > 0 ? ui.value + '%' : translation_default;
+				var indicator_value = ui.value > 0 ? ui.value + '%' : '';
 
 				// set input value
 				jQuery(input).val( ui.value );
 
 				// set description
-				jQuery(descr).text( descr_value );
+				descr.text( descr_value );
+				indicator.text( indicator_value );
 			}
 		});
 	});
@@ -287,7 +290,7 @@ jQuery.fn.column_remove = function() {
 /*
  * Column: clone
  *
- * @since NEWVERSION
+ * @since 2.3.4
  */
 jQuery.fn.column_clone = function() {
 
@@ -370,6 +373,14 @@ jQuery.fn.cpac_update_clone_id = function( storage_model ) {
 	if ( 0 === id )
 		return;
 
+	// get original clone ID
+	var clone_id = el.attr( 'data-clone' );
+	var clone_suffix = '';
+
+	if ( clone_id ) {
+		clone_suffix = '-' + clone_id;
+	}
+
 	// set clone ID
 	el.attr( 'data-clone', id );
 	el.find( 'input.clone' ).val( id );
@@ -383,17 +394,17 @@ jQuery.fn.cpac_update_clone_id = function( storage_model ) {
 
 		// name
 		if( jQuery(v).attr( 'name' ) ) {
-			jQuery(v).attr( 'name', jQuery(v).attr( 'name' ).replace( type, new_name) );
+			jQuery(v).attr( 'name', jQuery(v).attr( 'name' ).replace( type + clone_suffix, new_name) );
 		}
 
 		// for
 		if( jQuery(v).attr( 'for' ) ) {
-			jQuery(v).attr( 'for', jQuery(v).attr( 'for' ).replace( type, new_name ) );
+			jQuery(v).attr( 'for', jQuery(v).attr( 'for' ).replace( type + clone_suffix, new_name ) );
 		}
 
 		// id
 		if( jQuery(v).attr( 'id' ) ) {
-			jQuery(v).attr( 'id', jQuery(v).attr( 'id' ).replace( type, new_name ) );
+			jQuery(v).attr( 'id', jQuery(v).attr( 'id' ).replace( type + clone_suffix, new_name ) );
 		}
 	});
 };
