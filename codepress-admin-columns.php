@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Admin Columns
-Version: 2.3.5
+Version: 2.4
 Description: Customize columns on the administration screens for post(types), pages, media, comments, links and users with an easy to use drag-and-drop interface.
 Author: AdminColumns.com
 Author URI: http://www.admincolumns.com
@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin information
-define( 'CPAC_VERSION', 	 	'2.3.5' ); // Current plugin version
+define( 'CPAC_VERSION', 	 	'2.4' ); // Current plugin version
 define( 'CPAC_UPGRADE_VERSION', '2.0.0' ); // Latest version which requires an upgrade
 define( 'CPAC_URL', 			plugin_dir_url( __FILE__ ) );
 define( 'CPAC_DIR', 			plugin_dir_path( __FILE__ ) );
@@ -397,38 +397,35 @@ class CPAC {
 	 */
 	public function admin_scripts() {
 
+		if ( ! ( $storage_model = $this->get_current_storage_model() ) ) {
+			return;
+		}
+
 		$css_column_width 	= '';
 		$edit_link 			= '';
 
-		if ( $this->storage_models ) {
-			foreach ( $this->storage_models as $storage_model ) {
+		// CSS: columns width
+		if ( $columns = $storage_model->get_stored_columns() ) {
+			foreach ( $columns as $name => $options ) {
 
-				if ( ! $storage_model->is_columns_screen() ) {
-					continue;
+				if ( ! empty( $options['width'] ) && is_numeric( $options['width'] ) && $options['width'] > 0 ) {
+					$unit = isset( $options['width_unit'] ) ? $options['width_unit'] : '%';
+					$css_column_width .= ".cp-{$storage_model->key} .wrap table th.column-{$name} { width: {$options['width']}{$unit} !important; }";
 				}
 
-				// CSS: columns width
-				if ( $columns = $storage_model->get_stored_columns() ) {
-					foreach ( $columns as $name => $options ) {
-
-						if ( ! empty( $options['width'] ) && is_numeric( $options['width'] ) && $options['width'] > 0 ) {
-							$css_column_width .= ".cp-{$storage_model->key} .wrap table th.column-{$name} { width: {$options['width']}% !important; }";
-						}
-
-						// Load custom column scripts, used by 3rd party columns
-						if ( $column = $storage_model->get_column_by_name( $name ) ) {
-							$column->scripts();
-						}
-					}
-				}
-
-				// JS: edit button
-				$general_options = get_option( 'cpac_general_options' );
-				if ( current_user_can( 'manage_admin_columns' ) && ( ! isset( $general_options['show_edit_button'] ) || '1' === $general_options['show_edit_button'] ) ) {
-					$edit_link = $storage_model->get_edit_link();
+				// Load custom column scripts, used by 3rd party columns
+				if ( $column = $storage_model->get_column_by_name( $name ) ) {
+					$column->scripts();
 				}
 			}
 		}
+
+		// JS: edit button
+		$general_options = get_option( 'cpac_general_options' );
+		if ( current_user_can( 'manage_admin_columns' ) && ( ! isset( $general_options['show_edit_button'] ) || '1' === $general_options['show_edit_button'] ) ) {
+			$edit_link = $storage_model->get_edit_link();
+		}
+
 		?>
 		<?php if ( $css_column_width ) : ?>
 		<style type="text/css">
@@ -444,6 +441,13 @@ class CPAC {
 		<?php endif; ?>
 
 		<?php
+
+		/**
+		 * Add header scripts that only apply to column screens.
+		 * @since 2.3.5
+		 * @param object CPAC Main Class
+		 */
+		do_action( 'cac/admin_head', $storage_model, $this );
 	}
 
 	/**

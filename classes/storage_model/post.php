@@ -2,6 +2,10 @@
 
 class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 
+	public $post_type;
+
+	private $post_type_object;
+
 	/**
 	 * Constructor
 	 *
@@ -9,13 +13,16 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	 */
 	function __construct( $post_type ) {
 
-		$this->key 		 = $post_type;
-		$this->label 	 = $this->get_label();
-		$this->type 	 = 'post';
-		$this->meta_type = 'post';
-		$this->page 	 = 'edit';
-		$this->post_type = $post_type;
-		$this->menu_type = 'post';
+		$this->set_post_type( $post_type );
+
+		$this->key 		 		= $post_type;
+		$this->post_type 		= $post_type;
+		$this->label 			= $this->post_type_object->labels->name;
+		$this->singular_label 	= $this->post_type_object->labels->singular_name;
+		$this->type 	 		= 'post';
+		$this->meta_type 		= 'post';
+		$this->page 	 		= 'edit';
+		$this->menu_type 		= 'post';
 
 		// Headings
 
@@ -35,6 +42,26 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 		add_action( 'load-edit.php', array( $this, 'set_columns_on_current_screen' ), 1000 );
 
 		parent::__construct();
+	}
+
+	/**
+	 * Set posttype
+	 *
+	 * @since 2.3.5
+	 */
+	public function get_post_type() {
+
+		return $this->post_type;
+	}
+
+	/**
+	 * Set posttype
+	 *
+	 * @since 2.3.5
+	 */
+	private function set_post_type( $post_type ) {
+
+		$this->post_type_object = get_post_type_object( $post_type );
 	}
 
 	/**
@@ -110,19 +137,6 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	}
 
 	/**
-	 * Get Label
-	 *
-	 * @since 2.0
-	 *
-	 * @return string Singular posttype name
-	 */
-	private function get_label() {
-		$posttype_obj = get_post_type_object( $this->key );
-
-		return $posttype_obj->labels->name;
-	}
-
-	/**
 	 * Get WP default supported admin columns per post type.
 	 *
 	 * @see CPAC_Type::get_default_columns()
@@ -183,6 +197,10 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 	 */
 	public function manage_value( $column_name, $post_id ) {
 
+		if ( ! ( $column = $this->get_column_by_name( $column_name ) ) ) {
+			return false;
+		}
+
 		global $post;
 
 		// Setup post data for current post
@@ -190,16 +208,11 @@ class CPAC_Storage_Model_Post extends CPAC_Storage_Model {
 		$post = get_post( $post_id );
 		setup_postdata( $post );
 
-		$value = '';
+		$value = $column->get_value( $post_id );
 
-		// Set column value
-		if ( $column = $this->get_column_by_name( $column_name ) ) {
-			$value = $column->get_value( $post_id );
-		}
-
-		// Filters
 		$value = apply_filters( "cac/column/value", $value, $post_id, $column, $this->key );
 		$value = apply_filters( "cac/column/value/{$this->type}", $value, $post_id, $column, $this->key );
+
 
 		// Reset query to old post
 		$post = $post_old;

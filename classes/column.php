@@ -82,6 +82,13 @@ class CPAC_Column {
 			$options['date_format'] = trim( $options['date_format'] );
 		}
 
+		if ( isset( $options['width'] ) ) {
+			$options['width'] = trim( $options['width'] );
+			if ( ! is_numeric( $options['width'] ) ) {
+				$options['width'] = '';
+			}
+		}
+
 		return $options;
 	}
 
@@ -160,6 +167,7 @@ class CPAC_Column {
 			'before'	=> '', // Before field
 			'after'		=> '', // After field
 			'width'		=> null, // Width for this column.
+			'width_unit'=> '%', // Unit for width; pecentage (%) or pixels (px).
 			'state'		=> 'off' // Active state for this column.
 		);
 
@@ -892,20 +900,29 @@ class CPAC_Column {
 			return false;
 		}
 
-		// some plugins store dates in a jquery timestamp format, format is in ms since The Epoch
+		// some plugins store dates in a jquery timestamp format, format is in ms since The Epoch.
 		// See http://api.jqueryui.com/datepicker/#utility-formatDate
 		// credits: nmarks
-		if ( is_numeric( $date ) && 13 === strlen( trim( $date ) ) ) {
-			$date = substr( $date, 0, -3 );
+		if ( is_numeric( $date ) ) {
+			$length = strlen( trim( $date ) );
+
+			// Dates before / around September 8th, 2001 are saved as 9 numbers * 1000 resulting in 12 numbers to store the time.
+			// Dates after September 8th are saved as 10 numbers * 1000, resulting in 13 numbers.
+			// For example the ACF Date and Time Picker uses this format.
+			// credits: Ben C
+			if ( 12 === $length || 13 === $length ) {
+				$date = round( $date / 1000 ); // remove the ms
+			}
+
+			// Date format: yyyymmdd ( often used by ACF ) must start with 19xx or 20xx and is 8 long
+			// @todo: in theory a numeric string of 8 can also be a unixtimestamp; no conversion would be needed
+			if ( 8 === $length && ( strpos( $date, '20' ) === 0 || strpos( $date, '19' ) === 0  ) ) {
+				$date = strtotime( $date );
+			}
 		}
 
-		// Parse with strtotime if it's:
-		// - not numeric ( like a unixtimestamp )
-		// - date format: yyyymmdd ( format used by ACF ) must start with 19xx or 20xx and is 8 long
-
-		// @todo: in theory a numeric string of 8 can also be a unixtimestamp.
-		// we need to replace this with an option to mark a date as unixtimestamp.
-		if ( ! is_numeric( $date ) || ( is_numeric( $date ) && strlen( trim( $date ) ) == 8 && ( strpos( $date, '20' ) === 0 || strpos( $date, '19' ) === 0  ) ) ) {
+		// Parse with strtotime if it's not numeric
+		else {
 			$date = strtotime( $date );
 		}
 
@@ -1217,7 +1234,7 @@ class CPAC_Column {
 									<div class="meta">
 
 										<span title="<?php echo esc_attr( __( 'width', 'cpac' ) ); ?>" class="width" data-indicator-id="">
-											<?php echo ! empty( $this->options->width ) ? $this->options->width . '%' : ''; ?>
+											<?php echo ! empty( $this->options->width ) ? $this->options->width . $this->options->width_unit : ''; ?>
 										</span>
 
 										<?php
@@ -1279,11 +1296,22 @@ class CPAC_Column {
 						<tr class="column_width">
 							<?php $this->label_view( __( 'Width', 'cpac' ), '', 'width' ); ?>
 							<td class="input">
-								<div class="description width-decription" title="<?php _e( 'default', 'cpac' ); ?>">
-									<?php echo $this->options->width > 0 ? $this->options->width . '%' : __( 'default', 'cpac' ); ?>
+								<div class="description" title="<?php _e( 'default', 'cpac' ); ?>">
+									<input class="width" type="text" placeholder="<?php _e( 'auto', 'cpac' ); ?>" name="<?php $this->attr_name( 'width' ); ?>" id="<?php $this->attr_id( 'width' ); ?>" value="<?php echo $this->options->width; ?>" />
+									<span class="unit"><?php echo $this->options->width_unit; ?></span>
 								</div>
-								<div class="input-width-range"></div>
-								<input type="hidden" class="input-width" name="<?php $this->attr_name( 'width' ); ?>" id="<?php $this->attr_id( 'width' ); ?>" value="<?php echo $this->options->width; ?>" />
+								<div class="width-slider"></div>
+
+								<div class="unit-select">
+									<label for="<?php $this->attr_id( 'width_unit_px' ); ?>">
+										<input type="radio" class="unit" name="<?php $this->attr_name( 'width_unit' ); ?>" id="<?php $this->attr_id( 'width_unit_px' ); ?>" value="px"<?php checked( $this->options->width_unit, 'px' ); ?>/>
+										px
+									</label>
+									<label for="<?php $this->attr_id( 'width_unit_perc' ); ?>">
+										<input type="radio" class="unit" name="<?php $this->attr_name( 'width_unit' ); ?>" id="<?php $this->attr_id( 'width_unit_perc' ); ?>" value="%"<?php checked( $this->options->width_unit, '%' ); ?>/>
+										%
+									</label>
+								</div>
 
 							</td>
 						</tr><!--.column_width-->
